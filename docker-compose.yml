@@ -1,0 +1,32 @@
+services:
+
+  ticketing-backend:
+    build:
+      context: ./ticketing-backend
+    image: ticketing-backend
+    container_name: ticketing-backend
+    restart: always
+    volumes:
+      - ./ticketing-backend:/var/www
+    expose:
+      - "80"
+    networks:
+      - app-network
+
+  ticketing-frontend:
+    build:
+      context: ./ticketing-frontend
+    image: ticketing-frontend
+    container_name: ticketing-frontend
+    restart: always
+    volumes:
+      - ./ticketing-frontend:/app
+      - /app/node_modules
+    expose:
+      - "5173"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
