@@ -4,6 +4,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import CreateTicketPage from '../pages/ticket/CreateTicketPage';
 import MainLayout from '../layouts/MainLayout';
+import CustomerFormPage from '../pages/ticket/sap-masterdata/CustomerFormPage';
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/create-ticket" element={<CreateTicketPage />} /> 
+        <Route path="/create-ticket/sap/master-data/customer" element={<CustomerFormPage />} />
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

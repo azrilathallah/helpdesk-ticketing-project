@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // ── Stepper Component ──
 const Stepper = ({ currentStep, labels }) => {
   const progressWidth =
     labels.length > 1
       ? `calc(${((currentStep - 1) / (labels.length - 1)) * 100}% - 2rem)`
-      : '0%';
+      : "0%";
 
   return (
     <div className="stepper">
@@ -25,8 +26,8 @@ const Stepper = ({ currentStep, labels }) => {
           <div key={index} className="stepper__step">
             <div
               className={`stepper__dot ${
-                isActive ? 'stepper__dot--active' : ''
-              } ${isCompleted ? 'stepper__dot--completed' : ''}`}
+                isActive ? "stepper__dot--active" : ""
+              } ${isCompleted ? "stepper__dot--completed" : ""}`}
             >
               {isCompleted && (
                 <svg
@@ -46,9 +47,7 @@ const Stepper = ({ currentStep, labels }) => {
 
             <span
               className={`stepper__label ${
-                isActive || isCompleted
-                  ? 'stepper__label--active'
-                  : ''
+                isActive || isCompleted ? "stepper__label--active" : ""
               }`}
             >
               {stepNumber}. {label}
@@ -62,51 +61,52 @@ const Stepper = ({ currentStep, labels }) => {
 
 // ── Main Page ──
 const CreateTicketPage = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
   const [selection, setSelection] = useState({
-    type: '',
-    category: '',
-    subCategory: '',
-    module: '',
-    description: '',
+    type: "",
+    category: "",
+    subCategory: "",
+    module: "",
+    description: "",
     attachment: null,
   });
 
   // ── Daftar Kategori per Tipe ──
   const IT_CATEGORIES = [
     {
-      key: 'Application / System',
-      title: 'Application / System',
-      desc: 'Issues related to business applications or system.',
+      key: "Application / System",
+      title: "Application / System",
+      desc: "Issues related to business applications or system.",
     },
     {
-      key: 'Design',
-      title: 'Design',
-      desc: 'UI/UX, design assets, or design-related requests.',
+      key: "Design",
+      title: "Design",
+      desc: "UI/UX, design assets, or design-related requests.",
     },
     {
-      key: 'Network',
-      title: 'Network',
-      desc: 'Connectivity, VPN, internet, or network access issues.',
+      key: "Network",
+      title: "Network",
+      desc: "Connectivity, VPN, internet, or network access issues.",
     },
     {
-      key: 'Support',
-      title: 'Support',
-      desc: 'General IT support, troubleshooting, or assistance.',
+      key: "Support",
+      title: "Support",
+      desc: "General IT support, troubleshooting, or assistance.",
     },
   ];
 
   const SAP_CATEGORIES = [
     {
-      key: 'Master Data',
-      title: 'Master Data',
-      desc: 'Request to create, change, extend, or maintain SAP master data.',
+      key: "Master Data",
+      title: "Master Data",
+      desc: "Request to create, change, extend, or maintain SAP master data.",
     },
     {
-      key: 'Support',
-      title: 'Support',
-      desc: 'Report an issue, error, or problem when using SAP.',
+      key: "Support",
+      title: "Support",
+      desc: "Report an issue, error, or problem when using SAP.",
     },
   ];
 
@@ -116,15 +116,12 @@ const CreateTicketPage = () => {
   // ─────────────────────────────────────
   const getStepLabels = () => {
     // Khusus SAP Master Data → label step 3 = "Sub Category"
-    if (
-      selection.type === 'SAP' &&
-      selection.category === 'Master Data'
-    ) {
-      return ['Ticket Type', 'Category', 'Sub Category'];
+    if (selection.type === "SAP" && selection.category === "Master Data") {
+      return ["Ticket Type", "Category", "Sub Category"];
     }
 
     // Sisanya → label step 3 = "Details"
-    return ['Ticket Type', 'Category', 'Details'];
+    return ["Ticket Type", "Category", "Details"];
   };
 
   // ─────────────────────────────────────
@@ -152,22 +149,22 @@ const CreateTicketPage = () => {
 
     // Step 3
     if (step === 3) {
-      // Khusus SAP Master Data → tombol Next
-      // (tahap selanjutnya belum diimplementasikan)
-      if (
-        selection.type === 'SAP' &&
-        selection.category === 'Master Data'
-      ) {
+      // SAP Master Data
+      if (selection.type === "SAP" && selection.category === "Master Data") {
         if (!selection.subCategory) return;
-        console.log(
-          'Lanjut ke tahap selanjutnya (belum diimplementasikan):',
-          selection
-        );
-        // Nanti: setStep(4) atau navigasi ke halaman lain
+
+        // Customer → halaman form Customer
+        if (selection.subCategory === "Customer") {
+          navigate("/create-ticket/sap/master-data/customer");
+          return;
+        }
+
+        // Form lainnya dibuat setelah Customer selesai
+        console.log("Form belum dibuat:", selection.subCategory);
+
         return;
       }
 
-      // Sisanya (IT, SAP Support) → Submit
       handleSubmit();
     }
   };
@@ -176,14 +173,14 @@ const CreateTicketPage = () => {
   // SUBMIT
   // ─────────────────────────────────────
   const handleSubmit = () => {
-    console.log('Submitting:', selection);
+    console.log("Submitting:", selection);
     alert(
       `Tiket Berhasil Dibuat!\n\n` +
         `Tipe: ${selection.type}\n` +
         `Kategori: ${selection.category}\n` +
-        `Sub: ${selection.subCategory || '-'}\n` +
-        `Module: ${selection.module || '-'}\n` +
-        `Desc: ${selection.description || '-'}`
+        `Sub: ${selection.subCategory || "-"}\n` +
+        `Module: ${selection.module || "-"}\n` +
+        `Desc: ${selection.description || "-"}`,
     );
   };
 
@@ -194,10 +191,10 @@ const CreateTicketPage = () => {
     setSelection((prev) => ({
       ...prev,
       type,
-      category: '',
-      subCategory: '',
-      module: '',
-      description: '',
+      category: "",
+      subCategory: "",
+      module: "",
+      description: "",
       attachment: null,
     }));
   };
@@ -209,9 +206,9 @@ const CreateTicketPage = () => {
     setSelection((prev) => ({
       ...prev,
       category,
-      subCategory: '',
-      module: '',
-      description: '',
+      subCategory: "",
+      module: "",
+      description: "",
       attachment: null,
     }));
   };
@@ -250,8 +247,8 @@ const CreateTicketPage = () => {
     // Step 3 - SAP Master Data
     if (
       step === 3 &&
-      selection.type === 'SAP' &&
-      selection.category === 'Master Data' &&
+      selection.type === "SAP" &&
+      selection.category === "Master Data" &&
       !selection.subCategory
     ) {
       return true;
@@ -260,8 +257,8 @@ const CreateTicketPage = () => {
     // Step 3 - SAP Support
     if (
       step === 3 &&
-      selection.type === 'SAP' &&
-      selection.category === 'Support' &&
+      selection.type === "SAP" &&
+      selection.category === "Support" &&
       (!selection.module || !selection.description)
     ) {
       return true;
@@ -274,24 +271,21 @@ const CreateTicketPage = () => {
   // BUTTON LABEL
   // ─────────────────────────────────────
   const getNextButtonLabel = () => {
-    if (step === 1) return 'Next';
-    if (step === 2) return 'Next';
+    if (step === 1) return "Next";
+    if (step === 2) return "Next";
 
     // Step 3
     if (step === 3) {
       // Khusus SAP Master Data → Next
-      if (
-        selection.type === 'SAP' &&
-        selection.category === 'Master Data'
-      ) {
-        return 'Next';
+      if (selection.type === "SAP" && selection.category === "Master Data") {
+        return "Next";
       }
 
       // Sisanya → Submit
-      return 'Submit';
+      return "Submit";
     }
 
-    return 'Next';
+    return "Next";
   };
 
   // ─────────────────────────────────────
@@ -316,9 +310,9 @@ const CreateTicketPage = () => {
             <button
               type="button"
               className={`type-card ${
-                selection.type === 'IT' ? 'type-card--selected' : ''
+                selection.type === "IT" ? "type-card--selected" : ""
               }`}
-              onClick={() => selectType('IT')}
+              onClick={() => selectType("IT")}
             >
               <span className="type-card__title">IT</span>
               <span className="type-card__desc">
@@ -329,9 +323,9 @@ const CreateTicketPage = () => {
             <button
               type="button"
               className={`type-card ${
-                selection.type === 'SAP' ? 'type-card--selected' : ''
+                selection.type === "SAP" ? "type-card--selected" : ""
               }`}
-              onClick={() => selectType('SAP')}
+              onClick={() => selectType("SAP")}
             >
               <span className="type-card__title">SAP</span>
               <span className="type-card__desc">
@@ -346,7 +340,7 @@ const CreateTicketPage = () => {
     // ═══════════════════════════════════
     // STEP 2 - IT CATEGORY
     // ═══════════════════════════════════
-    if (step === 2 && selection.type === 'IT') {
+    if (step === 2 && selection.type === "IT") {
       return (
         <div className="step-content">
           <h3 className="step-content__title">IT Request Type</h3>
@@ -359,9 +353,7 @@ const CreateTicketPage = () => {
               <div
                 key={item.key}
                 className={`radio-card ${
-                  selection.category === item.key
-                    ? 'radio-card--selected'
-                    : ''
+                  selection.category === item.key ? "radio-card--selected" : ""
                 }`}
                 onClick={() => selectCategory(item.key)}
               >
@@ -385,7 +377,7 @@ const CreateTicketPage = () => {
     // ═══════════════════════════════════
     // STEP 2 - SAP CATEGORY
     // ═══════════════════════════════════
-    if (step === 2 && selection.type === 'SAP') {
+    if (step === 2 && selection.type === "SAP") {
       return (
         <div className="step-content">
           <h3 className="step-content__title">SAP Request Type</h3>
@@ -398,9 +390,7 @@ const CreateTicketPage = () => {
               <div
                 key={item.key}
                 className={`radio-card ${
-                  selection.category === item.key
-                    ? 'radio-card--selected'
-                    : ''
+                  selection.category === item.key ? "radio-card--selected" : ""
                 }`}
                 onClick={() => selectCategory(item.key)}
               >
@@ -426,17 +416,17 @@ const CreateTicketPage = () => {
     // ═══════════════════════════════════
     if (
       step === 3 &&
-      selection.type === 'SAP' &&
-      selection.category === 'Master Data'
+      selection.type === "SAP" &&
+      selection.category === "Master Data"
     ) {
       const subCategories = [
-        'Customer',
-        'Vendor',
-        'Material',
-        'User ID',
-        'GL Form',
-        'WBS',
-        'Cost Center and Profit Center',
+        "Customer",
+        "Vendor",
+        "Material",
+        "User ID",
+        "GL Form",
+        "WBS",
+        "Cost Center and Profit Center",
       ];
 
       return (
@@ -449,9 +439,7 @@ const CreateTicketPage = () => {
               <div
                 key={item}
                 className={`radio-card ${
-                  selection.subCategory === item
-                    ? 'radio-card--selected'
-                    : ''
+                  selection.subCategory === item ? "radio-card--selected" : ""
                 }`}
                 onClick={() => selectSubCategory(item)}
               >
@@ -474,8 +462,8 @@ const CreateTicketPage = () => {
     // ═══════════════════════════════════
     if (
       step === 3 &&
-      selection.type === 'SAP' &&
-      selection.category === 'Support'
+      selection.type === "SAP" &&
+      selection.category === "Support"
     ) {
       return (
         <div className="step-content">
@@ -526,7 +514,7 @@ const CreateTicketPage = () => {
     // ═══════════════════════════════════
     // STEP 3 - IT (KOSONG / PLACEHOLDER)
     // ═══════════════════════════════════
-    if (step === 3 && selection.type === 'IT') {
+    if (step === 3 && selection.type === "IT") {
       return <div className="step-content">{/* Kosong */}</div>;
     }
 
@@ -564,7 +552,7 @@ const CreateTicketPage = () => {
             <button
               type="button"
               className={`btn-ticket ${
-                !isNextDisabled() ? 'btn-ticket--primary' : ''
+                !isNextDisabled() ? "btn-ticket--primary" : ""
               }`}
               onClick={handleNext}
               disabled={isNextDisabled()}
