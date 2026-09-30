@@ -37,12 +37,17 @@ class AuthController extends Controller
             $hrisData = $response->json('data');
 
             $email = $hrisData['user_email'];
+            $name = $hrisData['name'];
+            $position = $hrisData['position'];
+            $division = $hrisData['division'];
+            $department = $hrisData['department'];
+
             $user = User::updateOrCreate(
                 [
                     'email' => $email,
                 ],
                 [
-                    'name' => $hrisData['name'],
+                    'name' => $name,
                 ]
             );
 
@@ -53,6 +58,9 @@ class AuthController extends Controller
                     'id'    => $user->id,
                     'name'  => $user->name,
                     'email' => $user->email,
+                    'position'  => $position,
+                    'division'  => $division,
+                    'department'  => $department,
                 ],
                 'token' => $token,
             ]);

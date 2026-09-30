@@ -363,6 +363,7 @@ function AttachmentField({ label, files, onChange, error = "" }) {
 export default function CustomerFormPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  console.log("USER DARI AUTH:", user);
 
   /*
    * Requestor berasal dari user yang sedang login.
@@ -371,15 +372,11 @@ export default function CustomerFormPage() {
    */
   const requestor = useMemo(
     () => ({
-      name: getUserValue(user, ["name", "nama", "full_name", "fullname"]),
-      position: getUserValue(user, ["position", "jabatan", "job_title"]),
-      department: getUserValue(user, [
-        "department",
-        "division",
-        "divisi",
-        "departemen",
-      ]),
-      telephone: getUserValue(user, ["phone", "telephone", "telp"]),
+      name: getUserValue(user, ["name", "nama"]),
+      position: getUserValue(user, ["position"]),
+      division: getUserValue(user, ["division"]),
+      department: getUserValue(user, ["department"]),
+      telephone: getUserValue(user, ["telephone"]),
       email: getUserValue(user, ["email"]),
     }),
     [user],
@@ -560,7 +557,7 @@ export default function CustomerFormPage() {
                 <input
                   type="text"
                   className="customer-form__input customer-form__input--readonly"
-                  value={getUserValue(user, ["division", "divisi"])}
+                  value={requestor.division}
                   readOnly
                 />
 
@@ -569,7 +566,7 @@ export default function CustomerFormPage() {
                 <input
                   type="text"
                   className="customer-form__input customer-form__input--readonly"
-                  value={getUserValue(user, ["department", "departemen"])}
+                  value={requestor.department}
                   readOnly
                 />
               </div>
