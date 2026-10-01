@@ -1295,9 +1295,8 @@ body {
 
 .customer-form__choices {
   width: 100%;
-
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.55rem;
 }
 
@@ -1342,6 +1341,18 @@ body {
 
 .customer-form__choice strong {
   color: var(--color-text-heading);
+}
+
+.customer-form__choice:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-l);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .customer-form__choices {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* CHECKBOX */

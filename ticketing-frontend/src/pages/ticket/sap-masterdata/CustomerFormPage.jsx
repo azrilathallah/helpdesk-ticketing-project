@@ -17,12 +17,8 @@ const ACCOUNT_GROUPS = [
   ["Z060", "Customer-Building Owner"],
   ["Z070", "Customer-OneTime"],
 ];
-
-const COMPANY_CODES = [
-  ["1100", "IBST"],
-  ["1200", "IBSW"],
-];
-
+const COMPANY_CODES = [["1200", "IBSW"]];
+const SALES_ORGANIZATION = [["1200", "IBSW"]];
 const DISTRIBUTION_CHANNELS = [["00", "Common"]];
 const DIVISIONS = [["00", "Common"]];
 
@@ -31,6 +27,10 @@ const CUSTOMER_CLASSES = [
   ["03", "Government (WAPU)"],
 ];
 
+const SORT_KEYS = [
+  ["002", "Document No., Fiscal Year"],
+  ["022", "One Time Name/City"],
+];
 const TERMS_OF_PAYMENT = [
   ["AR00", "Payable immediately Due net"],
   ["AR01", "Due in 14 days"],
@@ -39,27 +39,15 @@ const TERMS_OF_PAYMENT = [
   ["AR04", "Due in 365 days"],
   ["AR05", "Due in 2 years"],
 ];
-
-const SORT_KEYS = [
-  ["002", "Document No., Fiscal Year"],
-  ["022", "One Time Name/City"],
-];
-
-const TOLERANCE_GROUPS = [
-  ["1100", "Cust/Vend Tolerance"],
-  ["1200", "Cust/Vend Tolerance"],
-];
-
+const TOLERANCE_GROUPS = [["1200", "Cust/Vend Tolerance"]];
 const WITHOLDING_TAX = [
   ["P4", "PPh4(2) - Customer Payment Deduction"],
   ["P5", "PPh23 - Customer Payment Deduction"],
 ];
 
 const CURRENCIES = ["IDR", "USD", "Other"];
-
-const CUSTOMER_PRICING_PROCEDURES = [["Standard"]];
-const CUSTOMER_STATISTIC_GROUPS = [["Standard"]];
-
+const CUSTOMER_PRICING_PROCEDURES = [["1", "Standard"]];
+const CUSTOMER_STATISTIC_GROUPS = [["1", "Standard"]];
 const TAX_CLASSIFICATIONS = [
   ["0", "No Tax"],
   ["1", "Tax"],
@@ -173,9 +161,10 @@ function ChoiceGroup({
   onChange,
   checkbox = false,
   disabled = false,
+  required = false,
 }) {
   return (
-    <Field label={label}>
+    <Field label={label} required={required}>
       <div
         className={`customer-form__choices ${
           checkbox ? "customer-form__choices--checkbox" : ""
@@ -197,6 +186,11 @@ function ChoiceGroup({
                 value={code}
                 checked={checked}
                 disabled={disabled}
+                required={
+                  required &&
+                  !disabled &&
+                  (checkbox ? !checked : options[0][0] === code)
+                }
                 onChange={(e) => {
                   if (disabled) return;
 
@@ -238,10 +232,17 @@ function PairedTextField({
   rightPlaceholder = "",
   rightType = "text",
   separator = "/",
+  requiredLeft = false,
+  requiredRight = false,
 }) {
   return (
     <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
+      <label className="customer-form__label">
+        {label}
+        {(requiredLeft || requiredRight) && (
+          <span className="customer-form__required"> *</span>
+        )}
+      </label>
 
       <div className="customer-form__two-column">
         <input
@@ -250,6 +251,7 @@ function PairedTextField({
           value={leftValue}
           onChange={(e) => onLeftChange(e.target.value)}
           placeholder={leftPlaceholder}
+          required={requiredLeft}
         />
 
         <span className="customer-form__separator">{separator}</span>
@@ -260,6 +262,7 @@ function PairedTextField({
           value={rightValue}
           onChange={(e) => onRightChange(e.target.value)}
           placeholder={rightPlaceholder}
+          required={requiredRight}
         />
       </div>
     </div>
@@ -363,7 +366,6 @@ function AttachmentField({ label, files, onChange, error = "" }) {
 export default function CustomerFormPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  console.log("USER DARI AUTH:", user);
 
   /*
    * Requestor berasal dari user yang sedang login.
@@ -383,22 +385,20 @@ export default function CustomerFormPage() {
   );
 
   const [form, setForm] = useState({
-    requestType: "",
+    requestType: "New",
     customerCode: "",
 
     accountGroup: "",
-    companyCode: "",
-    salesOrganization: "",
-    distributionChannel: [],
-    division: [],
+    companyCode: "1200",
+    salesOrganization: "1200",
+    distributionChannel: ["00"],
+    division: ["00"],
 
     title: "",
     customerName: "",
     searchTerm1: "",
     invoiceStreet: "",
-    invoiceStreet2: "",
-    taxStreet4: "",
-    taxStreet5: "",
+    taxStreet: "",
     city: "",
     postalCode: "",
     country: "",
@@ -415,10 +415,10 @@ export default function CustomerFormPage() {
     toleranceGroup: "",
     witholdingTax: [],
 
-    currency: "",
+    currency: "IDR",
     otherCurrency: "",
-    customerPricingProcedure: [],
-    customerStatisticGroup: [],
+    customerPricingProcedure: ["1"],
+    customerStatisticGroup: ["1"],
     taxClassification: "",
 
     attachments: [],
@@ -447,24 +447,44 @@ export default function CustomerFormPage() {
     const attachmentError = validateAttachments(form.attachments);
     if (attachmentError) {
       setForm((prev) => ({ ...prev, attachmentError }));
-      alert(attachmentError);
       return;
     }
 
-    // Validasi wajib untuk mode "submit" (bukan draft)
-    if (mode === "submit") {
-      if (!form.requestType) {
-        alert("Request Type wajib dipilih.");
-        return;
-      }
-      if (form.requestType !== "New" && !form.customerCode) {
-        alert("Customer Code wajib diisi.");
-        return;
-      }
-      if (!form.customerName) {
-        alert("Nama Pelanggan wajib diisi.");
-        return;
-      }
+    // Draft tidak membutuhkan validasi field wajib
+    if (mode === "draft") {
+      const payload = {
+        ...form,
+        requestor,
+        status: "DRAFT",
+        submittedAt: new Date().toISOString(),
+        attachments: form.attachments.map((f) => ({
+          name: f.name,
+          size: f.size,
+          type: f.type,
+        })),
+      };
+
+      console.log("Customer Master Data (draft):", payload);
+
+      setSubmitMode("draft");
+      return;
+    }
+
+    // Validasi field wajib menggunakan HTML5 validation
+    const formElement = e.currentTarget.closest("form");
+
+    if (formElement && !formElement.reportValidity()) {
+      return;
+    }
+
+    // Validasi tambahan untuk Request Type
+    if (!form.requestType) {
+      return;
+    }
+
+    // Request selain New wajib Customer Code
+    if (form.requestType !== "New" && !form.customerCode) {
+      return;
     }
 
     const payload = {
@@ -522,6 +542,7 @@ export default function CustomerFormPage() {
               options={REQUEST_TYPES}
               value={form.requestType}
               onChange={(value) => update("requestType", value)}
+              required
             />
 
             {isNewRequest ? (
@@ -594,13 +615,15 @@ export default function CustomerFormPage() {
               options={COMPANY_CODES}
               value={form.companyCode}
               onChange={(value) => update("companyCode", value)}
+              required
             />
 
             <ChoiceGroup
               label="Sales Organization"
-              options={COMPANY_CODES}
+              options={SALES_ORGANIZATION}
               value={form.salesOrganization}
               onChange={(value) => update("salesOrganization", value)}
+              required
             />
 
             <ChoiceGroup
@@ -609,6 +632,7 @@ export default function CustomerFormPage() {
               value={form.distributionChannel}
               onChange={(value) => update("distributionChannel", value)}
               checkbox
+              required
             />
 
             <ChoiceGroup
@@ -617,6 +641,7 @@ export default function CustomerFormPage() {
               value={form.division}
               onChange={(value) => update("division", value)}
               checkbox
+              required
             />
 
             <ReadOnlyField
@@ -627,12 +652,13 @@ export default function CustomerFormPage() {
 
           {/* 4. GENERAL DATA */}
           <Section number="4" title="General Data">
-            <Field label="Judul (Title)">
+            <Field label="Judul (Title)" required>
               <input
                 type="text"
                 className="customer-form__input"
                 value={form.title}
                 onChange={(e) => update("title", e.target.value)}
+                required
               />
             </Field>
 
@@ -652,43 +678,26 @@ export default function CustomerFormPage() {
                 className="customer-form__input"
                 value={form.searchTerm1}
                 onChange={(e) => update("searchTerm1", e.target.value)}
-                required
               />
             </Field>
 
-            <Field label="Alamat Invoice (Street / House Number)">
+            <Field label="Alamat Invoice (Street / House Number)" required>
               <input
                 type="text"
                 className="customer-form__input"
                 value={form.invoiceStreet}
                 onChange={(e) => update("invoiceStreet", e.target.value)}
+                required
               />
             </Field>
 
-            <Field label="Alamat Invoice (Street 2)">
+            <Field label="Alamat Pajak" required>
               <input
                 type="text"
                 className="customer-form__input"
-                value={form.invoiceStreet2}
-                onChange={(e) => update("invoiceStreet2", e.target.value)}
-              />
-            </Field>
-
-            <Field label="Alamat Pajak (Street 4)">
-              <input
-                type="text"
-                className="customer-form__input"
-                value={form.taxStreet4}
-                onChange={(e) => update("taxStreet4", e.target.value)}
-              />
-            </Field>
-
-            <Field label="Alamat Pajak (Street 5)">
-              <input
-                type="text"
-                className="customer-form__input"
-                value={form.taxStreet5}
-                onChange={(e) => update("taxStreet5", e.target.value)}
+                value={form.taxStreet}
+                onChange={(e) => update("taxStreet", e.target.value)}
+                required
               />
             </Field>
 
@@ -700,14 +709,17 @@ export default function CustomerFormPage() {
               onRightChange={(value) => update("postalCode", value)}
               leftPlaceholder="Kota"
               rightPlaceholder="Kode Pos"
+              requiredLeft
+              requiredRight
             />
 
-            <Field label="Country">
+            <Field label="Country" required>
               <input
                 type="text"
                 className="customer-form__input"
                 value={form.country}
                 onChange={(e) => update("country", e.target.value)}
+                required
               />
             </Field>
 
@@ -746,6 +758,8 @@ export default function CustomerFormPage() {
               onRightChange={(value) => update("npwpregisteredDate", value)}
               leftPlaceholder="NPWP (VAT Reg. No.)"
               rightType="date"
+              requiredLeft
+              requiredRight
             />
 
             <ChoiceGroup
@@ -753,6 +767,7 @@ export default function CustomerFormPage() {
               options={CUSTOMER_CLASSES}
               value={form.customerClass}
               onChange={(value) => update("customerClass", value)}
+              required
             />
           </Section>
 
@@ -781,6 +796,7 @@ export default function CustomerFormPage() {
               options={TERMS_OF_PAYMENT}
               value={form.paymentTerms}
               onChange={(value) => update("paymentTerms", value)}
+              required
             />
 
             {/* TOLERANCE GROUP — Filled by Accounting */}
@@ -811,7 +827,7 @@ export default function CustomerFormPage() {
 
           {/* 6. SALES AREA DATA */}
           <Section number="6" title="Sales Area Data">
-            <Field label="Currency">
+            <Field label="Currency" required>
               <div className="customer-form__choices">
                 {CURRENCIES.map((currency) => (
                   <label key={currency} className="customer-form__choice">
@@ -821,6 +837,7 @@ export default function CustomerFormPage() {
                       value={currency}
                       checked={form.currency === currency}
                       onChange={(e) => update("currency", e.target.value)}
+                      required
                     />
 
                     <span>{currency}</span>
@@ -852,6 +869,7 @@ export default function CustomerFormPage() {
               value={form.customerPricingProcedure}
               onChange={(value) => update("customerPricingProcedure", value)}
               checkbox
+              required
             />
 
             <ChoiceGroup
@@ -860,6 +878,7 @@ export default function CustomerFormPage() {
               value={form.customerStatisticGroup}
               onChange={(value) => update("customerStatisticGroup", value)}
               checkbox
+              required
             />
 
             <ChoiceGroup
@@ -867,6 +886,7 @@ export default function CustomerFormPage() {
               options={TAX_CLASSIFICATIONS}
               value={form.taxClassification}
               onChange={(value) => update("taxClassification", value)}
+              required
             />
           </Section>
 

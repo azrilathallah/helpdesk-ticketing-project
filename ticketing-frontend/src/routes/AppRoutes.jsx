@@ -19,7 +19,7 @@ export default function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/create-ticket" element={<CreateTicketPage />} /> 
-        <Route path="/create-ticket/sap/master-data/customer" element={<CustomerFormPage />} />
+        <Route path="/create-ticket/sap-masterdata/customer-form" element={<CustomerFormPage />} />
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

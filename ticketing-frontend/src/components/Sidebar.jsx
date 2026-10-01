@@ -15,7 +15,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar__header">
         <div className="sidebar__logo">
-          <img src="icon/logo-ibsw.png" alt="IBSW" className="sidebar__logo-icon" />
+          <img src="/logo-ibsw.png" alt="IBSW" className="sidebar__logo-icon" />
           <span className="sidebar__title">Helpdesk System IBS</span>
         </div>
       </div>

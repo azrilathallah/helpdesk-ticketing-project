@@ -155,7 +155,7 @@ const CreateTicketPage = () => {
 
         // Customer → halaman form Customer
         if (selection.subCategory === "Customer") {
-          navigate("/create-ticket/sap/master-data/customer");
+          navigate("/create-ticket/sap-masterdata/customer-form");
           return;
         }
 
