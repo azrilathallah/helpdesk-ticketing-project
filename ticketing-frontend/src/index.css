@@ -1648,6 +1648,759 @@ body {
   }
 }
 
+/* =========================================================
+   HEADER
+========================================================= */
+
+.my-submission__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.my-submission__title {
+  margin: 0;
+
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #20252d;
+}
+
+.my-submission__description {
+  margin: 8px 0 0;
+
+  font-size: 14px;
+  line-height: 1.5;
+  color: #747b87;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.my-submission__summary {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 20px;
+}
+
+.my-submission__summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-height: 88px;
+  padding: 16px 18px;
+
+  background: #ffffff;
+
+  border: 1px solid #e8ebef;
+  border-radius: 10px;
+
+  box-sizing: border-box;
+}
+
+.my-submission__summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 9px;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.my-submission__summary-icon--draft {
+  background: #fff5df;
+  color: #b77900;
+}
+
+.my-submission__summary-icon--submitted {
+  background: #eaf7ef;
+  color: #27834d;
+}
+
+.my-submission__summary-card div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.my-submission__summary-card span {
+  font-size: 12px;
+  color: #8a919d;
+}
+
+.my-submission__summary-card strong {
+  font-size: 23px;
+  line-height: 1;
+  color: #252a32;
+}
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.my-submission__card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e6e9ed;
+  border-radius: 10px;
+
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.02);
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.my-submission__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding: 20px 22px;
+
+  border-bottom: 1px solid #edf0f3;
+}
+
+.my-submission__toolbar h2 {
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #252a32;
+}
+
+.my-submission__toolbar p {
+  margin: 5px 0 0;
+
+  font-size: 12px;
+  color: #8a919d;
+}
+
+.my-submission__filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.my-submission__search {
+  display: flex;
+  align-items: center;
+
+  width: 230px;
+  height: 36px;
+
+  padding: 0 10px;
+
+  border: 1px solid #dfe3e8;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.my-submission__search:focus-within {
+  border-color: #9aa2ad;
+
+  box-shadow:
+    0 0 0 3px rgba(107, 114, 128, 0.08);
+}
+
+.my-submission__search > span {
+  margin-right: 7px;
+
+  font-size: 18px;
+  line-height: 1;
+
+  color: #8b929d;
+}
+
+.my-submission__search input {
+  flex: 1;
+
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  font-size: 12px;
+
+  color: #252a32;
+  background: transparent;
+}
+
+.my-submission__search input::placeholder {
+  color: #a1a7b0;
+}
+
+.my-submission__search button {
+  width: 20px;
+  height: 20px;
+
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: #8b929d;
+
+  cursor: pointer;
+
+  font-size: 17px;
+}
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+.my-submission__select {
+  height: 36px;
+
+  padding: 0 28px 0 10px;
+
+  border: 1px solid #dfe3e8;
+  border-radius: 7px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #4c535e;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.my-submission__select:focus {
+  border-color: #9aa2ad;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.my-submission__error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 18px 22px;
+  padding: 13px 14px;
+
+  border: 1px solid #f0d2d2;
+  border-radius: 8px;
+
+  background: #fff7f7;
+}
+
+.my-submission__error > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 25px;
+  height: 25px;
+
+  border-radius: 50%;
+
+  background: #f9dede;
+
+  color: #b42318;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.my-submission__error div {
+  flex: 1;
+}
+
+.my-submission__error strong {
+  display: block;
+
+  font-size: 12px;
+  color: #8c1d18;
+}
+
+.my-submission__error p {
+  margin: 3px 0 0;
+
+  font-size: 11px;
+  color: #a44a45;
+}
+
+.my-submission__error button {
+  height: 30px;
+
+  padding: 0 12px;
+
+  border: 1px solid #e2b7b5;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #8c1d18;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.my-submission__table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.my-submission__table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: auto;
+}
+
+.my-submission__table thead th {
+  padding: 12px 16px;
+
+  border-bottom: 1px solid #e7eaee;
+
+  background: #fafbfc;
+
+  color: #7c838e;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-align: left;
+  text-transform: uppercase;
+
+  letter-spacing: 0.045em;
+
+  white-space: nowrap;
+}
+
+.my-submission__table tbody tr {
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease;
+}
+
+.my-submission__table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.my-submission__table tbody td {
+  padding: 15px 16px;
+
+  border-bottom: 1px solid #eef0f3;
+
+  vertical-align: middle;
+}
+
+.my-submission__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+.my-submission__number {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 155px;
+}
+
+.my-submission__number strong {
+  color: #252a32;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.my-submission__number span {
+  width: fit-content;
+
+  padding: 2px 6px;
+
+  border-radius: 4px;
+
+  background: #f1f3f5;
+
+  color: #6e7580;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   REQUEST
+========================================================= */
+
+.my-submission__request {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 190px;
+}
+
+.my-submission__request strong {
+  color: #303640;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.my-submission__request span {
+  color: #8a919d;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.my-submission__category {
+  color: #59616c;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.my-submission__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 8px;
+
+  border-radius: 5px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.my-submission__status--draft {
+  background: #fff6e2;
+  color: #a96c00;
+}
+
+.my-submission__status--submitted {
+  background: #eaf7ef;
+  color: #27834d;
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.my-submission__date {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 80px;
+}
+
+.my-submission__date strong {
+  color: #535b66;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.my-submission__date span {
+  color: #a0a6ae;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.my-submission__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 6px 8px;
+
+  border: 0;
+  border-radius: 5px;
+
+  background: transparent;
+
+  color: #4b5563;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.my-submission__action:hover {
+  background: #f0f2f4;
+  color: #20252d;
+}
+
+.my-submission__action span {
+  font-size: 13px;
+  transition: transform 0.15s ease;
+}
+
+.my-submission__action:hover span {
+  transform: translateX(2px);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.my-submission__empty {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  padding: 70px 20px;
+
+  text-align: center;
+}
+
+.my-submission__empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 54px;
+  height: 54px;
+
+  margin-bottom: 14px;
+
+  border-radius: 12px;
+
+  background: #f1f3f5;
+
+  font-size: 22px;
+}
+
+.my-submission__empty h3 {
+  margin: 0;
+
+  color: #303640;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.my-submission__empty p {
+  max-width: 400px;
+
+  margin: 7px 0 18px;
+
+  color: #858c97;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.my-submission__empty button {
+  height: 36px;
+
+  padding: 0 14px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: #1f2937;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   READ ONLY / SUBMITTED
+========================================================= */
+
+.customer-form__input:disabled,
+.customer-form__input[readonly] {
+  background: #f5f6f8;
+  color: #3f4650;
+  border-color: #e1e4e8;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.customer-form__input:disabled::placeholder {
+  color: #9aa1aa;
+}
+
+/* Radio / checkbox ketika submitted */
+.customer-form__choice--disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.customer-form__choices--disabled {
+  opacity: 0.9;
+}
+
+/* Attachment read-only */
+.customer-form__attachment-readonly {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  background: #f7f8fa;
+}
+
+.customer-form__attachment-readonly-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 7px;
+  background: #eceff2;
+  font-size: 17px;
+}
+
+.customer-form__attachment-readonly strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #414852;
+  font-size: 12px;
+}
+
+.customer-form__attachment-readonly p {
+  margin: 0;
+  color: #8a919d;
+  font-size: 11px;
+}
+
+.customer-form__header-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.customer-form__submitted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border: 1px solid #cce8d7;
+  border-radius: 6px;
+  background: #edf9f1;
+  color: #267848;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+  .my-submission {
+    padding: 24px 20px 32px;
+  }
+
+  .my-submission__toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-submission__filters {
+    width: 100%;
+  }
+
+  .my-submission__search {
+    flex: 1;
+  }
+}
+
+@media (max-width: 800px) {
+  .my-submission__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-submission__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .my-submission__filters {
+    flex-wrap: wrap;
+  }
+
+  .my-submission__search {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .my-submission__select {
+    flex: 1;
+  }
+}
+
+
 /* ═══════════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════════ */
