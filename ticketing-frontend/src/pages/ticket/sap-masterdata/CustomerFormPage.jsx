@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import { submissionApi } from "../../../api/submission";
 
 /* =========================================================
    CONSTANTS
@@ -234,6 +235,7 @@ function PairedTextField({
   separator = "/",
   requiredLeft = false,
   requiredRight = false,
+  disabled = false,
 }) {
   return (
     <div className="customer-form__field">
@@ -251,7 +253,8 @@ function PairedTextField({
           value={leftValue}
           onChange={(e) => onLeftChange(e.target.value)}
           placeholder={leftPlaceholder}
-          required={requiredLeft}
+          required={requiredLeft && !disabled}
+          disabled={disabled}
         />
 
         <span className="customer-form__separator">{separator}</span>
@@ -262,7 +265,8 @@ function PairedTextField({
           value={rightValue}
           onChange={(e) => onRightChange(e.target.value)}
           placeholder={rightPlaceholder}
-          required={requiredRight}
+          required={requiredRight && !disabled}
+          disabled={disabled}
         />
       </div>
     </div>
@@ -290,13 +294,21 @@ function LockedBox({ title, note = "", children }) {
  * - 1 file: format bebas
  * - >1 file: wajib ZIP (ditangani di validasi)
  */
-function AttachmentField({ label, files, onChange, error = "" }) {
+function AttachmentField({
+  label,
+  files,
+  onChange,
+  error = "",
+  disabled = false,
+}) {
   const handleFileChange = (e) => {
+    if (disabled) return;
     const selected = Array.from(e.target.files || []);
     onChange(selected);
   };
 
   const handleRemove = (index) => {
+    if (disabled) return;
     onChange(files.filter((_, i) => i !== index));
   };
 
@@ -310,51 +322,68 @@ function AttachmentField({ label, files, onChange, error = "" }) {
     <div className="customer-form__field">
       <label className="customer-form__label">{label}</label>
 
-      <div className="customer-form__attachment">
-        <label className="customer-form__attachment-dropzone">
-          <input
-            type="file"
-            multiple
-            onChange={handleFileChange}
-            className="customer-form__attachment-input"
-          />
-          <span className="customer-form__attachment-text">
-            Klik untuk memilih file
-          </span>
-          <small className="customer-form__attachment-hint">
-            Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file dalam
-            1 ZIP. Maks. 10 MB.
-          </small>
-        </label>
+      {!disabled && (
+        <div className="customer-form__attachment">
+          <label className="customer-form__attachment-dropzone">
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              className="customer-form__attachment-input"
+            />
 
-        {files.length > 0 && (
-          <ul className="customer-form__attachment-list">
-            {files.map((file, index) => (
-              <li
-                key={`${file.name}-${index}`}
-                className="customer-form__attachment-item"
-              >
-                <span className="customer-form__attachment-name">
-                  {file.name}
-                </span>
-                <span className="customer-form__attachment-size">
-                  {formatSize(file.size)}
-                </span>
-                <button
-                  type="button"
-                  className="customer-form__attachment-remove"
-                  onClick={() => handleRemove(index)}
-                  aria-label={`Hapus ${file.name}`}
+            <span className="customer-form__attachment-text">
+              Klik untuk memilih file
+            </span>
+
+            <small className="customer-form__attachment-hint">
+              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file
+              dalam 1 ZIP. Maks. 10 MB.
+            </small>
+          </label>
+
+          {files.length > 0 && (
+            <ul className="customer-form__attachment-list">
+              {files.map((file, index) => (
+                <li
+                  key={`${file.name}-${index}`}
+                  className="customer-form__attachment-item"
                 >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <span className="customer-form__attachment-name">
+                    {file.name}
+                  </span>
 
-        {error && <small className="customer-form__error">{error}</small>}
-      </div>
+                  <span className="customer-form__attachment-size">
+                    {formatSize(file.size)}
+                  </span>
+
+                  <button
+                    type="button"
+                    className="customer-form__attachment-remove"
+                    onClick={() => handleRemove(index)}
+                    aria-label={`Hapus ${file.name}`}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {error && <small className="customer-form__error">{error}</small>}
+        </div>
+      )}
+
+      {disabled && files.length === 0 && (
+        <div className="customer-form__attachment-readonly">
+          <span className="customer-form__attachment-readonly-icon">📎</span>
+
+          <div>
+            <strong>Attachment</strong>
+            <p>Attachment tidak dapat diubah setelah submission disubmit.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -367,11 +396,16 @@ export default function CustomerFormPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  /*
-   * Requestor berasal dari user yang sedang login.
-   * Jika backend/HRIS mengembalikan field name, position,
-   * department, phone, email — field tersebut otomatis dipakai.
-   */
+  const [searchParams] = useSearchParams();
+
+  const submissionId = searchParams.get("submission");
+
+  const [loadingSubmission, setLoadingSubmission] = useState(
+    Boolean(submissionId),
+  );
+
+  const [readOnly, setReadOnly] = useState(false);
+
   const requestor = useMemo(
     () => ({
       name: getUserValue(user, ["name", "nama"]),
@@ -440,78 +474,223 @@ export default function CustomerFormPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (mode) => (e) => {
+  const handleSubmit = (mode) => async (e) => {
     e.preventDefault();
 
-    // Validasi attachment
+    /*
+     * Jika sudah SUBMITTED,
+     * jangan izinkan perubahan.
+     */
+    if (readOnly) {
+      return;
+    }
+
+    /*
+     * Validasi attachment.
+     */
     const attachmentError = validateAttachments(form.attachments);
+
     if (attachmentError) {
-      setForm((prev) => ({ ...prev, attachmentError }));
+      setForm((prev) => ({
+        ...prev,
+        attachmentError,
+      }));
+
       return;
     }
 
-    // Draft tidak membutuhkan validasi field wajib
-    if (mode === "draft") {
-      const payload = {
-        ...form,
-        requestor,
-        status: "DRAFT",
-        submittedAt: new Date().toISOString(),
-        attachments: form.attachments.map((f) => ({
-          name: f.name,
-          size: f.size,
-          type: f.type,
-        })),
-      };
+    /*
+     * SUBMIT wajib menggunakan
+     * validasi HTML.
+     *
+     * Draft tidak wajib lengkap.
+     */
+    if (mode === "submit") {
+      const formElement = e.currentTarget.closest("form");
 
-      console.log("Customer Master Data (draft):", payload);
+      if (formElement && !formElement.reportValidity()) {
+        return;
+      }
 
-      setSubmitMode("draft");
-      return;
+      if (!form.requestType) {
+        return;
+      }
+
+      if (form.requestType !== "New" && !form.customerCode) {
+        return;
+      }
     }
 
-    // Validasi field wajib menggunakan HTML5 validation
-    const formElement = e.currentTarget.closest("form");
-
-    if (formElement && !formElement.reportValidity()) {
-      return;
-    }
-
-    // Validasi tambahan untuk Request Type
-    if (!form.requestType) {
-      return;
-    }
-
-    // Request selain New wajib Customer Code
-    if (form.requestType !== "New" && !form.customerCode) {
-      return;
-    }
-
+    /*
+     * Payload utama.
+     */
     const payload = {
-      ...form,
-      requestor,
-      status: mode === "draft" ? "DRAFT" : "SUBMITTED",
-      submittedAt: new Date().toISOString(),
-      // attachments: idealnya dikirim sebagai FormData ke backend
-      attachments: form.attachments.map((f) => ({
-        name: f.name,
-        size: f.size,
-        type: f.type,
-      })),
+      type: "SAP",
+
+      category: "Master Data",
+
+      sub_category: "Customer",
+
+      form_type: "SAP Master Data - Customer",
+
+      status: mode === "submit" ? "SUBMITTED" : "DRAFT",
+
+      form_data: {
+        ...form,
+
+        /*
+         * File object jangan dikirim
+         * sebagai JSON.
+         */
+        attachments: undefined,
+
+        attachmentError: undefined,
+      },
     };
 
-    console.log(`Customer Master Data (${mode}):`, payload);
+    try {
+      /*
+       * FormData digunakan karena
+       * form juga mempunyai attachment.
+       */
+      const formData = new FormData();
 
-    alert(
-      mode === "draft"
-        ? "Form Customer berhasil disimpan sebagai Draft."
-        : "Form Customer berhasil disubmit.\n\nData belum dikirim ke backend.",
-    );
+      formData.append("data", JSON.stringify(payload));
 
-    setSubmitMode(mode);
+      /*
+       * Masukkan attachment asli.
+       */
+      form.attachments.forEach((file) => {
+        formData.append("attachments[]", file);
+      });
+
+      let response;
+
+      /*
+       * Jika belum pernah disimpan:
+       * POST /submissions
+       */
+      if (!submissionId) {
+        response = await submissionApi.create(formData);
+      } else {
+        /*
+         * Jika sudah ada draft:
+         * POST /submissions/{id}
+         */
+        response = await submissionApi.update(submissionId, formData);
+      }
+
+      const saved = response.data?.data;
+
+      /*
+       * Setelah SUBMIT:
+       * form menjadi read-only.
+       */
+      if (saved?.status === "SUBMITTED") {
+        setReadOnly(true);
+
+        alert(`Form berhasil disubmit.\n\nNumber: ${saved.number}`);
+
+        navigate("/submission");
+
+        return;
+      }
+
+      /*
+       * Draft.
+       */
+      if (saved?.status === "DRAFT") {
+        alert(`Draft berhasil disimpan.\n\nNumber: ${saved.number}`);
+
+        /*
+         * Sangat penting:
+         * setelah draft pertama dibuat,
+         * URL diganti menjadi membawa ID.
+         *
+         * Jadi save berikutnya menggunakan
+         * UPDATE, bukan membuat submission baru.
+         */
+        if (!submissionId && saved?.id) {
+          navigate("/submission");
+        }
+
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+
+      alert(error.response?.data?.message || "Gagal menyimpan submission.");
+    }
   };
 
   const isNewRequest = form.requestType === "New";
+
+  useEffect(() => {
+    if (!submissionId) {
+      return;
+    }
+
+    const loadSubmission = async () => {
+      try {
+        setLoadingSubmission(true);
+
+        const response = await submissionApi.getById(submissionId);
+
+        const submission = response.data?.data;
+
+        if (!submission) {
+          throw new Error("Submission tidak ditemukan.");
+        }
+
+        /*
+         * Submitted tidak boleh diedit.
+         */
+        if (submission.status !== "DRAFT") {
+          setReadOnly(true);
+        }
+
+        /*
+         * Pastikan hanya Customer SAP
+         * yang dibuka pada halaman ini.
+         */
+        if (
+          submission.type !== "SAP" ||
+          submission.category !== "Master Data" ||
+          submission.sub_category !== "Customer"
+        ) {
+          navigate("/submission");
+          return;
+        }
+
+        /*
+         * Restore form dari database.
+         */
+        if (submission.form_data) {
+          setForm((prev) => ({
+            ...prev,
+            ...submission.form_data,
+
+            /*
+             * File browser tidak bisa
+             * di-restore sebagai File object.
+             */
+            attachments: [],
+            attachmentError: "",
+          }));
+        }
+      } catch (error) {
+        console.error(error);
+
+        alert(error.response?.data?.message || "Gagal mengambil submission.");
+
+        navigate("/submission");
+      } finally {
+        setLoadingSubmission(false);
+      }
+    };
+
+    loadSubmission();
+  }, [submissionId, navigate]);
 
   return (
     <div className="customer-form-page">
@@ -526,11 +705,18 @@ export default function CustomerFormPage() {
             ← Back
           </button>
 
-          <div>
-            <p className="customer-form__eyebrow">
-              SAP · Master Data · Customer
-            </p>
-            <h1>Master Data Customer Request</h1>
+          <div className="customer-form__header-content">
+            <div>
+              <p className="customer-form__eyebrow">
+                SAP · Master Data · Customer
+              </p>
+              <h1>Master Data Customer Request</h1>
+            </div>
+            {submissionId && readOnly && (
+              <span className="customer-form__submitted-badge">
+                ✓ Submitted · Read Only
+              </span>
+            )}
           </div>
         </header>
 
@@ -543,6 +729,7 @@ export default function CustomerFormPage() {
               value={form.requestType}
               onChange={(value) => update("requestType", value)}
               required
+              disabled={readOnly}
             />
 
             {isNewRequest ? (
@@ -556,6 +743,7 @@ export default function CustomerFormPage() {
                   onChange={(e) => update("customerCode", e.target.value)}
                   placeholder="Masukkan customer code"
                   required
+                  disabled={readOnly}
                 />
               </Field>
             )}
@@ -616,6 +804,7 @@ export default function CustomerFormPage() {
               value={form.companyCode}
               onChange={(value) => update("companyCode", value)}
               required
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -624,6 +813,7 @@ export default function CustomerFormPage() {
               value={form.salesOrganization}
               onChange={(value) => update("salesOrganization", value)}
               required
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -633,6 +823,7 @@ export default function CustomerFormPage() {
               onChange={(value) => update("distributionChannel", value)}
               checkbox
               required
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -642,6 +833,7 @@ export default function CustomerFormPage() {
               onChange={(value) => update("division", value)}
               checkbox
               required
+              disabled={readOnly}
             />
 
             <ReadOnlyField
@@ -659,6 +851,7 @@ export default function CustomerFormPage() {
                 value={form.title}
                 onChange={(e) => update("title", e.target.value)}
                 required
+                disabled={readOnly}
               />
             </Field>
 
@@ -669,6 +862,7 @@ export default function CustomerFormPage() {
                 value={form.customerName}
                 onChange={(e) => update("customerName", e.target.value)}
                 required
+                disabled={readOnly}
               />
             </Field>
 
@@ -678,6 +872,7 @@ export default function CustomerFormPage() {
                 className="customer-form__input"
                 value={form.searchTerm1}
                 onChange={(e) => update("searchTerm1", e.target.value)}
+                disabled={readOnly}
               />
             </Field>
 
@@ -688,6 +883,7 @@ export default function CustomerFormPage() {
                 value={form.invoiceStreet}
                 onChange={(e) => update("invoiceStreet", e.target.value)}
                 required
+                disabled={readOnly}
               />
             </Field>
 
@@ -698,6 +894,7 @@ export default function CustomerFormPage() {
                 value={form.taxStreet}
                 onChange={(e) => update("taxStreet", e.target.value)}
                 required
+                disabled={readOnly}
               />
             </Field>
 
@@ -711,6 +908,7 @@ export default function CustomerFormPage() {
               rightPlaceholder="Kode Pos"
               requiredLeft
               requiredRight
+              disabled={readOnly}
             />
 
             <Field label="Country" required>
@@ -720,6 +918,7 @@ export default function CustomerFormPage() {
                 value={form.country}
                 onChange={(e) => update("country", e.target.value)}
                 required
+                disabled={readOnly}
               />
             </Field>
 
@@ -729,6 +928,7 @@ export default function CustomerFormPage() {
                 className="customer-form__input"
                 value={form.region}
                 onChange={(e) => update("region", e.target.value)}
+                disabled={readOnly}
               />
             </Field>
 
@@ -738,6 +938,7 @@ export default function CustomerFormPage() {
                 className="customer-form__input"
                 value={form.telephone}
                 onChange={(e) => update("telephone", e.target.value)}
+                disabled={readOnly}
               />
             </Field>
 
@@ -747,6 +948,7 @@ export default function CustomerFormPage() {
                 className="customer-form__input"
                 value={form.fax}
                 onChange={(e) => update("fax", e.target.value)}
+                disabled={readOnly}
               />
             </Field>
 
@@ -760,6 +962,7 @@ export default function CustomerFormPage() {
               rightType="date"
               requiredLeft
               requiredRight
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -768,6 +971,7 @@ export default function CustomerFormPage() {
               value={form.customerClass}
               onChange={(value) => update("customerClass", value)}
               required
+              disabled={readOnly}
             />
           </Section>
 
@@ -797,6 +1001,7 @@ export default function CustomerFormPage() {
               value={form.paymentTerms}
               onChange={(value) => update("paymentTerms", value)}
               required
+              disabled={readOnly}
             />
 
             {/* TOLERANCE GROUP — Filled by Accounting */}
@@ -838,6 +1043,7 @@ export default function CustomerFormPage() {
                       checked={form.currency === currency}
                       onChange={(e) => update("currency", e.target.value)}
                       required
+                      disabled={readOnly}
                     />
 
                     <span>{currency}</span>
@@ -858,6 +1064,7 @@ export default function CustomerFormPage() {
                     onChange={(e) => update("otherCurrency", e.target.value)}
                     placeholder="Masukkan currency"
                     required
+                    disabled={readOnly}
                   />
                 </div>
               )}
@@ -870,6 +1077,7 @@ export default function CustomerFormPage() {
               onChange={(value) => update("customerPricingProcedure", value)}
               checkbox
               required
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -879,6 +1087,7 @@ export default function CustomerFormPage() {
               onChange={(value) => update("customerStatisticGroup", value)}
               checkbox
               required
+              disabled={readOnly}
             />
 
             <ChoiceGroup
@@ -887,6 +1096,7 @@ export default function CustomerFormPage() {
               value={form.taxClassification}
               onChange={(value) => update("taxClassification", value)}
               required
+              disabled={readOnly}
             />
           </Section>
 
@@ -896,6 +1106,7 @@ export default function CustomerFormPage() {
               files={form.attachments}
               onChange={handleAttachmentChange}
               error={form.attachmentError}
+              disabled={readOnly}
             />
           </Section>
 
@@ -906,24 +1117,29 @@ export default function CustomerFormPage() {
               className="customer-form__button customer-form__button--secondary"
               onClick={() => navigate(-1)}
             >
-              Cancel
+              {readOnly ? "Back" : "Cancel"}
             </button>
 
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--draft"
-              onClick={handleSubmit("draft")}
-            >
-              Save as Draft
-            </button>
+            {!readOnly && (
+              <>
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--draft"
+                  onClick={handleSubmit("draft")}
+                >
+                  Save as Draft
+                </button>
 
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--primary"
-              onClick={handleSubmit("submit")}
-            >
-              Submit
-            </button>
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--primary"
+                  onClick={handleSubmit("submit")}
+                >
+                  Submit
+                </button>
+              </>
+            )}
+
           </div>
         </form>
       </div>
