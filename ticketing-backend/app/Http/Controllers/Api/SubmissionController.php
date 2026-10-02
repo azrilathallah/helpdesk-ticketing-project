@@ -29,6 +29,82 @@ class SubmissionController extends Controller
     }
 
     /**
+ * GET /dashboard/stats
+ *
+ * Mengambil statistik ticket milik requestor
+ * yang sedang login.
+ */
+public function dashboardStats(Request $request)
+{
+    $requestorId = $request->user()->id;
+
+    /*
+     * Draft bukan ticket aktif karena belum disubmit.
+     */
+    $total = Submission::query()
+        ->where('requestor_id', $requestorId)
+        ->where('status', '!=', 'DRAFT')
+        ->count();
+
+    /*
+     * OPEN:
+     *
+     * SUBMITTED digunakan oleh flow lama
+     * sebagai status setelah requestor melakukan Submit.
+     *
+     * OPEN juga disediakan untuk workflow berikutnya.
+     */
+    $open = Submission::query()
+        ->where('requestor_id', $requestorId)
+        ->whereIn('status', [
+            'SUBMITTED',
+            'OPEN',
+        ])
+        ->count();
+
+    /*
+     * IN PROGRESS:
+     *
+     * Sedang diproses oleh pihak terkait,
+     * termasuk Accounting / Tax / proses approval.
+     */
+    $inProgress = Submission::query()
+        ->where('requestor_id', $requestorId)
+        ->where('status', 'IN_PROGRESS')
+        ->count();
+
+    /*
+     * CLOSED:
+     *
+     * Ticket sudah selesai / solved.
+     */
+    $closed = Submission::query()
+        ->where('requestor_id', $requestorId)
+        ->where('status', 'CLOSED')
+        ->count();
+
+    /*
+     * REJECTED:
+     *
+     * Ditolak oleh Requestor atau Division Head.
+     */
+    $rejected = Submission::query()
+        ->where('requestor_id', $requestorId)
+        ->where('status', 'REJECTED')
+        ->count();
+
+    return response()->json([
+        'data' => [
+            'total' => $total,
+            'open' => $open,
+            'in_progress' => $inProgress,
+            'closed' => $closed,
+            'rejected' => $rejected,
+        ],
+    ]);
+}
+
+    /**
      * GET /submissions/{submission}
      */
     public function show(

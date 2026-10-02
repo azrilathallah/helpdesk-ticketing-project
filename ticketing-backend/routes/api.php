@@ -36,5 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
         SubmissionController::class,
         'update'
     ]);
+
+    Route::get('/dashboard/stats', [
+        SubmissionController::class,
+        'dashboardStats'
+    ]);
 });
 
