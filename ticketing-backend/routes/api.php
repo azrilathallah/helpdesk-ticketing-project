@@ -92,6 +92,11 @@ Route::middleware('auth:sanctum')->group(function () {
         ApprovalController::class,
         'cancel'
     ]);
+
+    Route::post('/approvals/{submission}/reject', [
+        ApprovalController::class,
+    'reject'
+    ]);
 });
 
 

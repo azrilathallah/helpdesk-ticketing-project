@@ -424,6 +424,52 @@ class ApprovalController extends Controller
         ]);
     }
 
+    public function reject(Request $request, Submission $submission)
+{
+    $terminalStatuses = [
+        Submission::STATUS_TICKET_SOLVED,
+        Submission::STATUS_TICKET_CANCELLED,
+        Submission::STATUS_DRAFT,
+    ];
+
+    if (in_array($submission->status, $terminalStatuses, true)) {
+        return response()->json([
+            'message' => 'Submission tidak dapat di-reject.',
+        ], 422);
+    }
+
+    $request->validate([
+        'notes' => 'required|string|max:1000',
+    ]);
+
+    DB::transaction(function () use ($request, $submission) {
+        SubmissionApproval::create([
+            'submission_id' => $submission->id,
+            'step' => $submission->status,
+            'action' => 'REJECTED',
+            'acted_by' => $request->user()->id,
+            'notes' => $request->input('notes'),
+            'created_at' => now(),
+        ]);
+
+        $submission->status =
+            Submission::STATUS_TICKET_CANCELLED;
+
+        $submission->save();
+    });
+
+    return response()->json([
+        'message' => 'Submission berhasil di-reject.',
+        'data' => $this->transform(
+            $submission->fresh([
+                'requestor',
+                'approvals.actor',
+            ]),
+            true
+        ),
+    ]);
+}
+
     /**
      * Format response.
      */

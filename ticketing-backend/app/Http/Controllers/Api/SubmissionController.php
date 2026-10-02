@@ -29,80 +29,63 @@ class SubmissionController extends Controller
     }
 
     /**
- * GET /dashboard/stats
- *
- * Mengambil statistik ticket milik requestor
- * yang sedang login.
- */
-public function dashboardStats(Request $request)
-{
-    $requestorId = $request->user()->id;
-
-    /*
-     * Draft bukan ticket aktif karena belum disubmit.
-     */
-    $total = Submission::query()
-        ->where('requestor_id', $requestorId)
-        ->where('status', '!=', 'DRAFT')
-        ->count();
-
-    /*
-     * OPEN:
+     * GET /dashboard/stats
      *
-     * SUBMITTED digunakan oleh flow lama
-     * sebagai status setelah requestor melakukan Submit.
-     *
-     * OPEN juga disediakan untuk workflow berikutnya.
+     * Mengambil statistik ticket milik requestor
+     * yang sedang login.
      */
-    $open = Submission::query()
-        ->where('requestor_id', $requestorId)
+    public function dashboardStats(Request $request)
+    {
+        $requestorId = $request->user()->id;
+
+        $baseQuery = Submission::query()
+            ->where('requestor_id', $requestorId);
+
+        $total = (clone $baseQuery)
+            ->where('status', '!=', Submission::STATUS_DRAFT)
+            ->count();
+
+        $open = (clone $baseQuery)
+            ->whereIn('status', [
+                Submission::STATUS_SUBMITTED,
+            ])
+            ->count();
+
+        $inProgress = (clone $baseQuery)
         ->whereIn('status', [
-            'SUBMITTED',
-            'OPEN',
+            Submission::STATUS_APPROVED_DIV_HEAD,
+            Submission::STATUS_REVIEW_ACCOUNTING,
+            Submission::STATUS_APPROVED_ACCOUNTING,
+            Submission::STATUS_REVIEW_TAX,
+            Submission::STATUS_APPROVED_TAX,
+            Submission::STATUS_WAITING_PIC,
         ])
         ->count();
 
-    /*
-     * IN PROGRESS:
-     *
-     * Sedang diproses oleh pihak terkait,
-     * termasuk Accounting / Tax / proses approval.
-     */
-    $inProgress = Submission::query()
-        ->where('requestor_id', $requestorId)
-        ->where('status', 'IN_PROGRESS')
-        ->count();
+        $closed = (clone $baseQuery)
+            ->where(
+                'status',
+                Submission::STATUS_TICKET_SOLVED
+            )
+            ->count();
 
-    /*
-     * CLOSED:
-     *
-     * Ticket sudah selesai / solved.
-     */
-    $closed = Submission::query()
-        ->where('requestor_id', $requestorId)
-        ->where('status', 'CLOSED')
-        ->count();
+        $rejected = (clone $baseQuery)
+            ->where(
+                'status',
+                Submission::STATUS_TICKET_CANCELLED
+            )
+            ->count();
 
-    /*
-     * REJECTED:
-     *
-     * Ditolak oleh Requestor atau Division Head.
-     */
-    $rejected = Submission::query()
-        ->where('requestor_id', $requestorId)
-        ->where('status', 'REJECTED')
-        ->count();
-
-    return response()->json([
-        'data' => [
-            'total' => $total,
-            'open' => $open,
-            'in_progress' => $inProgress,
-            'closed' => $closed,
-            'rejected' => $rejected,
-        ],
-    ]);
-}
+        return response()->json([
+            'data' => [
+                'total' => $total,
+                'open' => $open,
+                'in_progress' => $inProgress,
+                'closed' => $closed,
+                'rejected' => $rejected,
+            ],
+        ]);
+    }
 
     /**
      * GET /submissions/{submission}
