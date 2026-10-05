@@ -364,7 +364,7 @@ export default function MySubmissionPage() {
             >
               <option value="ALL">All Status</option>
               <option value="DRAFT">Draft</option>
-              <option value="SUBMITTED">Review by Division Head</option>
+              <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
               <option value="APPROVED_DIV_HEAD">Approved by Division Head</option>
               <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
               <option value="APPROVED_ACCOUNTING">Approved by Accounting</option>

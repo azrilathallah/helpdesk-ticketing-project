@@ -199,6 +199,8 @@ class SubmissionController extends Controller
                     STR_PAD_LEFT
                 );
 
+            $isSubmitted = $data['status'] === 'SUBMITTED';
+
             $submission = Submission::create([
                 'requestor_id' => $request->user()->id,
 
@@ -212,14 +214,21 @@ class SubmissionController extends Controller
 
                 'form_type' => $data['form_type'],
 
-                'status' => $data['status'],
+                /*
+                * Jangan simpan SUBMITTED sebagai status workflow.
+                *
+                * Jika requestor langsung submit:
+                * SUBMITTED -> REVIEW_DIV_HEAD
+                */
+                'status' => $isSubmitted
+                    ? Submission::STATUS_REVIEW_DIV_HEAD
+                    : Submission::STATUS_DRAFT,
 
                 'form_data' => $data['form_data'],
 
                 'attachments' => null,
 
-                'submitted_at' =>
-                $data['status'] === 'SUBMITTED'
+                'submitted_at' => $isSubmitted
                     ? now()
                     : null,
             ]);
@@ -234,6 +243,17 @@ class SubmissionController extends Controller
                 );
 
             $submission->save();
+
+            if ($isSubmitted) {
+                \App\Models\SubmissionApproval::create([
+                    'submission_id' => $submission->id,
+                    'step' => 'DIV_HEAD_REVIEW',
+                    'action' => 'SUBMITTED',
+                    'acted_by' => $request->user()->id,
+                    'notes' => null,
+                    'created_at' => now(),
+                ]);
+            }
 
             return $submission;
         }, 5);
@@ -342,7 +362,7 @@ class SubmissionController extends Controller
         return response()->json([
             'message' =>
             $submission->status === 'SUBMITTED'
-                ? 'Form berhasil disubmit.'
+                ? 'Form berhasil disubmit dan menunggu review Division Head.'
                 : 'Draft berhasil diperbarui.',
 
             'data' =>
