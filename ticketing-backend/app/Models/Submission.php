@@ -26,6 +26,7 @@ class Submission extends Model
     const STATUS_WAITING_PIC = 'WAITING_PIC';
     const STATUS_TICKET_SOLVED = 'TICKET_SOLVED';
     const STATUS_TICKET_CANCELLED = 'TICKET_CANCELLED';
+    const STATUS_TICKET_REJECTED = 'TICKET_REJECTED';
 
     /**
      * Urutan flow status.

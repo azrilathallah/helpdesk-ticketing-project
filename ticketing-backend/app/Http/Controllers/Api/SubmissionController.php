@@ -72,6 +72,13 @@ class SubmissionController extends Controller
         $rejected = (clone $baseQuery)
             ->where(
                 'status',
+                Submission::STATUS_TICKET_REJECTED
+            )
+            ->count();
+
+        $cancelled = (clone $baseQuery)
+            ->where(
+                'status',
                 Submission::STATUS_TICKET_CANCELLED
             )
             ->count();
@@ -83,6 +90,7 @@ class SubmissionController extends Controller
                 'in_progress' => $inProgress,
                 'closed' => $closed,
                 'rejected' => $rejected,
+                'cancelled' => $cancelled,
             ],
         ]);
     }
@@ -486,6 +494,52 @@ class SubmissionController extends Controller
             )
             ->values()
             ->all();
+    }
+
+    /**
+     * POST /submissions/{submission}/cancel
+     *
+     * Cancel tiket oleh requestor pemilik tiket.
+     */
+    public function cancel(Request $request, Submission $submission)
+    {
+        $this->ensureOwner($request, $submission);
+
+        $terminalStatuses = [
+            Submission::STATUS_TICKET_SOLVED,
+            Submission::STATUS_TICKET_CANCELLED,
+            Submission::STATUS_TICKET_REJECTED,
+            Submission::STATUS_DRAFT,
+        ];
+
+        if (in_array($submission->status, $terminalStatuses, true)) {
+            return response()->json([
+                'message' => 'Submission tidak dapat di-cancel.',
+            ], 422);
+        }
+
+        $request->validate([
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        DB::transaction(function () use ($request, $submission) {
+            \App\Models\SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => $submission->status,
+                'action' => 'CANCELLED',
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes') ?: 'Ticket dibatalkan oleh requestor.',
+                'created_at' => now(),
+            ]);
+
+            $submission->status = Submission::STATUS_TICKET_CANCELLED;
+            $submission->save();
+        });
+
+        return response()->json([
+            'message' => 'Ticket berhasil dibatalkan.',
+            'data' => $this->transform($submission->fresh(['requestor']), true),
+        ]);
     }
 
     /**

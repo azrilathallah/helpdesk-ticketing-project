@@ -100,6 +100,40 @@ export default function MySubmissionPage() {
     navigate(`/create-ticket/sap-masterdata/customer-form?submission=${submission.id}`);
   };
 
+  const canCancel = (status) =>
+    ![
+      "DRAFT",
+      "TICKET_SOLVED",
+      "TICKET_CANCELLED",
+      "TICKET_REJECTED",
+    ].includes(status);
+
+  const handleCancelSubmission = async (submission, e) => {
+    if (e) e.stopPropagation();
+
+    if (
+      !window.confirm(
+        `Apakah Anda yakin ingin membatalkan (cancel) tiket ${submission.number}?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await submissionApi.cancel(
+        submission.id,
+        "Dibatalkan oleh requestor"
+      );
+      alert(response?.data?.message || "Tiket berhasil dibatalkan.");
+      await loadSubmissions();
+    } catch (err) {
+      console.error(err);
+      alert(
+        err.response?.data?.message || "Gagal membatalkan tiket."
+      );
+    }
+  };
+
   /*
    * =========================================================
    * DATE
@@ -145,9 +179,72 @@ export default function MySubmissionPage() {
 
       case "SUBMITTED":
         return {
-          label: "Submitted",
+          label: "Waiting Division Head",
           className: "my-submission__status--submitted",
           icon: "✓",
+        };
+
+      case "APPROVED_DIV_HEAD":
+        return {
+          label: "Div Head Approved",
+          className: "my-submission__status--approved",
+          icon: "✓",
+        };
+
+      case "REVIEW_ACCOUNTING":
+        return {
+          label: "Review Accounting",
+          className: "my-submission__status--accounting",
+          icon: "•",
+        };
+
+      case "APPROVED_ACCOUNTING":
+        return {
+          label: "Accounting Approved",
+          className: "my-submission__status--approved",
+          icon: "✓",
+        };
+
+      case "REVIEW_TAX":
+        return {
+          label: "Review Tax",
+          className: "my-submission__status--tax",
+          icon: "•",
+        };
+
+      case "APPROVED_TAX":
+        return {
+          label: "Tax Approved",
+          className: "my-submission__status--approved",
+          icon: "✓",
+        };
+
+      case "WAITING_PIC":
+        return {
+          label: "Waiting PIC",
+          className: "my-submission__status--pic",
+          icon: "•",
+        };
+
+      case "TICKET_SOLVED":
+        return {
+          label: "Ticket Solved",
+          className: "my-submission__status--solved",
+          icon: "✓",
+        };
+
+      case "TICKET_CANCELLED":
+        return {
+          label: "Ticket Cancelled",
+          className: "my-submission__status--cancelled",
+          icon: "✕",
+        };
+
+      case "TICKET_REJECTED":
+        return {
+          label: "Ticket Rejected",
+          className: "my-submission__status--rejected",
+          icon: "✕",
         };
 
       default:
@@ -266,10 +363,14 @@ export default function MySubmissionPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="ALL">All Status</option>
-
               <option value="DRAFT">Draft</option>
-
-              <option value="SUBMITTED">Submitted</option>
+              <option value="SUBMITTED">Waiting Division Head</option>
+              <option value="REVIEW_ACCOUNTING">Review Accounting</option>
+              <option value="REVIEW_TAX">Review Tax</option>
+              <option value="WAITING_PIC">Waiting PIC</option>
+              <option value="TICKET_SOLVED">Solved</option>
+              <option value="TICKET_CANCELLED">Cancelled</option>
+              <option value="TICKET_REJECTED">Rejected</option>
             </select>
           </div>
         </div>
@@ -416,19 +517,32 @@ export default function MySubmissionPage() {
                       {/* Action */}
 
                       <td>
-                        <button
-                          type="button"
-                          className="my-submission__action"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <button
+                            type="button"
+                            className="my-submission__action"
+                            onClick={(e) => {
+                              e.stopPropagation();
 
-                            handleOpen(submission);
-                          }}
-                        >
-                          {submission.status === "DRAFT" ? "Edit" : "View"}
+                              handleOpen(submission);
+                            }}
+                          >
+                            {submission.status === "DRAFT" ? "Edit" : "View"}
 
-                          <span>→</span>
-                        </button>
+                            <span>→</span>
+                          </button>
+
+                          {canCancel(submission.status) && (
+                            <button
+                              type="button"
+                              className="my-submission__action my-submission__action--cancel"
+                              style={{ color: "#dc2626", fontWeight: "700" }}
+                              onClick={(e) => handleCancelSubmission(submission, e)}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

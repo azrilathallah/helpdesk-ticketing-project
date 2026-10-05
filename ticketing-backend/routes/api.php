@@ -38,6 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'update'
     ]);
 
+    Route::post('/submissions/{submission}/cancel', [
+        SubmissionController::class,
+        'cancel'
+    ]);
+
     Route::get('/dashboard/stats', [
         SubmissionController::class,
         'dashboardStats'

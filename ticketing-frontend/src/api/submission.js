@@ -20,4 +20,7 @@ export const submissionApi = {
         "Content-Type": "multipart/form-data",
       },
     }),
+
+  cancel: (id, notes = "") =>
+    api.post(`/submissions/${id}/cancel`, { notes }),
 };

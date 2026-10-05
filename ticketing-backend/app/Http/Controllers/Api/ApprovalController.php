@@ -382,93 +382,66 @@ class ApprovalController extends Controller
     /**
      * POST /approvals/{submission}/cancel
      *
-     * Cancel ticket (oleh requestor / Div Head).
-     *
-     * Hanya bisa di-cancel jika belum SOLVED.
+     * Cancel hanya dapat dilakukan oleh requestor di halaman My Submission.
      */
     public function cancel(Request $request, Submission $submission)
     {
-        $terminalStatuses = [
-            Submission::STATUS_TICKET_SOLVED,
-            Submission::STATUS_TICKET_CANCELLED,
-            Submission::STATUS_DRAFT,
+        return response()->json([
+            'message' => 'Cancel ticket hanya dapat dilakukan oleh requestor melalui halaman My Submission.',
+        ], 403);
+    }
+
+    /**
+     * POST /approvals/{submission}/reject
+     *
+     * Reject hanya bisa dilakukan oleh Division Head, Accounting Head, dan Tax Head.
+     * PIC tidak bisa me-reject (hanya bisa resolve).
+     */
+    public function reject(Request $request, Submission $submission)
+    {
+        $allowedStatuses = [
+            Submission::STATUS_SUBMITTED,
+            Submission::STATUS_REVIEW_ACCOUNTING,
+            Submission::STATUS_REVIEW_TAX,
         ];
 
-        if (in_array($submission->status, $terminalStatuses, true)) {
+        if (!in_array($submission->status, $allowedStatuses, true)) {
             return response()->json([
-                'message' => 'Submission tidak dapat di-cancel.',
+                'message' => 'Submission tidak dapat di-reject pada tahap ini. Hanya Division Head, Accounting Head, dan Tax Head yang dapat me-reject submission.',
             ], 422);
         }
 
         $request->validate([
-            'notes' => 'nullable|string|max:1000',
+            'notes' => 'required|string|max:1000',
+        ], [
+            'notes.required' => 'Catatan alasan reject wajib diisi.',
         ]);
 
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => $submission->status,
-                'action' => 'CANCELLED',
+                'action' => 'REJECTED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'created_at' => now(),
             ]);
 
-            $submission->status = Submission::STATUS_TICKET_CANCELLED;
+            $submission->status = Submission::STATUS_TICKET_REJECTED;
             $submission->save();
         });
 
         return response()->json([
-            'message' => 'Ticket berhasil di-cancel.',
-            'data' => $this->transform($submission->fresh(['requestor', 'approvals.actor']), true),
+            'message' => 'Submission berhasil di-reject.',
+            'data' => $this->transform(
+                $submission->fresh([
+                    'requestor',
+                    'approvals.actor',
+                ]),
+                true
+            ),
         ]);
     }
-
-    public function reject(Request $request, Submission $submission)
-{
-    $terminalStatuses = [
-        Submission::STATUS_TICKET_SOLVED,
-        Submission::STATUS_TICKET_CANCELLED,
-        Submission::STATUS_DRAFT,
-    ];
-
-    if (in_array($submission->status, $terminalStatuses, true)) {
-        return response()->json([
-            'message' => 'Submission tidak dapat di-reject.',
-        ], 422);
-    }
-
-    $request->validate([
-        'notes' => 'required|string|max:1000',
-    ]);
-
-    DB::transaction(function () use ($request, $submission) {
-        SubmissionApproval::create([
-            'submission_id' => $submission->id,
-            'step' => $submission->status,
-            'action' => 'REJECTED',
-            'acted_by' => $request->user()->id,
-            'notes' => $request->input('notes'),
-            'created_at' => now(),
-        ]);
-
-        $submission->status =
-            Submission::STATUS_TICKET_CANCELLED;
-
-        $submission->save();
-    });
-
-    return response()->json([
-        'message' => 'Submission berhasil di-reject.',
-        'data' => $this->transform(
-            $submission->fresh([
-                'requestor',
-                'approvals.actor',
-            ]),
-            true
-        ),
-    ]);
-}
 
     /**
      * Format response.
