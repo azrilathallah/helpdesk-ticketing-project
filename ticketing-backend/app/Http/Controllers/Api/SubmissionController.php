@@ -21,7 +21,7 @@ class SubmissionController extends Controller
             ->where('requestor_id', $request->user()->id)
             ->latest()
             ->get()
-            ->map(fn (Submission $submission) => $this->transform($submission));
+            ->map(fn(Submission $submission) => $this->transform($submission));
 
         return response()->json([
             'data' => $submissions,
@@ -52,15 +52,15 @@ class SubmissionController extends Controller
             ->count();
 
         $inProgress = (clone $baseQuery)
-        ->whereIn('status', [
-            Submission::STATUS_APPROVED_DIV_HEAD,
-            Submission::STATUS_REVIEW_ACCOUNTING,
-            Submission::STATUS_APPROVED_ACCOUNTING,
-            Submission::STATUS_REVIEW_TAX,
-            Submission::STATUS_APPROVED_TAX,
-            Submission::STATUS_WAITING_PIC,
-        ])
-        ->count();
+            ->whereIn('status', [
+                Submission::STATUS_APPROVED_DIV_HEAD,
+                Submission::STATUS_REVIEW_ACCOUNTING,
+                Submission::STATUS_APPROVED_ACCOUNTING,
+                Submission::STATUS_REVIEW_TAX,
+                Submission::STATUS_APPROVED_TAX,
+                Submission::STATUS_WAITING_PIC,
+            ])
+            ->count();
 
         $closed = (clone $baseQuery)
             ->where(
@@ -219,9 +219,9 @@ class SubmissionController extends Controller
                 'attachments' => null,
 
                 'submitted_at' =>
-                    $data['status'] === 'SUBMITTED'
-                        ? now()
-                        : null,
+                $data['status'] === 'SUBMITTED'
+                    ? now()
+                    : null,
             ]);
 
             /*
@@ -240,9 +240,9 @@ class SubmissionController extends Controller
 
         return response()->json([
             'message' =>
-                $submission->status === 'DRAFT'
-                    ? 'Form berhasil disimpan sebagai draft.'
-                    : 'Form berhasil disubmit.',
+            $submission->status === 'DRAFT'
+                ? 'Form berhasil disimpan sebagai draft.'
+                : 'Form berhasil disubmit.',
 
             'data' => $this->transform(
                 $submission,
@@ -277,7 +277,7 @@ class SubmissionController extends Controller
         if ($submission->status !== 'DRAFT') {
             return response()->json([
                 'message' =>
-                    'Submission yang sudah disubmit tidak dapat diedit oleh requestor.',
+                'Submission yang sudah disubmit tidak dapat diedit oleh requestor.',
             ], 422);
         }
 
@@ -287,16 +287,16 @@ class SubmissionController extends Controller
             'type' => $data['type'],
 
             'category' =>
-                $data['category'] ?? null,
+            $data['category'] ?? null,
 
             'sub_category' =>
-                $data['sub_category'] ?? null,
+            $data['sub_category'] ?? null,
 
             'form_type' =>
-                $data['form_type'],
+            $data['form_type'],
 
             'form_data' =>
-                $data['form_data'],
+            $data['form_data'],
         ]);
 
         /*
@@ -325,22 +325,31 @@ class SubmissionController extends Controller
          * Draft -> Submit.
          */
         if ($data['status'] === 'SUBMITTED') {
-            $submission->status = 'SUBMITTED';
+            $submission->status = Submission::STATUS_REVIEW_DIV_HEAD;
             $submission->submitted_at = now();
             $submission->save();
+
+            \App\Models\SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => 'DIV_HEAD_REVIEW',
+                'action' => 'SUBMITTED',
+                'acted_by' => $request->user()->id,
+                'notes' => null,
+                'created_at' => now(),
+            ]);
         }
 
         return response()->json([
             'message' =>
-                $submission->status === 'SUBMITTED'
-                    ? 'Form berhasil disubmit.'
-                    : 'Draft berhasil diperbarui.',
+            $submission->status === 'SUBMITTED'
+                ? 'Form berhasil disubmit.'
+                : 'Draft berhasil diperbarui.',
 
             'data' =>
-                $this->transform(
-                    $submission,
-                    true
-                ),
+            $this->transform(
+                $submission,
+                true
+            ),
         ]);
     }
 
@@ -376,7 +385,7 @@ class SubmissionController extends Controller
         if (!is_array($payload)) {
             throw ValidationException::withMessages([
                 'data' =>
-                    'Data form tidak valid.',
+                'Data form tidak valid.',
             ]);
         }
 
@@ -397,7 +406,7 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'status' =>
-                    'Status harus DRAFT atau SUBMITTED.',
+                'Status harus DRAFT atau SUBMIITED.',
             ]);
         }
 
@@ -414,7 +423,7 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'type' =>
-                    'Type harus SAP atau IT.',
+                'Type harus SAP atau IT.',
             ]);
         }
 
@@ -423,28 +432,28 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'form_type' =>
-                    'Form type wajib diisi.',
+                'Form type wajib diisi.',
             ]);
         }
 
         return [
             'type' =>
-                $payload['type'],
+            $payload['type'],
 
             'category' =>
-                $payload['category'] ?? null,
+            $payload['category'] ?? null,
 
             'sub_category' =>
-                $payload['sub_category'] ?? null,
+            $payload['sub_category'] ?? null,
 
             'form_type' =>
-                $payload['form_type'],
+            $payload['form_type'],
 
             'status' =>
-                $status,
+            $status,
 
             'form_data' =>
-                $payload['form_data'] ?? [],
+            $payload['form_data'] ?? [],
         ];
     }
 
@@ -473,22 +482,22 @@ class SubmissionController extends Controller
                     $path =
                         $file->store(
                             'submissions/' .
-                            $submission->id,
+                                $submission->id,
                             'local'
                         );
 
                     return [
                         'name' =>
-                            $file->getClientOriginalName(),
+                        $file->getClientOriginalName(),
 
                         'size' =>
-                            $file->getSize(),
+                        $file->getSize(),
 
                         'type' =>
-                            $file->getClientMimeType(),
+                        $file->getClientMimeType(),
 
                         'path' =>
-                            $path,
+                        $path,
                     ];
                 }
             )
@@ -569,44 +578,44 @@ class SubmissionController extends Controller
     ): array {
         $data = [
             'id' =>
-                $submission->id,
+            $submission->id,
 
             'number' =>
-                $submission->number,
+            $submission->number,
 
             'type' =>
-                $submission->type,
+            $submission->type,
 
             'category' =>
-                $submission->category,
+            $submission->category,
 
             'sub_category' =>
-                $submission->sub_category,
+            $submission->sub_category,
 
             'form_type' =>
-                $submission->form_type,
+            $submission->form_type,
 
             'status' =>
-                $submission->status,
+            $submission->status,
 
             'created_at' =>
-                $submission->created_at,
+            $submission->created_at,
 
             'updated_at' =>
-                $submission->updated_at,
+            $submission->updated_at,
 
             'submitted_at' =>
-                $submission->submitted_at,
+            $submission->submitted_at,
 
             'requestor' => [
                 'id' =>
-                    $submission->requestor_id,
+                $submission->requestor_id,
 
                 'name' =>
-                    $submission->requestor?->name,
+                $submission->requestor?->name,
 
                 'email' =>
-                    $submission->requestor?->email,
+                $submission->requestor?->email,
             ],
         ];
 

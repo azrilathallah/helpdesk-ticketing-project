@@ -179,42 +179,42 @@ export default function MySubmissionPage() {
 
       case "SUBMITTED":
         return {
-          label: "Waiting Division Head",
+          label: "Review by Division Head",
           className: "my-submission__status--submitted",
-          icon: "✓",
+          icon: "•",
         };
 
       case "APPROVED_DIV_HEAD":
         return {
-          label: "Div Head Approved",
+          label: "Approved by Division Head",
           className: "my-submission__status--approved",
           icon: "✓",
         };
 
       case "REVIEW_ACCOUNTING":
         return {
-          label: "Review Accounting",
+          label: "Review by Accounting",
           className: "my-submission__status--accounting",
           icon: "•",
         };
 
       case "APPROVED_ACCOUNTING":
         return {
-          label: "Accounting Approved",
+          label: "Approved by Accounting",
           className: "my-submission__status--approved",
           icon: "✓",
         };
 
       case "REVIEW_TAX":
         return {
-          label: "Review Tax",
+          label: "Review by Tax",
           className: "my-submission__status--tax",
           icon: "•",
         };
 
       case "APPROVED_TAX":
         return {
-          label: "Tax Approved",
+          label: "Approved by Tax",
           className: "my-submission__status--approved",
           icon: "✓",
         };
@@ -364,9 +364,12 @@ export default function MySubmissionPage() {
             >
               <option value="ALL">All Status</option>
               <option value="DRAFT">Draft</option>
-              <option value="SUBMITTED">Waiting Division Head</option>
-              <option value="REVIEW_ACCOUNTING">Review Accounting</option>
-              <option value="REVIEW_TAX">Review Tax</option>
+              <option value="SUBMITTED">Review by Division Head</option>
+              <option value="APPROVED_DIV_HEAD">Approved by Division Head</option>
+              <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
+              <option value="APPROVED_ACCOUNTING">Approved by Accounting</option>
+              <option value="REVIEW_TAX">Review by Tax</option>
+              <option value="APPROVED_TAX">Approved by Tax</option>
               <option value="WAITING_PIC">Waiting PIC</option>
               <option value="TICKET_SOLVED">Solved</option>
               <option value="TICKET_CANCELLED">Cancelled</option>

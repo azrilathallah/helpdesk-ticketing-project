@@ -58,28 +58,28 @@ const TAX_CLASSIFICATIONS = [
 ];
 
 const STATUS_CONFIG = {
-  SUBMITTED: {
-    label: "Waiting Division Head",
+  REVIEW_DIV_HEAD: {
+    label: "Review by Division Head",
     className: "approval-status--submitted",
   },
   APPROVED_DIV_HEAD: {
-    label: "Division Head Approved",
+    label: "Approved by Division Head",
     className: "approval-status--approved",
   },
   REVIEW_ACCOUNTING: {
-    label: "Review Accounting",
+    label: "Review by Accounting",
     className: "approval-status--accounting",
   },
   APPROVED_ACCOUNTING: {
-    label: "Accounting Approved",
+    label: "Approved by Accounting",
     className: "approval-status--approved",
   },
   REVIEW_TAX: {
-    label: "Review Tax",
+    label: "Review by Tax",
     className: "approval-status--tax",
   },
   APPROVED_TAX: {
-    label: "Tax Approved",
+    label: "Approved by Tax",
     className: "approval-status--approved",
   },
   WAITING_PIC: {
@@ -647,7 +647,7 @@ export default function ApprovalPage() {
     const status = selected.status;
 
     /* 1. Division Head Turn */
-    if (status === "SUBMITTED") {
+    if (status === "REVIEW_DIV_HEAD") {
       return (
         <div className="customer-form__actions">
           <button
@@ -914,10 +914,16 @@ export default function ApprovalPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="ALL">All Status</option>
-              <option value="SUBMITTED">Waiting Division Head</option>
-              <option value="REVIEW_ACCOUNTING">Review Accounting</option>
-              <option value="REVIEW_TAX">Review Tax</option>
+              <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
+              <option value="APPROVED_DIV_HEAD">Approved by Division Head</option>
+              <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
+              <option value="APPROVED_ACCOUNTING">Approved by Accounting</option>
+              <option value="REVIEW_TAX">Review by Tax</option>
+              <option value="APPROVED_TAX">Approved by Tax</option>
               <option value="WAITING_PIC">Waiting PIC</option>
+              <option value="TICKET_SOLVED">Solved</option>
+              <option value="TICKET_CANCELLED">Cancelled</option>
+              <option value="TICKET_REJECTED">Rejected</option>
             </select>
           </div>
         </div>
@@ -948,7 +954,6 @@ export default function ApprovalPage() {
                   <th>Number</th>
                   <th>Requestor</th>
                   <th>Request</th>
-                  <th>Category</th>
                   <th>Status</th>
                   <th>Submitted</th>
                   <th />
@@ -981,8 +986,6 @@ export default function ApprovalPage() {
                           {submission.sub_category || "-"}
                         </span>
                       </td>
-
-                      <td>{submission.category || "-"}</td>
 
                       <td>
                         <span className={`approval-status ${status.className}`}>

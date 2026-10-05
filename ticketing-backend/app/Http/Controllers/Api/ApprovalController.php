@@ -26,7 +26,7 @@ class ApprovalController extends Controller
             ->whereIn('status', Submission::activeStatuses())
             ->latest()
             ->get()
-            ->map(fn (Submission $s) => $this->transform($s));
+            ->map(fn(Submission $s) => $this->transform($s));
 
         return response()->json([
             'data' => $submissions,
@@ -57,7 +57,7 @@ class ApprovalController extends Controller
      */
     public function approveDivHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_SUBMITTED) {
+        if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
                 'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Div Head.',
             ], 422);
@@ -82,7 +82,7 @@ class ApprovalController extends Controller
              * status langsung ke REVIEW_ACCOUNTING
              * (menunggu Accounting Staff mengisi data).
              */
-            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING;
+            $submission->status = Submission::STATUS_APPROVED_DIV_HEAD;
             $submission->save();
         });
 
@@ -100,11 +100,17 @@ class ApprovalController extends Controller
      * Status: REVIEW_ACCOUNTING → REVIEW_ACCOUNTING
      * (tetap, menunggu Accounting Head approve)
      */
-    public function fillAccounting(Request $request, Submission $submission)
-    {
-        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING) {
+    public function fillAccounting(
+        Request $request,
+        Submission $submission
+    ) {
+        if (
+            $submission->status !==
+            Submission::STATUS_APPROVED_DIV_HEAD
+        ) {
             return response()->json([
-                'message' => 'Submission tidak dalam status Review by Accounting.',
+                'message' =>
+                'Submission belum disetujui oleh Division Head.',
             ], 422);
         }
 
@@ -114,12 +120,18 @@ class ApprovalController extends Controller
             'accounting_data.recontAccount' => 'required|string',
             'accounting_data.sortKey' => 'required|string',
             'accounting_data.toleranceGroup' => 'required|string',
+
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $accountingData = $request->input('accounting_data');
+        $accountingData =
+            $request->input('accounting_data');
 
-        DB::transaction(function () use ($request, $submission, $accountingData) {
+        DB::transaction(function () use (
+            $request,
+            $submission,
+            $accountingData
+        ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'ACCOUNTING_FILL',
@@ -131,17 +143,42 @@ class ApprovalController extends Controller
             ]);
 
             /*
-             * Merge accounting data ke form_data submission.
-             */
-            $formData = $submission->form_data ?? [];
-            $formData = array_merge($formData, $accountingData);
+         * Merge accounting data
+         * ke form_data.
+         */
+            $formData =
+                $submission->form_data ?? [];
+
+            $formData = array_merge(
+                $formData,
+                $accountingData
+            );
+
             $submission->form_data = $formData;
+
+            /*
+         * Setelah Accounting Staff SAVE,
+         * status berubah menjadi
+         * REVIEW_ACCOUNTING.
+         */
+            $submission->status =
+                Submission::STATUS_REVIEW_ACCOUNTING;
+
             $submission->save();
         });
 
         return response()->json([
-            'message' => 'Data accounting berhasil disimpan. Menunggu approval Accounting Head.',
-            'data' => $this->transform($submission->fresh(['requestor', 'approvals.actor']), true),
+            'message' =>
+            'Data accounting berhasil disimpan. ' .
+                'Menunggu approval Accounting Head.',
+
+            'data' => $this->transform(
+                $submission->fresh([
+                    'requestor',
+                    'approvals.actor',
+                ]),
+                true
+            ),
         ]);
     }
 
@@ -194,7 +231,7 @@ class ApprovalController extends Controller
              * Setelah Accounting Head approve,
              * status maju ke REVIEW_TAX.
              */
-            $submission->status = Submission::STATUS_REVIEW_TAX;
+            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING;
             $submission->save();
         });
 
@@ -212,11 +249,17 @@ class ApprovalController extends Controller
      * Status: REVIEW_TAX → REVIEW_TAX
      * (tetap, menunggu Tax Head approve)
      */
-    public function fillTax(Request $request, Submission $submission)
-    {
-        if ($submission->status !== Submission::STATUS_REVIEW_TAX) {
+    public function fillTax(
+        Request $request,
+        Submission $submission
+    ) {
+        if (
+            $submission->status !==
+            Submission::STATUS_APPROVED_ACCOUNTING
+        ) {
             return response()->json([
-                'message' => 'Submission tidak dalam status Review by Tax.',
+                'message' =>
+                'Submission belum disetujui oleh Accounting Head.',
             ], 422);
         }
 
@@ -226,9 +269,14 @@ class ApprovalController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $taxData = $request->input('tax_data');
+        $taxData =
+            $request->input('tax_data');
 
-        DB::transaction(function () use ($request, $submission, $taxData) {
+        DB::transaction(function () use (
+            $request,
+            $submission,
+            $taxData
+        ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'TAX_FILL',
@@ -240,17 +288,40 @@ class ApprovalController extends Controller
             ]);
 
             /*
-             * Merge tax data ke form_data submission.
-             */
-            $formData = $submission->form_data ?? [];
-            $formData = array_merge($formData, $taxData);
+         * Merge tax data ke form_data.
+         */
+            $formData =
+                $submission->form_data ?? [];
+
+            $formData = array_merge(
+                $formData,
+                $taxData
+            );
+
             $submission->form_data = $formData;
+
+            /*
+         * Setelah Tax Staff SAVE,
+         * status menjadi REVIEW_TAX.
+         */
+            $submission->status =
+                Submission::STATUS_REVIEW_TAX;
+
             $submission->save();
         });
 
         return response()->json([
-            'message' => 'Data tax berhasil disimpan. Menunggu approval Tax Head.',
-            'data' => $this->transform($submission->fresh(['requestor', 'approvals.actor']), true),
+            'message' =>
+            'Data tax berhasil disimpan. ' .
+                'Menunggu approval Tax Head.',
+
+            'data' => $this->transform(
+                $submission->fresh([
+                    'requestor',
+                    'approvals.actor',
+                ]),
+                true
+            ),
         ]);
     }
 
@@ -302,7 +373,7 @@ class ApprovalController extends Controller
              * Setelah Tax Head approve,
              * status maju ke WAITING_PIC.
              */
-            $submission->status = Submission::STATUS_WAITING_PIC;
+            $submission->status = Submission::STATUS_APPROVED_TAX;
             $submission->save();
         });
 
@@ -400,7 +471,7 @@ class ApprovalController extends Controller
     public function reject(Request $request, Submission $submission)
     {
         $allowedStatuses = [
-            Submission::STATUS_SUBMITTED,
+            Submission::STATUS_REVIEW_DIV_HEAD,
             Submission::STATUS_REVIEW_ACCOUNTING,
             Submission::STATUS_REVIEW_TAX,
         ];
@@ -474,7 +545,7 @@ class ApprovalController extends Controller
             $data['attachments'] = $submission->attachments ?? [];
 
             $data['approval_history'] = $submission->approvals
-                ->map(fn (SubmissionApproval $a) => [
+                ->map(fn(SubmissionApproval $a) => [
                     'id' => $a->id,
                     'step' => $a->step,
                     'action' => $a->action,

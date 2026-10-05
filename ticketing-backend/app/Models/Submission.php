@@ -18,6 +18,7 @@ class Submission extends Model
      */
     const STATUS_DRAFT = 'DRAFT';
     const STATUS_SUBMITTED = 'SUBMITTED';
+    const STATUS_REVIEW_DIV_HEAD = 'REVIEW_DIV_HEAD';
     const STATUS_APPROVED_DIV_HEAD = 'APPROVED_DIV_HEAD';
     const STATUS_REVIEW_ACCOUNTING = 'REVIEW_ACCOUNTING';
     const STATUS_APPROVED_ACCOUNTING = 'APPROVED_ACCOUNTING';
@@ -32,7 +33,7 @@ class Submission extends Model
      * Urutan flow status.
      */
     const STATUS_FLOW = [
-        self::STATUS_SUBMITTED,
+        self::STATUS_REVIEW_DIV_HEAD,
         self::STATUS_APPROVED_DIV_HEAD,
         self::STATUS_REVIEW_ACCOUNTING,
         self::STATUS_APPROVED_ACCOUNTING,
@@ -92,7 +93,7 @@ class Submission extends Model
     public static function activeStatuses(): array
     {
         return [
-            self::STATUS_SUBMITTED,
+            self::STATUS_REVIEW_DIV_HEAD,
             self::STATUS_APPROVED_DIV_HEAD,
             self::STATUS_REVIEW_ACCOUNTING,
             self::STATUS_APPROVED_ACCOUNTING,
