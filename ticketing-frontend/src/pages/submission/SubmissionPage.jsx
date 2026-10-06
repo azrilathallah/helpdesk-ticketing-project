@@ -26,7 +26,6 @@ export default function MySubmissionPage() {
         err.response?.data?.message || "Gagal mengambil data submission.",
       );
     } finally {
-
     }
   };
 
@@ -47,7 +46,10 @@ export default function MySubmissionPage() {
   ).length;
 
   const totalSubmitted = submissions.filter(
-    (item) => item.status === "SUBMITTED",
+    (item) =>
+      item.status !== "DRAFT" &&
+      item.status !== "TICKET_CANCELLED" &&
+      item.status !== "TICKET_REJECTED",
   ).length;
 
   /*
@@ -97,23 +99,22 @@ export default function MySubmissionPage() {
       }
     }
 
-    navigate(`/create-ticket/sap-masterdata/customer-form?submission=${submission.id}`);
+    navigate(
+      `/create-ticket/sap-masterdata/customer-form?submission=${submission.id}`,
+    );
   };
 
   const canCancel = (status) =>
-    ![
-      "DRAFT",
-      "TICKET_SOLVED",
-      "TICKET_CANCELLED",
-      "TICKET_REJECTED",
-    ].includes(status);
+    !["DRAFT", "TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(
+      status,
+    );
 
   const handleCancelSubmission = async (submission, e) => {
     if (e) e.stopPropagation();
 
     if (
       !window.confirm(
-        `Apakah Anda yakin ingin membatalkan (cancel) tiket ${submission.number}?`
+        `Apakah Anda yakin ingin membatalkan (cancel) tiket ${submission.number}?`,
       )
     ) {
       return;
@@ -122,15 +123,13 @@ export default function MySubmissionPage() {
     try {
       const response = await submissionApi.cancel(
         submission.id,
-        "Dibatalkan oleh requestor"
+        "Dibatalkan oleh requestor",
       );
       alert(response?.data?.message || "Tiket berhasil dibatalkan.");
       await loadSubmissions();
     } catch (err) {
       console.error(err);
-      alert(
-        err.response?.data?.message || "Gagal membatalkan tiket."
-      );
+      alert(err.response?.data?.message || "Gagal membatalkan tiket.");
     }
   };
 
@@ -177,7 +176,7 @@ export default function MySubmissionPage() {
           icon: "✎",
         };
 
-      case "SUBMITTED":
+      case "REVIEW_DIV_HEAD":
         return {
           label: "Review by Division Head",
           className: "my-submission__status--submitted",
@@ -365,9 +364,13 @@ export default function MySubmissionPage() {
               <option value="ALL">All Status</option>
               <option value="DRAFT">Draft</option>
               <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
-              <option value="APPROVED_DIV_HEAD">Approved by Division Head</option>
+              <option value="APPROVED_DIV_HEAD">
+                Approved by Division Head
+              </option>
               <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
-              <option value="APPROVED_ACCOUNTING">Approved by Accounting</option>
+              <option value="APPROVED_ACCOUNTING">
+                Approved by Accounting
+              </option>
               <option value="REVIEW_TAX">Review by Tax</option>
               <option value="APPROVED_TAX">Approved by Tax</option>
               <option value="WAITING_PIC">Waiting PIC</option>
@@ -417,7 +420,6 @@ export default function MySubmissionPage() {
                 ? "Your saved drafts and submitted requests will appear here."
                 : "Try changing your search or filter."}
             </p>
-
           </div>
         )}
 
@@ -432,10 +434,8 @@ export default function MySubmissionPage() {
                 <tr>
                   <th>Number</th>
                   <th>Request</th>
-                  <th>Category</th>
                   <th>Status</th>
                   <th>Created</th>
-                  <th>Updated</th>
                   <th />
                 </tr>
               </thead>
@@ -452,29 +452,13 @@ export default function MySubmissionPage() {
                       {/* Number */}
 
                       <td>
-                        <div className="my-submission__number">
-                          <strong>{submission.number}</strong>
-
-                          <span>{submission.type}</span>
-                        </div>
+                        <strong>{submission.number}</strong>
                       </td>
 
                       {/* Request */}
 
                       <td>
-                        <div className="my-submission__request">
-                          <strong>{submission.form_type}</strong>
-
-                          <span>{submission.sub_category || "-"}</span>
-                        </div>
-                      </td>
-
-                      {/* Category */}
-
-                      <td>
-                        <span className="my-submission__category">
-                          {submission.category || "-"}
-                        </span>
+                        <strong>{submission.form_type}</strong>
                       </td>
 
                       {/* Status */}
@@ -483,8 +467,6 @@ export default function MySubmissionPage() {
                         <span
                           className={`my-submission__status ${status.className}`}
                         >
-                          <span>{status.icon}</span>
-
                           {status.label}
                         </span>
                       </td>
@@ -492,35 +474,21 @@ export default function MySubmissionPage() {
                       {/* Created */}
 
                       <td>
-                        <div className="my-submission__date">
-                          <strong>{formatDate(submission.created_at)}</strong>
-
-                          <span>
-                            {formatDateTime(submission.created_at).split(
-                              ", ",
-                            )[1] || ""}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Updated */}
-
-                      <td>
-                        <div className="my-submission__date">
-                          <strong>{formatDate(submission.updated_at)}</strong>
-
-                          <span>
-                            {formatDateTime(submission.updated_at).split(
-                              ", ",
-                            )[1] || ""}
-                          </span>
-                        </div>
+                        {formatDate(
+                          submission.submitted_at || submission.created_at,
+                        )}
                       </td>
 
                       {/* Action */}
 
                       <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
                           <button
                             type="button"
                             className="my-submission__action"
@@ -540,7 +508,9 @@ export default function MySubmissionPage() {
                               type="button"
                               className="my-submission__action my-submission__action--cancel"
                               style={{ color: "#dc2626", fontWeight: "700" }}
-                              onClick={(e) => handleCancelSubmission(submission, e)}
+                              onClick={(e) =>
+                                handleCancelSubmission(submission, e)
+                              }
                             >
                               Cancel
                             </button>

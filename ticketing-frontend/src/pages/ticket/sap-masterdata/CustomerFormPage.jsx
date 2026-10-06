@@ -586,7 +586,7 @@ export default function CustomerFormPage() {
        * Setelah SUBMIT:
        * form menjadi read-only.
        */
-      if (saved?.status === "SUBMITTED") {
+      if (saved?.status === "REVIEW_DIV_HEAD") {
         setReadOnly(true);
 
         alert(`Form berhasil disubmit.\n\nNumber: ${saved.number}`);

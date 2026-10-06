@@ -17,7 +17,6 @@ class Submission extends Model
      * ──────────────────────────────────────────
      */
     const STATUS_DRAFT = 'DRAFT';
-    const STATUS_SUBMITTED = 'SUBMITTED';
     const STATUS_REVIEW_DIV_HEAD = 'REVIEW_DIV_HEAD';
     const STATUS_APPROVED_DIV_HEAD = 'APPROVED_DIV_HEAD';
     const STATUS_REVIEW_ACCOUNTING = 'REVIEW_ACCOUNTING';

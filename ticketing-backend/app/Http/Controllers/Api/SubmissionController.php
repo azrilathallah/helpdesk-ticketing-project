@@ -47,7 +47,7 @@ class SubmissionController extends Controller
 
         $open = (clone $baseQuery)
             ->whereIn('status', [
-                Submission::STATUS_SUBMITTED,
+                Submission::STATUS_REVIEW_DIV_HEAD,
             ])
             ->count();
 
@@ -70,16 +70,9 @@ class SubmissionController extends Controller
             ->count();
 
         $rejected = (clone $baseQuery)
-            ->where(
+            ->whereIn(
                 'status',
-                Submission::STATUS_TICKET_REJECTED
-            )
-            ->count();
-
-        $cancelled = (clone $baseQuery)
-            ->where(
-                'status',
-                Submission::STATUS_TICKET_CANCELLED
+                [Submission::STATUS_TICKET_REJECTED, Submission::STATUS_TICKET_CANCELLED]
             )
             ->count();
 
@@ -90,7 +83,6 @@ class SubmissionController extends Controller
                 'in_progress' => $inProgress,
                 'closed' => $closed,
                 'rejected' => $rejected,
-                'cancelled' => $cancelled,
             ],
         ]);
     }
@@ -129,10 +121,6 @@ class SubmissionController extends Controller
         ) {
             $type = $data['type'];
 
-            /*
-             * SAP  -> HD_SAP
-             * IT   -> IT_
-             */
             $prefix = $type === 'SAP'
                 ? 'HD_SAP'
                 : 'HD_IT';
@@ -182,13 +170,6 @@ class SubmissionController extends Controller
                     'updated_at' => now(),
                 ]);
 
-            /*
-             * Contoh:
-             *
-             * HD_SAP2026000001
-             *
-             * IT_2026000001
-             */
             $number =
                 $prefix .
                 $year .

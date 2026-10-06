@@ -545,7 +545,9 @@ export default function ApprovalPage() {
             !accounting.sortKey ||
             !accounting.toleranceGroup
           ) {
-            setActionError("Semua field accounting wajib diisi sebelum disimpan.");
+            setActionError(
+              "Semua field accounting wajib diisi sebelum disimpan.",
+            );
             setProcessing(false);
             return;
           }
@@ -564,7 +566,9 @@ export default function ApprovalPage() {
 
         case "fill-tax": {
           if (!tax.witholdingTax || tax.witholdingTax.length === 0) {
-            setActionError("Pilih minimal satu witholding tax sebelum disimpan.");
+            setActionError(
+              "Pilih minimal satu witholding tax sebelum disimpan.",
+            );
             setProcessing(false);
             return;
           }
@@ -580,7 +584,9 @@ export default function ApprovalPage() {
         case "resolve": {
           const isNewRequest = selected.form_data?.requestType === "New";
           if (isNewRequest && !customerCode.trim()) {
-            setActionError("Customer code wajib diisi oleh PIC untuk request New.");
+            setActionError(
+              "Customer code wajib diisi oleh PIC untuk request New.",
+            );
             setProcessing(false);
             return;
           }
@@ -681,9 +687,13 @@ export default function ApprovalPage() {
     }
 
     /* 2. Accounting Turn */
-    if (status === "REVIEW_ACCOUNTING") {
+    if (status === "APPROVED_DIV_HEAD" || status === "REVIEW_ACCOUNTING") {
+      const accountingSaved =
+        status === "REVIEW_ACCOUNTING" && hasAccountingSaved;
+
       return (
         <div className="customer-form__actions">
+          {/* Accounting tetap boleh Reject */}
           <button
             type="button"
             className="customer-form__button"
@@ -698,8 +708,12 @@ export default function ApprovalPage() {
             Reject
           </button>
 
-          {!hasAccountingSaved ? (
-            /* Belum di-save: HANYA ada tombol Save Accounting Data dan Reject (Tombol Approve TIDAK MUNCUL) */
+          {/* =====================================================
+          APPROVED_DIV_HEAD
+          Accounting Staff baru mendapat giliran mengisi.
+          BELUM BOLEH APPROVE.
+      ===================================================== */}
+          {status === "APPROVED_DIV_HEAD" && (
             <button
               type="button"
               className="customer-form__button customer-form__button--primary"
@@ -714,29 +728,59 @@ export default function ApprovalPage() {
             >
               {processing ? "Saving..." : "Save Accounting Data"}
             </button>
-          ) : (
-            /* Sudah di-save: Tombol HANYA Reject dan Approve */
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--primary"
-              style={{
-                background: "#16a34a",
-                borderColor: "#16a34a",
-              }}
-              onClick={() => handleAction("approve-accounting")}
-              disabled={processing}
-            >
-              {processing ? "Processing..." : "Approve as Accounting Head"}
-            </button>
+          )}
+
+          {/* =====================================================
+          REVIEW_ACCOUNTING
+          Muncul setelah Accounting Staff berhasil SAVE.
+          Sekarang Accounting Head boleh Approve.
+      ===================================================== */}
+          {status === "REVIEW_ACCOUNTING" && (
+            <>
+              {!accountingSaved && (
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--primary"
+                  onClick={() => handleAction("fill-accounting")}
+                  disabled={
+                    processing ||
+                    !accounting.accountGroup ||
+                    !accounting.recontAccount ||
+                    !accounting.sortKey ||
+                    !accounting.toleranceGroup
+                  }
+                >
+                  {processing ? "Saving..." : "Save Accounting Data"}
+                </button>
+              )}
+
+              {accountingSaved && (
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--primary"
+                  style={{
+                    background: "#16a34a",
+                    borderColor: "#16a34a",
+                  }}
+                  onClick={() => handleAction("approve-accounting")}
+                  disabled={processing}
+                >
+                  {processing ? "Processing..." : "Approve as Accounting Head"}
+                </button>
+              )}
+            </>
           )}
         </div>
       );
     }
 
     /* 3. Tax Turn */
-    if (status === "REVIEW_TAX") {
+    if (status === "APPROVED_ACCOUNTING" || status === "REVIEW_TAX") {
+      const taxSaved = status === "REVIEW_TAX" && hasTaxSaved;
+
       return (
         <div className="customer-form__actions">
+          {/* Tax Head tetap bisa Reject */}
           <button
             type="button"
             className="customer-form__button"
@@ -751,8 +795,11 @@ export default function ApprovalPage() {
             Reject
           </button>
 
-          {!hasTaxSaved ? (
-            /* Belum di-save: HANYA ada tombol Save Tax Data dan Reject (Tombol Approve TIDAK MUNCUL) */
+          {/* =====================================================
+              APPROVED_ACCOUNTING
+              Tax Staff mendapat giliran mengisi.
+            ===================================================== */}
+          {status === "APPROVED_ACCOUNTING" && (
             <button
               type="button"
               className="customer-form__button customer-form__button--primary"
@@ -765,27 +812,52 @@ export default function ApprovalPage() {
             >
               {processing ? "Saving..." : "Save Tax Data"}
             </button>
-          ) : (
-            /* Sudah di-save: Tombol HANYA Reject dan Approve */
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--primary"
-              style={{
-                background: "#16a34a",
-                borderColor: "#16a34a",
-              }}
-              onClick={() => handleAction("approve-tax")}
-              disabled={processing}
-            >
-              {processing ? "Processing..." : "Approve as Tax Head"}
-            </button>
+          )}
+
+          {/* =====================================================
+              REVIEW_TAX
+              Tax Staff sudah Save.
+              Tax Head sekarang boleh Approve.
+            ===================================================== */}
+          {status === "REVIEW_TAX" && (
+            <>
+              {!taxSaved && (
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--primary"
+                  onClick={() => handleAction("fill-tax")}
+                  disabled={
+                    processing ||
+                    !tax.witholdingTax ||
+                    tax.witholdingTax.length === 0
+                  }
+                >
+                  {processing ? "Saving..." : "Save Tax Data"}
+                </button>
+              )}
+
+              {taxSaved && (
+                <button
+                  type="button"
+                  className="customer-form__button customer-form__button--primary"
+                  style={{
+                    background: "#16a34a",
+                    borderColor: "#16a34a",
+                  }}
+                  onClick={() => handleAction("approve-tax")}
+                  disabled={processing}
+                >
+                  {processing ? "Processing..." : "Approve as Tax Head"}
+                </button>
+              )}
+            </>
           )}
         </div>
       );
     }
 
     /* 4. PIC Turn */
-    if (status === "WAITING_PIC") {
+    if (status === "WAITING_PIC" || "APPROVED_TAX") {
       const isNew = selected.form_data?.requestType === "New";
 
       return (
@@ -823,9 +895,9 @@ export default function ApprovalPage() {
   };
 
   const formData = selected?.form_data || {};
-  const isAccountingTurn = selected?.status === "REVIEW_ACCOUNTING";
-  const isTaxTurn = selected?.status === "REVIEW_TAX";
-  const isPICTurn = selected?.status === "WAITING_PIC";
+  const isAccountingTurn = selected?.status === "APPROVED_DIV_HEAD";
+  const isTaxTurn = selected?.status === "APPROVED_ACCOUNTING";
+  const isPICTurn = selected?.status === "WAITING_PIC" || "APPROVED_TAX";
   const isNewRequest = formData.requestType === "New";
 
   return (
@@ -915,9 +987,13 @@ export default function ApprovalPage() {
             >
               <option value="ALL">All Status</option>
               <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
-              <option value="APPROVED_DIV_HEAD">Approved by Division Head</option>
+              <option value="APPROVED_DIV_HEAD">
+                Approved by Division Head
+              </option>
               <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
-              <option value="APPROVED_ACCOUNTING">Approved by Accounting</option>
+              <option value="APPROVED_ACCOUNTING">
+                Approved by Accounting
+              </option>
               <option value="REVIEW_TAX">Review by Tax</option>
               <option value="APPROVED_TAX">Approved by Tax</option>
               <option value="WAITING_PIC">Waiting PIC</option>
@@ -968,23 +1044,14 @@ export default function ApprovalPage() {
                     <tr key={submission.id}>
                       <td>
                         <strong>{submission.number}</strong>
-                        <span className="approval-table__type">
-                          {submission.type}
-                        </span>
                       </td>
 
                       <td>
                         <strong>{submission.requestor?.name || "-"}</strong>
-                        <span className="approval-table__muted">
-                          {submission.requestor?.email || "-"}
-                        </span>
                       </td>
 
                       <td>
                         <strong>{submission.form_type}</strong>
-                        <span className="approval-table__muted">
-                          {submission.sub_category || "-"}
-                        </span>
                       </td>
 
                       <td>
@@ -1084,7 +1151,7 @@ export default function ApprovalPage() {
                         color: "var(--color-text-muted)",
                       }}
                     >
-                      Ticket: <strong>{selected.number}</strong>
+                      Ticket Number: <strong>{selected.number}</strong>
                     </p>
                   </div>
 
@@ -1180,9 +1247,7 @@ export default function ApprovalPage() {
                     <ReadOnlyField
                       label="Position (Jabatan)"
                       value={
-                        selected.requestor?.position ||
-                        formData.position ||
-                        "-"
+                        selected.requestor?.position || formData.position || "-"
                       }
                     />
 
@@ -1225,9 +1290,7 @@ export default function ApprovalPage() {
                     />
                     <ReadOnlyField
                       label="Email"
-                      value={
-                        selected.requestor?.email || formData.email || "-"
-                      }
+                      value={selected.requestor?.email || formData.email || "-"}
                     />
                   </Section>
 
@@ -1333,25 +1396,16 @@ export default function ApprovalPage() {
                       disabled={true}
                     />
 
-                    <ReadOnlyField
-                      label="Country"
-                      value={formData.country}
-                    />
+                    <ReadOnlyField label="Country" value={formData.country} />
 
-                    <ReadOnlyField
-                      label="Region"
-                      value={formData.region}
-                    />
+                    <ReadOnlyField label="Region" value={formData.region} />
 
                     <ReadOnlyField
                       label="Telephone"
                       value={formData.telephone}
                     />
 
-                    <ReadOnlyField
-                      label="Fax"
-                      value={formData.fax}
-                    />
+                    <ReadOnlyField label="Fax" value={formData.fax} />
 
                     <PairedTextField
                       label="NPWP (VAT Reg. No.) / Tanggal Terdaftar"
@@ -1418,9 +1472,7 @@ export default function ApprovalPage() {
                         <LockedBox title="Filled by Accounting">
                           <ChoiceGroup
                             options={SORT_KEYS}
-                            value={
-                              accounting.sortKey || formData.sortKey || ""
-                            }
+                            value={accounting.sortKey || formData.sortKey || ""}
                             disabled={true}
                           />
                         </LockedBox>
@@ -1623,10 +1675,7 @@ export default function ApprovalPage() {
                                   {item.action}
                                 </p>
 
-                                <small>
-                                  By: {item.actor?.name || "-"} (
-                                  {item.actor?.email || "-"})
-                                </small>
+                                <small>By: {item.actor?.name || "-"}</small>
 
                                 {/* NOTES HANYA MUNCUL KETIKA SUBMISSION DI-REJECT */}
                                 {isRejected && item.notes && (
