@@ -1,19 +1,55 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate, useParams } from "react-router-dom";
+
 import { submissionApi } from "../../api/submission";
 
-export default function MySubmissionPage() {
-  const navigate = useNavigate();
+import FormRenderer from "../../components/forms_sap/FormRenderer";
 
+import {
+  DEFAULT_CUSTOMER_FORM,
+  getUserValue,
+} from "../../components/forms_sap/customer/CustomerFormFields";
+
+export default function SubmissionPage() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  /* =========================================================
+     DETAIL MODE
+  ========================================================= */
+
+  if (id) {
+    return <SubmissionDetailPage id={id} />;
+  }
+
+  /* =========================================================
+     LIST MODE
+  ========================================================= */
+
+  return <SubmissionList navigate={navigate} />;
+}
+
+/* =========================================================
+   LIST
+========================================================= */
+
+function SubmissionList({ navigate }) {
   const [submissions, setSubmissions] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("ALL");
+
   const [typeFilter, setTypeFilter] = useState("ALL");
 
   const loadSubmissions = async () => {
     try {
+      setLoading(true);
       setError("");
 
       const response = await submissionApi.getAll();
@@ -26,18 +62,13 @@ export default function MySubmissionPage() {
         err.response?.data?.message || "Gagal mengambil data submission.",
       );
     } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     loadSubmissions();
   }, []);
-
-  /*
-   * =========================================================
-   * SUMMARY
-   * =========================================================
-   */
 
   const totalSubmission = submissions.length;
 
@@ -51,12 +82,6 @@ export default function MySubmissionPage() {
       item.status !== "TICKET_CANCELLED" &&
       item.status !== "TICKET_REJECTED",
   ).length;
-
-  /*
-   * =========================================================
-   * FILTER
-   * =========================================================
-   */
 
   const filteredSubmissions = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -78,12 +103,6 @@ export default function MySubmissionPage() {
     });
   }, [submissions, search, statusFilter, typeFilter]);
 
-  /*
-   * =========================================================
-   * ACTION
-   * =========================================================
-   */
-
   const handleOpen = (submission) => {
     if (submission.status === "DRAFT") {
       if (
@@ -99,9 +118,7 @@ export default function MySubmissionPage() {
       }
     }
 
-    navigate(
-      `/create-ticket/sap-masterdata/customer-form?submission=${submission.id}`,
-    );
+    navigate(`/submission/${submission.id}`);
   };
 
   const canCancel = (status) =>
@@ -109,12 +126,12 @@ export default function MySubmissionPage() {
       status,
     );
 
-  const handleCancelSubmission = async (submission, e) => {
-    if (e) e.stopPropagation();
+  const handleCancelSubmission = async (submission, event) => {
+    event?.stopPropagation();
 
     if (
       !window.confirm(
-        `Apakah Anda yakin ingin membatalkan (cancel) tiket ${submission.number}?`,
+        `Apakah Anda yakin ingin membatalkan ticket ${submission.number}?`,
       )
     ) {
       return;
@@ -125,22 +142,21 @@ export default function MySubmissionPage() {
         submission.id,
         "Dibatalkan oleh requestor",
       );
-      alert(response?.data?.message || "Tiket berhasil dibatalkan.");
+
+      alert(response?.data?.message || "Ticket berhasil dibatalkan.");
+
       await loadSubmissions();
     } catch (err) {
       console.error(err);
+
       alert(err.response?.data?.message || "Gagal membatalkan tiket.");
     }
   };
 
-  /*
-   * =========================================================
-   * DATE
-   * =========================================================
-   */
-
-  function formatDate(date) {
-    if (!date) return "-";
+  const formatDate = (date) => {
+    if (!date) {
+      return "-";
+    }
 
     return new Date(date).toLocaleString("id-ID", {
       day: "2-digit",
@@ -149,13 +165,7 @@ export default function MySubmissionPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  }
-
-  /*
-   * =========================================================
-   * STATUS
-   * =========================================================
-   */
+  };
 
   const getStatusConfig = (status) => {
     switch (status) {
@@ -163,93 +173,79 @@ export default function MySubmissionPage() {
         return {
           label: "Draft",
           className: "my-submission__status--draft",
-          icon: "✎",
         };
 
       case "REVIEW_DIV_HEAD":
         return {
           label: "Review by Division Head",
           className: "my-submission__status--submitted",
-          icon: "•",
         };
 
       case "APPROVED_DIV_HEAD":
         return {
           label: "Approved by Division Head",
           className: "my-submission__status--approved",
-          icon: "✓",
         };
 
       case "REVIEW_ACCOUNTING":
         return {
           label: "Review by Accounting",
           className: "my-submission__status--accounting",
-          icon: "•",
         };
 
       case "APPROVED_ACCOUNTING":
         return {
           label: "Approved by Accounting",
           className: "my-submission__status--approved",
-          icon: "✓",
         };
 
       case "REVIEW_TAX":
         return {
           label: "Review by Tax",
           className: "my-submission__status--tax",
-          icon: "•",
         };
 
       case "APPROVED_TAX":
         return {
           label: "Approved by Tax",
           className: "my-submission__status--approved",
-          icon: "✓",
         };
 
       case "WAITING_PIC":
         return {
           label: "Waiting PIC",
           className: "my-submission__status--pic",
-          icon: "•",
         };
 
       case "TICKET_SOLVED":
         return {
           label: "Ticket Solved",
           className: "my-submission__status--solved",
-          icon: "✓",
         };
 
       case "TICKET_CANCELLED":
         return {
           label: "Ticket Cancelled",
           className: "my-submission__status--cancelled",
-          icon: "✕",
         };
 
       case "TICKET_REJECTED":
         return {
           label: "Ticket Rejected",
           className: "my-submission__status--rejected",
-          icon: "✕",
         };
 
       default:
         return {
           label: status,
           className: "",
-          icon: "•",
         };
     }
   };
 
   return (
     <div className="my-submission">
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER */}
 
       <div className="my-submission__header">
         <div>
@@ -261,9 +257,7 @@ export default function MySubmissionPage() {
         </div>
       </div>
 
-      {/* =====================================================
-          SUMMARY
-      ===================================================== */}
+      {/* SUMMARY */}
 
       <div className="my-submission__summary">
         <div className="my-submission__summary-card">
@@ -273,7 +267,6 @@ export default function MySubmissionPage() {
 
           <div>
             <span>Draft</span>
-
             <strong>{totalDraft}</strong>
           </div>
         </div>
@@ -285,21 +278,14 @@ export default function MySubmissionPage() {
 
           <div>
             <span>Submitted</span>
-
             <strong>{totalSubmitted}</strong>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          MAIN CARD
-      ===================================================== */}
+      {/* LIST */}
 
       <div className="my-submission__card">
-        {/* ===================================================
-            TOOLBAR
-        =================================================== */}
-
         <div className="my-submission__toolbar">
           <div>
             <h2>Submission List</h2>
@@ -311,8 +297,6 @@ export default function MySubmissionPage() {
           </div>
 
           <div className="my-submission__filters">
-            {/* Search */}
-
             <div className="my-submission__search">
               <span>⌕</span>
 
@@ -320,7 +304,7 @@ export default function MySubmissionPage() {
                 type="text"
                 placeholder="Search number or form..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
               />
 
               {search && (
@@ -330,12 +314,10 @@ export default function MySubmissionPage() {
               )}
             </div>
 
-            {/* Type */}
-
             <select
               className="my-submission__select"
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={(event) => setTypeFilter(event.target.value)}
             >
               <option value="ALL">All Type</option>
 
@@ -344,36 +326,41 @@ export default function MySubmissionPage() {
               <option value="IT">IT</option>
             </select>
 
-            {/* Status */}
-
             <select
               className="my-submission__select"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(event) => setStatusFilter(event.target.value)}
             >
               <option value="ALL">All Status</option>
+
               <option value="DRAFT">Draft</option>
+
               <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
+
               <option value="APPROVED_DIV_HEAD">
                 Approved by Division Head
               </option>
+
               <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
+
               <option value="APPROVED_ACCOUNTING">
                 Approved by Accounting
               </option>
+
               <option value="REVIEW_TAX">Review by Tax</option>
+
               <option value="APPROVED_TAX">Approved by Tax</option>
+
               <option value="WAITING_PIC">Waiting PIC</option>
+
               <option value="TICKET_SOLVED">Solved</option>
+
               <option value="TICKET_CANCELLED">Cancelled</option>
+
               <option value="TICKET_REJECTED">Rejected</option>
             </select>
           </div>
         </div>
-
-        {/* ===================================================
-            ERROR
-        =================================================== */}
 
         {error && (
           <div className="my-submission__error">
@@ -391,11 +378,17 @@ export default function MySubmissionPage() {
           </div>
         )}
 
-        {/* ===================================================
-            EMPTY
-        =================================================== */}
+        {loading && !error && (
+          <div className="my-submission__empty">
+            <div className="my-submission__empty-icon">⏳</div>
 
-        {!error && filteredSubmissions.length === 0 && (
+            <h3>Loading submissions...</h3>
+
+            <p>Please wait while submission data is being loaded.</p>
+          </div>
+        )}
+
+        {!loading && !error && filteredSubmissions.length === 0 && (
           <div className="my-submission__empty">
             <div className="my-submission__empty-icon">📄</div>
 
@@ -412,10 +405,6 @@ export default function MySubmissionPage() {
             </p>
           </div>
         )}
-
-        {/* ===================================================
-            TABLE
-        =================================================== */}
 
         {!error && filteredSubmissions.length > 0 && (
           <div className="approval-table-wrapper">
@@ -439,19 +428,11 @@ export default function MySubmissionPage() {
                       key={submission.id}
                       onClick={() => handleOpen(submission)}
                     >
-                      {/* Number */}
-
                       <td>
                         <strong>{submission.number}</strong>
                       </td>
 
-                      {/* Request */}
-
-                      <td>
-                        <strong>{submission.form_type}</strong>
-                      </td>
-
-                      {/* Status */}
+                      <td>{submission.form_type}</td>
 
                       <td>
                         <span
@@ -461,15 +442,11 @@ export default function MySubmissionPage() {
                         </span>
                       </td>
 
-                      {/* Created */}
-
                       <td>
                         {formatDate(
                           submission.submitted_at || submission.created_at,
                         )}
                       </td>
-
-                      {/* Action */}
 
                       <td>
                         <div
@@ -482,8 +459,8 @@ export default function MySubmissionPage() {
                           <button
                             type="button"
                             className="my-submission__action"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            onClick={(event) => {
+                              event.stopPropagation();
 
                               handleOpen(submission);
                             }}
@@ -497,9 +474,8 @@ export default function MySubmissionPage() {
                             <button
                               type="button"
                               className="my-submission__action my-submission__action--cancel"
-                              style={{ color: "#dc2626", fontWeight: "700" }}
-                              onClick={(e) =>
-                                handleCancelSubmission(submission, e)
+                              onClick={(event) =>
+                                handleCancelSubmission(submission, event)
                               }
                             >
                               Cancel
@@ -514,6 +490,312 @@ export default function MySubmissionPage() {
             </table>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+function formatDate(date) {
+  if (!date) {
+    return "-";
+  }
+
+  return new Date(date).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function SubmissionDetailPage({ id }) {
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  const [submission, setSubmission] = useState(null);
+
+  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+
+  useEffect(() => {
+    const loadDetail = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await submissionApi.getById(id);
+
+        const data = response.data?.data;
+
+        if (!data) {
+          throw new Error("Submission tidak ditemukan.");
+        }
+
+        setSubmission(data);
+
+        setFormData({
+          ...DEFAULT_CUSTOMER_FORM,
+          ...(data.form_data || {}),
+        });
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          err.response?.data?.message || "Gagal mengambil detail submission.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDetail();
+  }, [id]);
+
+  const requestor = useMemo(() => {
+    return {
+      name: getUserValue(submission?.requestor, ["name"]),
+
+      position: getUserValue(submission?.requestor, ["position"]),
+
+      division: getUserValue(submission?.requestor, ["division"]),
+
+      department: getUserValue(submission?.requestor, ["department"]),
+
+      telephone: getUserValue(submission?.requestor, ["telephone"]),
+
+      email: getUserValue(submission?.requestor, ["email"]),
+    };
+  }, [submission]);
+
+  const getStatus = (status) => {
+    switch (status) {
+      case "DRAFT":
+        return "Draft";
+
+      case "REVIEW_DIV_HEAD":
+        return "Review by Division Head";
+
+      case "APPROVED_DIV_HEAD":
+        return "Approved by Division Head";
+
+      case "REVIEW_ACCOUNTING":
+        return "Review by Accounting";
+
+      case "APPROVED_ACCOUNTING":
+        return "Approved by Accounting";
+
+      case "REVIEW_TAX":
+        return "Review by Tax";
+
+      case "APPROVED_TAX":
+        return "Approved by Tax";
+
+      case "WAITING_PIC":
+        return "Waiting PIC";
+
+      case "TICKET_SOLVED":
+        return "Ticket Solved";
+
+      case "TICKET_CANCELLED":
+        return "Ticket Cancelled";
+
+      case "TICKET_REJECTED":
+        return "Ticket Rejected";
+
+      default:
+        return status || "-";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="customer-form-page">
+        <div className="customer-form-card">
+          <div className="approval-empty">Loading submission...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="customer-form-page">
+        <div className="customer-form-card">
+          <div className="approval-alert approval-alert--error">{error}</div>
+
+          <div className="customer-form__actions">
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--secondary"
+              onClick={() => navigate("/submission")}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!submission) {
+    return null;
+  }
+
+  return (
+    <div className="customer-form-page">
+      <div className="customer-form-card">
+        {/* HEADER */}
+
+        <header className="customer-form__header">
+          <button
+            type="button"
+            className="customer-form__back"
+            onClick={() => navigate("/submission")}
+          >
+            ← Back
+          </button>
+
+          <div className="customer-form__header-content">
+            <div>
+              <p className="customer-form__eyebrow">
+                {submission.type} · {submission.category} ·{" "}
+                {submission.sub_category}
+              </p>
+
+              <h1>Master Data Customer Request</h1>
+
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: "0.85rem",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                Ticket Number: <strong>{submission.number}</strong>
+              </p>
+            </div>
+
+            <span className="approval-status approval-status--approved">
+              {getStatus(submission.status)}
+            </span>
+          </div>
+        </header>
+
+        <form
+          className="customer-form"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <FormRenderer
+            type={submission.type}
+            category={submission.category}
+            subCategory={submission.sub_category}
+            formData={formData}
+            setFormData={setFormData}
+            mode="submission"
+            readOnly
+            requestor={requestor}
+            existingAttachments={submission.attachments || []}
+          />
+
+          {/* =====================================================
+              APPROVAL HISTORY
+          ===================================================== */}
+
+          <section className="customer-form__section">
+            <div className="customer-form__section-title">
+              <span>8</span>
+
+              <h3>Approval History</h3>
+            </div>
+
+            <div className="customer-form__section-body">
+              {submission.approval_history?.length ? (
+                <div className="approval-history">
+                  {submission.approval_history.map((item) => {
+                    const rejected = item.action === "REJECTED";
+
+                    let label = item.step;
+
+                    if (item.step === "DIV_HEAD_APPROVE") {
+                      label = "Approved by Division Head";
+                    }
+
+                    if (item.step === "ACCOUNTING_APPROVE") {
+                      label = "Approved by Accounting";
+                    }
+
+                    if (item.step === "TAX_APPROVE") {
+                      label = "Approved by Tax";
+                    }
+
+                    if (item.action === "RESOLVED") {
+                      label = "Ticket Resolved";
+                    }
+
+                    return (
+                      <div key={item.id} className="approval-history__item">
+                        <div
+                          className={`approval-history__marker ${
+                            rejected ? "approval-history__marker--rejected" : ""
+                          }`}
+                        >
+                          {rejected
+                            ? "!"
+                            : item.action === "FILLED"
+                              ? "•"
+                              : "✓"}
+                        </div>
+
+                        <div className="approval-history__content">
+                          <div className="approval-history__top">
+                            <strong
+                              className={
+                                rejected
+                                  ? "approval-history__action--rejected"
+                                  : ""
+                              }
+                            >
+                              {rejected ? "Rejected" : label}
+                            </strong>
+
+                            <span>{formatDate(item.created_at)}</span>
+                          </div>
+
+                          <small>By: {item.actor?.name || "-"}</small>
+
+                          {item.notes && (
+                            <div className="approval-history__notes">
+                              {item.notes}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="approval-muted">Belum ada riwayat approval.</p>
+              )}
+            </div>
+          </section>
+
+          <div className="customer-form__actions">
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--secondary"
+              onClick={() => navigate("/submission")}
+            >
+              Back to My Submission
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

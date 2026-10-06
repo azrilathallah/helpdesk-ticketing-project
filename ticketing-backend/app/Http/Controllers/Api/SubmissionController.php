@@ -7,6 +7,7 @@ use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Models\SubmissionApproval;
 
 class SubmissionController extends Controller
 {
@@ -95,6 +96,11 @@ class SubmissionController extends Controller
         Submission $submission
     ) {
         $this->ensureOwner($request, $submission);
+
+        $submission->load([
+            'requestor',
+            'approvals.actor',
+        ]);
 
         return response()->json([
             'data' => $this->transform(
@@ -226,7 +232,7 @@ class SubmissionController extends Controller
             $submission->save();
 
             if ($isSubmitted) {
-                \App\Models\SubmissionApproval::create([
+                SubmissionApproval::create([
                     'submission_id' => $submission->id,
                     'step' => 'DIV_HEAD_REVIEW',
                     'action' => 'SUBMITTED',
@@ -330,7 +336,7 @@ class SubmissionController extends Controller
             $submission->submitted_at = now();
             $submission->save();
 
-            \App\Models\SubmissionApproval::create([
+            SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'DIV_HEAD_REVIEW',
                 'action' => 'SUBMITTED',
@@ -533,7 +539,7 @@ class SubmissionController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $submission) {
-            \App\Models\SubmissionApproval::create([
+            SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => $submission->status,
                 'action' => 'CANCELLED',
@@ -617,6 +623,18 @@ class SubmissionController extends Controller
 
                 'email' =>
                 $submission->requestor?->email,
+
+                'position' =>
+                $submission->requestor?->position,
+
+                'division' =>
+                $submission->requestor?->division,
+
+                'department' =>
+                $submission->requestor?->department,
+
+                'telephone' =>
+                $submission->requestor?->telephone,
             ],
         ];
 
@@ -626,6 +644,45 @@ class SubmissionController extends Controller
 
             $data['attachments'] =
                 $submission->attachments ?? [];
+
+            $data['approval_history'] =
+                $submission->approvals
+                ->map(
+                    fn(
+                        SubmissionApproval $approval
+                    ) => [
+                        'id' =>
+                        $approval->id,
+
+                        'step' =>
+                        $approval->step,
+
+                        'action' =>
+                        $approval->action,
+
+                        'notes' =>
+                        $approval->notes,
+
+                        'step_data' =>
+                        $approval->step_data,
+
+                        'actor' => [
+                            'id' =>
+                            $approval->acted_by,
+
+                            'name' =>
+                            $approval->actor?->name,
+
+                            'email' =>
+                            $approval->actor?->email,
+                        ],
+
+                        'created_at' =>
+                        $approval->created_at,
+                    ]
+                )
+                ->values()
+                ->all();
         }
 
         return $data;

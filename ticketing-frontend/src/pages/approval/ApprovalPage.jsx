@@ -1,99 +1,65 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { approvalApi } from "../../api/approval";
 
+import FormRenderer from "../../components/forms_sap/FormRenderer";
+
+import {
+  DEFAULT_CUSTOMER_FORM,
+  getUserValue,
+} from "../../components/forms_sap/customer/CustomerFormFields";
+
 /* =========================================================
-   CONSTANTS (Sama persis dengan CustomerFormPage)
+   STATUS
 ========================================================= */
-
-const REQUEST_TYPES = [["New"], ["Change"], ["Extend"], ["Block / Unblock"]];
-
-const ACCOUNT_GROUPS = [
-  ["Z010", "Customer-Tenant"],
-  ["Z020", "Customer-Non Tenant"],
-  ["Z030", "Customer-Advertising Agency"],
-  ["Z040", "Customer-Affiliated"],
-  ["Z050", "Customer-Shareholder"],
-  ["Z060", "Customer-Building Owner"],
-  ["Z070", "Customer-OneTime"],
-];
-
-const COMPANY_CODES = [["1200", "IBSW"]];
-const SALES_ORGANIZATION = [["1200", "IBSW"]];
-const DISTRIBUTION_CHANNELS = [["00", "Common"]];
-const DIVISIONS = [["00", "Common"]];
-
-const CUSTOMER_CLASSES = [
-  ["01", "Standard"],
-  ["03", "Government (WAPU)"],
-];
-
-const SORT_KEYS = [
-  ["002", "Document No., Fiscal Year"],
-  ["022", "One Time Name/City"],
-];
-
-const TERMS_OF_PAYMENT = [
-  ["AR00", "Payable immediately Due net"],
-  ["AR01", "Due in 14 days"],
-  ["AR02", "Due in 30 days"],
-  ["AR03", "Due in 60 days"],
-  ["AR04", "Due in 365 days"],
-  ["AR05", "Due in 2 years"],
-];
-
-const TOLERANCE_GROUPS = [["1200", "Cust/Vend Tolerance"]];
-
-const WITHOLDING_TAX = [
-  ["P4", "PPh4(2) - Customer Payment Deduction"],
-  ["P5", "PPh23 - Customer Payment Deduction"],
-];
-
-const CURRENCIES = ["IDR", "USD", "Other"];
-const CUSTOMER_PRICING_PROCEDURES = [["1", "Standard"]];
-const CUSTOMER_STATISTIC_GROUPS = [["1", "Standard"]];
-const TAX_CLASSIFICATIONS = [
-  ["0", "No Tax"],
-  ["1", "Tax"],
-  ["2", "WAPU"],
-];
 
 const STATUS_CONFIG = {
   REVIEW_DIV_HEAD: {
     label: "Review by Division Head",
     className: "approval-status--submitted",
   },
+
   APPROVED_DIV_HEAD: {
     label: "Approved by Division Head",
     className: "approval-status--approved",
   },
+
   REVIEW_ACCOUNTING: {
     label: "Review by Accounting",
     className: "approval-status--accounting",
   },
+
   APPROVED_ACCOUNTING: {
     label: "Approved by Accounting",
     className: "approval-status--approved",
   },
+
   REVIEW_TAX: {
     label: "Review by Tax",
     className: "approval-status--tax",
   },
+
   APPROVED_TAX: {
     label: "Approved by Tax",
     className: "approval-status--approved",
   },
+
   WAITING_PIC: {
     label: "Waiting PIC",
     className: "approval-status--pic",
   },
+
   TICKET_SOLVED: {
     label: "Ticket Solved",
     className: "approval-status--solved",
   },
+
   TICKET_CANCELLED: {
     label: "Ticket Cancelled",
     className: "approval-status--cancelled",
   },
+
   TICKET_REJECTED: {
     label: "Ticket Rejected",
     className: "approval-status--rejected",
@@ -101,11 +67,13 @@ const STATUS_CONFIG = {
 };
 
 /* =========================================================
-   HELPERS & PRESENTATIONAL COMPONENTS
+   HELPERS
 ========================================================= */
 
 function formatDate(date) {
-  if (!date) return "-";
+  if (!date) {
+    return "-";
+  }
 
   return new Date(date).toLocaleString("id-ID", {
     day: "2-digit",
@@ -116,230 +84,58 @@ function formatDate(date) {
   });
 }
 
-function getStatus(status) {
+function getStatusConfig(status) {
   return (
     STATUS_CONFIG[status] || {
-      label: status,
+      label: status || "-",
       className: "",
     }
   );
 }
 
-function Section({ number, title, children }) {
-  return (
-    <section className="customer-form__section">
-      <div className="customer-form__section-title">
-        <span>{number}</span>
-        <h3>{title}</h3>
-      </div>
-      <div className="customer-form__section-body">{children}</div>
-    </section>
-  );
-}
-
-function Field({ label, required = false, hint = "", children }) {
-  return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
-        {label}
-        {required && <span className="customer-form__required"> *</span>}
-      </label>
-      {children}
-      {hint && <small className="customer-form__hint">{hint}</small>}
-    </div>
-  );
-}
-
-function ReadOnlyField({ label, value, hint = "", lockedBy = "" }) {
-  return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
-      <div className="customer-form__readonly-wrapper">
-        <input
-          type="text"
-          className="customer-form__input customer-form__input--readonly"
-          value={value || "-"}
-          readOnly
-        />
-        {lockedBy && (
-          <span className="customer-form__locked-label">{lockedBy}</span>
-        )}
-      </div>
-      {hint && <small className="customer-form__hint">{hint}</small>}
-    </div>
-  );
-}
-
-function ChoiceGroup({
-  label,
-  options,
-  value,
-  onChange,
-  checkbox = false,
-  disabled = false,
-  required = false,
-}) {
-  const normalizedValue = value || (checkbox ? [] : "");
-
-  return (
-    <Field label={label} required={required}>
-      <div
-        className={`customer-form__choices ${
-          checkbox ? "customer-form__choices--checkbox" : ""
-        } ${disabled ? "customer-form__choices--disabled" : ""}`}
-      >
-        {options.map(([code, name]) => {
-          const checked = checkbox
-            ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
-            : normalizedValue === code;
-
-          return (
-            <label
-              key={code}
-              className={`customer-form__choice ${
-                disabled ? "customer-form__choice--disabled" : ""
-              }`}
-            >
-              <input
-                type={checkbox ? "checkbox" : "radio"}
-                name={checkbox ? undefined : label}
-                value={code}
-                checked={checked}
-                disabled={disabled}
-                onChange={(e) => {
-                  if (disabled || !onChange) return;
-
-                  if (!checkbox) {
-                    onChange(e.target.value);
-                    return;
-                  }
-
-                  const currentList = Array.isArray(normalizedValue)
-                    ? normalizedValue
-                    : [];
-                  onChange(
-                    e.target.checked
-                      ? [...currentList, e.target.value]
-                      : currentList.filter((item) => item !== e.target.value),
-                  );
-                }}
-              />
-              <span>
-                <strong>{code}</strong>
-                {name && ` - ${name}`}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-    </Field>
-  );
-}
-
-function PairedTextField({
-  label,
-  leftValue,
-  rightValue,
-  onLeftChange,
-  onRightChange,
-  leftPlaceholder = "",
-  rightPlaceholder = "",
-  rightType = "text",
-  separator = "/",
-  requiredLeft = false,
-  requiredRight = false,
-  disabled = false,
-}) {
-  return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
-        {label}
-        {(requiredLeft || requiredRight) && (
-          <span className="customer-form__required"> *</span>
-        )}
-      </label>
-
-      <div className="customer-form__two-column">
-        <input
-          type="text"
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
-          value={leftValue || ""}
-          onChange={(e) => onLeftChange && onLeftChange(e.target.value)}
-          placeholder={leftPlaceholder}
-          readOnly={disabled}
-          disabled={disabled}
-        />
-
-        <span className="customer-form__separator">{separator}</span>
-
-        <input
-          type={rightType}
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
-          value={rightValue || ""}
-          onChange={(e) => onRightChange && onRightChange(e.target.value)}
-          placeholder={rightPlaceholder}
-          readOnly={disabled}
-          disabled={disabled}
-        />
-      </div>
-    </div>
-  );
-}
-
-function LockedBox({ title, note = "", children }) {
-  return (
-    <div className="customer-form__locked-box">
-      <div className="customer-form__locked-header">
-        <strong>{title}</strong>
-        {note && <span>{note}</span>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 /* =========================================================
-   MAIN COMPONENT: ApprovalPage
+   MAIN
 ========================================================= */
 
 export default function ApprovalPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  /*
+   * Sama seperti SubmissionPage:
+   *
+   * /approval
+   *       -> ApprovalList
+   *
+   * /approval/:approvalId
+   *       -> ApprovalDetailPage
+   */
+
+  if (id) {
+    return <ApprovalDetailPage id={id} />;
+  }
+
+  return <ApprovalList navigate={navigate} />;
+}
+
+/* =========================================================
+   APPROVAL LIST
+========================================================= */
+
+function ApprovalList({ navigate }) {
   const [submissions, setSubmissions] = useState([]);
-  const [selected, setSelected] = useState(null);
 
   const [loading, setLoading] = useState(true);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [processing, setProcessing] = useState(false);
 
   const [error, setError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  /* State reject modal & notes */
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [rejectNotes, setRejectNotes] = useState("");
-  const [rejectError, setRejectError] = useState("");
-
-  /* Form edit states for Accounting */
-  const [accounting, setAccounting] = useState({
-    accountGroup: "",
-    recontAccount: "",
-    sortKey: "",
-    toleranceGroup: "",
-  });
-
-  /* Form edit states for Tax */
-  const [tax, setTax] = useState({
-    witholdingTax: [],
-  });
-
-  /* Form edit state for PIC */
-  const [customerCode, setCustomerCode] = useState("");
+  /* =========================================================
+     LOAD APPROVAL
+  ========================================================= */
 
   const loadApprovals = async () => {
     try {
@@ -347,12 +143,12 @@ export default function ApprovalPage() {
       setError("");
 
       const response = await approvalApi.getAll();
+
       setSubmissions(response.data?.data || []);
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.message || "Gagal mengambil daftar approval.",
-      );
+
+      setError(err.response?.data?.message || "Gagal mengambil data approval.");
     } finally {
       setLoading(false);
     }
@@ -362,142 +158,547 @@ export default function ApprovalPage() {
     loadApprovals();
   }, []);
 
+  /* =========================================================
+     FILTER
+  ========================================================= */
+
   const filteredSubmissions = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
-    return submissions.filter((submission) => {
+    return submissions.filter((item) => {
       const matchesSearch =
         !keyword ||
-        submission.number?.toLowerCase().includes(keyword) ||
-        submission.form_type?.toLowerCase().includes(keyword) ||
-        submission.category?.toLowerCase().includes(keyword) ||
-        submission.sub_category?.toLowerCase().includes(keyword) ||
-        submission.requestor?.name?.toLowerCase().includes(keyword);
+        item.number?.toLowerCase().includes(keyword) ||
+        item.form_type?.toLowerCase().includes(keyword) ||
+        item.category?.toLowerCase().includes(keyword) ||
+        item.sub_category?.toLowerCase().includes(keyword) ||
+        item.requestor?.name?.toLowerCase().includes(keyword);
 
       const matchesStatus =
-        statusFilter === "ALL" || submission.status === statusFilter;
+        statusFilter === "ALL" || item.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
   }, [submissions, search, statusFilter]);
 
-  const openDetail = async (submission) => {
+  /* =========================================================
+     OPEN DETAIL
+  ========================================================= */
+
+  const handleOpen = (submission) => {
+    if (!submission?.id) {
+      return;
+    }
+
+    navigate(`/approval/${submission.id}`);
+  };
+
+  /* =========================================================
+     STATUS
+  ========================================================= */
+
+  const getStatus = (status) => {
+    return getStatusConfig(status);
+  };
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
+
+  return (
+    <div className="my-submission">
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
+      <div className="my-submission__header">
+        <div>
+          <h1 className="my-submission__title">Approval List</h1>
+
+          <p className="my-submission__description">
+            View and process requests that require your approval.
+          </p>
+        </div>
+      </div>
+
+      {/* =====================================================
+          SUMMARY
+      ===================================================== */}
+
+      <div className="my-submission__summary">
+        <div className="my-submission__summary-card">
+          <div className="my-submission__summary-icon my-submission__summary-icon--submitted">
+            ✓
+          </div>
+
+          <div>
+            <span>Pending Approval</span>
+
+            <strong>{submissions.length}</strong>
+          </div>
+        </div>
+
+        <div className="my-submission__summary-card">
+          <div className="my-submission__summary-icon my-submission__summary-icon--approved">
+            ✓
+          </div>
+
+          <div>
+            <span>Displayed</span>
+
+            <strong>{filteredSubmissions.length}</strong>
+          </div>
+        </div>
+      </div>
+
+      {/* =====================================================
+          LIST
+      ===================================================== */}
+
+      <div className="my-submission__card">
+        <div className="my-submission__toolbar">
+          <div>
+            <h2>Approval List</h2>
+
+            <p>
+              {filteredSubmissions.length} request
+              {filteredSubmissions.length !== 1 ? "s" : ""} found
+            </p>
+          </div>
+
+          <div className="my-submission__filters">
+            {/* SEARCH */}
+
+            <div className="my-submission__search">
+              <span>⌕</span>
+
+              <input
+                type="text"
+                placeholder="Search number or form..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+
+              {search && (
+                <button type="button" onClick={() => setSearch("")}>
+                  ×
+                </button>
+              )}
+            </div>
+
+            {/* STATUS */}
+
+            <select
+              className="my-submission__select"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
+              <option value="ALL">All Status</option>
+
+              <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
+
+              <option value="APPROVED_DIV_HEAD">
+                Approved by Division Head
+              </option>
+
+              <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
+
+              <option value="APPROVED_ACCOUNTING">
+                Approved by Accounting
+              </option>
+
+              <option value="REVIEW_TAX">Review by Tax</option>
+
+              <option value="APPROVED_TAX">Approved by Tax</option>
+
+              <option value="WAITING_PIC">Waiting PIC</option>
+            </select>
+          </div>
+        </div>
+
+        {/* ERROR */}
+
+        {error && (
+          <div className="my-submission__error">
+            <span>!</span>
+
+            <div>
+              <strong>Failed to load approvals</strong>
+
+              <p>{error}</p>
+            </div>
+
+            <button type="button" onClick={loadApprovals}>
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* LOADING */}
+
+        {loading && !error && (
+          <div className="my-submission__empty">
+            <div className="my-submission__empty-icon">⏳</div>
+
+            <h3>Loading approvals...</h3>
+
+            <p>Please wait while approval data is being loaded.</p>
+          </div>
+        )}
+
+        {/* EMPTY */}
+
+        {!loading && !error && filteredSubmissions.length === 0 && (
+          <div className="my-submission__empty">
+            <div className="my-submission__empty-icon">📄</div>
+
+            <h3>
+              {submissions.length === 0
+                ? "No approvals"
+                : "No matching approvals"}
+            </h3>
+
+            <p>
+              {submissions.length === 0
+                ? "There are no requests waiting for your approval."
+                : "Try changing your search or filter."}
+            </p>
+          </div>
+        )}
+
+        {/* TABLE */}
+
+        {!loading && !error && filteredSubmissions.length > 0 && (
+          <div className="approval-table-wrapper">
+            <table className="approval-table">
+              <thead>
+                <tr>
+                  <th>Number</th>
+
+                  <th>Request</th>
+
+                  <th>Requestor</th>
+
+                  <th>Status</th>
+
+                  <th>Created</th>
+
+                  <th />
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredSubmissions.map((submission) => {
+                  const status = getStatus(submission.status);
+
+                  return (
+                    <tr
+                      key={submission.id}
+                      onClick={() => handleOpen(submission)}
+                    >
+                      <td>
+                        <strong>{submission.number}</strong>
+                      </td>
+
+                      <td>{submission.form_type}</td>
+
+                      <td>{submission.requestor?.name || "-"}</td>
+
+                      <td>
+                        <span
+                          className={`my-submission__status ${status.className}`}
+                        >
+                          {status.label}
+                        </span>
+                      </td>
+
+                      <td>
+                        {formatDate(
+                          submission.submitted_at || submission.created_at,
+                        )}
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="my-submission__action"
+                          onClick={(event) => {
+                            event.stopPropagation();
+
+                            handleOpen(submission);
+                          }}
+                        >
+                          Review
+                          <span>→</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   APPROVAL DETAIL
+========================================================= */
+
+function ApprovalDetailPage({ id }) {
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  const [submission, setSubmission] = useState(null);
+
+  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+
+  /* =========================================================
+     ACTION STATE
+  ========================================================= */
+
+  const [processing, setProcessing] = useState(false);
+
+  const [actionError, setActionError] = useState("");
+
+  /* =========================================================
+     ACCOUNTING
+  ========================================================= */
+
+  const [accounting, setAccounting] = useState({
+    accountGroup: "",
+    recontAccount: "",
+    sortKey: "",
+    toleranceGroup: "",
+  });
+
+  /* =========================================================
+     TAX
+  ========================================================= */
+
+  const [tax, setTax] = useState({
+    witholdingTax: [],
+  });
+
+  /* =========================================================
+     PIC
+  ========================================================= */
+
+  const [customerCode, setCustomerCode] = useState("");
+
+  /* =========================================================
+     REJECT
+  ========================================================= */
+
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+
+  const [rejectNotes, setRejectNotes] = useState("");
+
+  const [rejectError, setRejectError] = useState("");
+
+  /* =========================================================
+     LOAD DETAIL
+  ========================================================= */
+
+  const loadDetail = async () => {
     try {
-      setSelected(null);
-      setActionError("");
-      setRejectModalOpen(false);
-      setRejectNotes("");
-      setRejectError("");
+      setLoading(true);
+      setError("");
 
-      setAccounting({
-        accountGroup: "",
-        recontAccount: "",
-        sortKey: "",
-        toleranceGroup: "",
-      });
+      const response = await approvalApi.getById(id);
 
-      setTax({
-        witholdingTax: [],
-      });
-
-      setCustomerCode("");
-      setDetailLoading(true);
-
-      const response = await approvalApi.getById(submission.id);
       const data = response.data?.data;
 
-      setSelected(data);
+      if (!data) {
+        throw new Error("Approval tidak ditemukan.");
+      }
 
-      const formData = data?.form_data || {};
+      setSubmission(data);
+
+      setFormData({
+        ...DEFAULT_CUSTOMER_FORM,
+        ...(data.form_data || {}),
+      });
+
+      const dataForm = data.form_data || {};
 
       setAccounting({
-        accountGroup: formData.accountGroup || "",
-        recontAccount: formData.recontAccount || "",
-        sortKey: formData.sortKey || "",
-        toleranceGroup: formData.toleranceGroup || "",
+        accountGroup: dataForm.accountGroup || "",
+
+        recontAccount: dataForm.recontAccount || "",
+
+        sortKey: dataForm.sortKey || "",
+
+        toleranceGroup: dataForm.toleranceGroup || "",
       });
 
       setTax({
-        witholdingTax: Array.isArray(formData.witholdingTax)
-          ? formData.witholdingTax
+        witholdingTax: Array.isArray(dataForm.witholdingTax)
+          ? dataForm.witholdingTax
           : [],
       });
 
-      setCustomerCode(formData.customerCode || "");
+      setCustomerCode(dataForm.customerCode || "");
     } catch (err) {
       console.error(err);
-      setActionError(
-        err.response?.data?.message || "Gagal mengambil detail submission.",
+
+      setError(
+        err.response?.data?.message || "Gagal mengambil detail approval.",
       );
     } finally {
-      setDetailLoading(false);
+      setLoading(false);
     }
   };
 
-  const closeDetail = () => {
-    if (processing) return;
-    setSelected(null);
-    setActionError("");
-    setRejectModalOpen(false);
-  };
+  useEffect(() => {
+    loadDetail();
+  }, [id]);
 
-  const refreshAfterAction = async () => {
-    await loadApprovals();
+  /* =========================================================
+     REQUESTOR
+  ========================================================= */
 
-    if (selected?.id) {
-      try {
-        const response = await approvalApi.getById(selected.id);
-        const fresh = response.data?.data;
-        setSelected(fresh || null);
+  const requestor = useMemo(() => {
+    return {
+      name: getUserValue(submission?.requestor, ["name"]),
 
-        if (fresh?.form_data) {
-          setAccounting({
-            accountGroup: fresh.form_data.accountGroup || "",
-            recontAccount: fresh.form_data.recontAccount || "",
-            sortKey: fresh.form_data.sortKey || "",
-            toleranceGroup: fresh.form_data.toleranceGroup || "",
-          });
+      position: getUserValue(submission?.requestor, ["position"]),
 
-          setTax({
-            witholdingTax: Array.isArray(fresh.form_data.witholdingTax)
-              ? fresh.form_data.witholdingTax
-              : [],
-          });
+      division: getUserValue(submission?.requestor, ["division"]),
 
-          setCustomerCode(fresh.form_data.customerCode || "");
-        }
-      } catch {
-        setSelected(null);
-      }
+      department: getUserValue(submission?.requestor, ["department"]),
+
+      telephone: getUserValue(submission?.requestor, ["telephone"]),
+
+      email: getUserValue(submission?.requestor, ["email"]),
+    };
+  }, [submission]);
+
+  /* =========================================================
+     STATUS
+  ========================================================= */
+
+  const status = useMemo(() => {
+    return getStatusConfig(submission?.status);
+  }, [submission]);
+
+  /* =========================================================
+     APPROVAL ROLE / TURN
+  ========================================================= */
+
+  const approvalRole = useMemo(() => {
+    switch (submission?.status) {
+      case "REVIEW_DIV_HEAD":
+        return "division_head";
+
+      case "APPROVED_DIV_HEAD":
+      case "REVIEW_ACCOUNTING":
+        return "accounting";
+
+      case "APPROVED_ACCOUNTING":
+      case "REVIEW_TAX":
+        return "tax";
+
+      case "APPROVED_TAX":
+      case "WAITING_PIC":
+        return "pic";
+
+      default:
+        return null;
     }
-  };
+  }, [submission]);
+
+  /* =========================================================
+     ACCOUNTING SAVED
+  ========================================================= */
+
+  const hasAccountingSaved = useMemo(() => {
+    if (!submission) {
+      return false;
+    }
+
+    const hasHistory = submission.approval_history?.some(
+      (item) => item.step === "ACCOUNTING_FILL" && item.action === "FILLED",
+    );
+
+    const data = submission.form_data || {};
+
+    const hasFormData = Boolean(
+      data.accountGroup &&
+      data.recontAccount &&
+      data.sortKey &&
+      data.toleranceGroup,
+    );
+
+    return hasHistory || hasFormData;
+  }, [submission]);
+
+  /* =========================================================
+     TAX SAVED
+  ========================================================= */
+
+  const hasTaxSaved = useMemo(() => {
+    if (!submission) {
+      return false;
+    }
+
+    const hasHistory = submission.approval_history?.some(
+      (item) => item.step === "TAX_FILL" && item.action === "FILLED",
+    );
+
+    const data = submission.form_data || {};
+
+    const hasFormData =
+      Array.isArray(data.witholdingTax) && data.witholdingTax.length > 0;
+
+    return hasHistory || hasFormData;
+  }, [submission]);
+
+  /* =========================================================
+     ACCOUNTING CHANGE
+  ========================================================= */
 
   const updateAccounting = (field, value) => {
-    setAccounting((prev) => ({
-      ...prev,
+    setAccounting((previous) => ({
+      ...previous,
       [field]: value,
     }));
   };
 
-  const updateTax = (newWitholdingTax) => {
+  /* =========================================================
+     TAX CHANGE
+  ========================================================= */
+
+  const updateTax = (value) => {
     setTax({
-      witholdingTax: newWitholdingTax,
+      witholdingTax: value,
     });
   };
 
-  /* Open Reject Dialog */
+  /* =========================================================
+     REJECT
+  ========================================================= */
+
   const openRejectModal = () => {
     setRejectNotes("");
     setRejectError("");
     setRejectModalOpen(true);
   };
 
-  /* Confirm Reject */
   const handleConfirmReject = async () => {
-    if (!selected || processing) return;
+    if (!submission || processing) {
+      return;
+    }
 
     if (!rejectNotes.trim()) {
       setRejectError("Catatan / alasan penolakan wajib diisi.");
+
       return;
     }
 
@@ -506,16 +707,19 @@ export default function ApprovalPage() {
       setRejectError("");
 
       const response = await approvalApi.reject(
-        selected.id,
+        submission.id,
         rejectNotes.trim(),
       );
 
       alert(response?.data?.message || "Submission berhasil di-reject.");
+
       setRejectModalOpen(false);
       setRejectNotes("");
-      await refreshAfterAction();
+
+      await loadDetail();
     } catch (err) {
       console.error(err);
+
       setRejectError(
         err.response?.data?.message || "Gagal me-reject submission.",
       );
@@ -524,14 +728,14 @@ export default function ApprovalPage() {
     }
   };
 
-  const approvedHistory = (selected?.approval_history || []).filter((item) =>
-    ["APPROVED_DIV_HEAD", "APPROVED_ACCOUNTING", "APPROVED_TAX"].includes(
-      item.status,
-    ),
-  );
+  /* =========================================================
+     ACTION
+  ========================================================= */
 
   const handleAction = async (action) => {
-    if (!selected || processing) return;
+    if (!submission || processing) {
+      return;
+    }
 
     try {
       setProcessing(true);
@@ -540,11 +744,19 @@ export default function ApprovalPage() {
       let response;
 
       switch (action) {
+        /* =============================================
+           DIVISION HEAD
+        ============================================= */
+
         case "approve-divhead":
-          response = await approvalApi.approveDivHead(selected.id, "");
+          response = await approvalApi.approveDivHead(submission.id, "");
           break;
 
-        case "fill-accounting": {
+        /* =============================================
+           ACCOUNTING SAVE
+        ============================================= */
+
+        case "fill-accounting":
           if (
             !accounting.accountGroup ||
             !accounting.recontAccount ||
@@ -554,112 +766,128 @@ export default function ApprovalPage() {
             setActionError(
               "Semua field accounting wajib diisi sebelum disimpan.",
             );
+
             setProcessing(false);
+
             return;
           }
 
           response = await approvalApi.fillAccounting(
-            selected.id,
+            submission.id,
             accounting,
             "",
           );
           break;
-        }
+
+        /* =============================================
+           ACCOUNTING APPROVE
+        ============================================= */
 
         case "approve-accounting":
-          response = await approvalApi.approveAccounting(selected.id, "");
-          break;
+          if (!hasAccountingSaved) {
+            setActionError("Data accounting harus disimpan terlebih dahulu.");
 
-        case "fill-tax": {
-          if (!tax.witholdingTax || tax.witholdingTax.length === 0) {
-            setActionError(
-              "Pilih minimal satu witholding tax sebelum disimpan.",
-            );
             setProcessing(false);
+
             return;
           }
 
-          response = await approvalApi.fillTax(selected.id, tax, "");
+          response = await approvalApi.approveAccounting(submission.id, "");
           break;
-        }
+
+        /* =============================================
+           TAX SAVE
+        ============================================= */
+
+        case "fill-tax":
+          if (!tax.witholdingTax || tax.witholdingTax.length === 0) {
+            setActionError(
+              "Pilih minimal satu withholding tax sebelum disimpan.",
+            );
+
+            setProcessing(false);
+
+            return;
+          }
+
+          response = await approvalApi.fillTax(submission.id, tax, "");
+          break;
+
+        /* =============================================
+           TAX APPROVE
+        ============================================= */
 
         case "approve-tax":
-          response = await approvalApi.approveTax(selected.id, "");
+          if (!hasTaxSaved) {
+            setActionError("Data tax harus disimpan terlebih dahulu.");
+
+            setProcessing(false);
+
+            return;
+          }
+
+          response = await approvalApi.approveTax(submission.id, "");
           break;
 
+        /* =============================================
+           PIC RESOLVE
+        ============================================= */
+
         case "resolve": {
-          const isNewRequest = selected.form_data?.requestType === "New";
+          const isNewRequest = submission.form_data?.requestType === "New";
+
           if (isNewRequest && !customerCode.trim()) {
             setActionError(
               "Customer code wajib diisi oleh PIC untuk request New.",
             );
+
             setProcessing(false);
+
             return;
           }
 
           response = await approvalApi.resolve(
-            selected.id,
+            submission.id,
             customerCode.trim(),
             "",
           );
+
           break;
         }
 
         default:
+          setProcessing(false);
           return;
       }
 
       alert(response?.data?.message || "Action berhasil dilakukan.");
-      await refreshAfterAction();
+
+      await loadDetail();
     } catch (err) {
       console.error(err);
+
       setActionError(err.response?.data?.message || "Action gagal dilakukan.");
     } finally {
       setProcessing(false);
     }
   };
 
-  /* Helper untuk mengecek apakah Accounting sudah di-save/di-isi */
-  const hasAccountingSaved = useMemo(() => {
-    if (!selected) return false;
+  /* =========================================================
+     ACTION BUTTONS
+  ========================================================= */
 
-    const hasFilledRecord = selected.approval_history?.some(
-      (h) => h.step === "ACCOUNTING_FILL" && h.action === "FILLED",
-    );
-
-    const hasFormData = Boolean(
-      selected.form_data?.accountGroup &&
-      selected.form_data?.recontAccount &&
-      selected.form_data?.sortKey &&
-      selected.form_data?.toleranceGroup,
-    );
-
-    return hasFilledRecord || hasFormData;
-  }, [selected]);
-
-  /* Helper untuk mengecek apakah Tax sudah di-save/di-isi */
-  const hasTaxSaved = useMemo(() => {
-    if (!selected) return false;
-
-    const hasFilledRecord = selected.approval_history?.some(
-      (h) => h.step === "TAX_FILL" && h.action === "FILLED",
-    );
-
-    const hasFormData =
-      Array.isArray(selected.form_data?.witholdingTax) &&
-      selected.form_data.witholdingTax.length > 0;
-
-    return hasFilledRecord || hasFormData;
-  }, [selected]);
-
-  /* Render Tombol Aksi */
   const renderActionButtons = () => {
-    if (!selected) return null;
+    if (!submission) {
+      return null;
+    }
 
-    const status = selected.status;
+    const currentStatus = submission.status;
 
-    /* 1. Division Head Turn */
-    if (status === "REVIEW_DIV_HEAD") {
+    /* =============================================
+       DIVISION HEAD
+    ============================================= */
+
+    if (currentStatus === "REVIEW_DIV_HEAD") {
       return (
         <div className="customer-form__actions">
           <button
@@ -679,10 +907,6 @@ export default function ApprovalPage() {
           <button
             type="button"
             className="customer-form__button customer-form__button--primary"
-            style={{
-              background: "#16a34a",
-              borderColor: "#16a34a",
-            }}
             onClick={() => handleAction("approve-divhead")}
             disabled={processing}
           >
@@ -692,14 +916,16 @@ export default function ApprovalPage() {
       );
     }
 
-    /* 2. Accounting Turn */
-    if (status === "APPROVED_DIV_HEAD" || status === "REVIEW_ACCOUNTING") {
-      const accountingSaved =
-        status === "REVIEW_ACCOUNTING" && hasAccountingSaved;
+    /* =============================================
+       ACCOUNTING
+    ============================================= */
 
+    if (
+      currentStatus === "APPROVED_DIV_HEAD" ||
+      currentStatus === "REVIEW_ACCOUNTING"
+    ) {
       return (
         <div className="customer-form__actions">
-          {/* Accounting tetap boleh Reject */}
           <button
             type="button"
             className="customer-form__button"
@@ -714,12 +940,7 @@ export default function ApprovalPage() {
             Reject
           </button>
 
-          {/* =====================================================
-          APPROVED_DIV_HEAD
-          Accounting Staff baru mendapat giliran mengisi.
-          BELUM BOLEH APPROVE.
-      ===================================================== */}
-          {status === "APPROVED_DIV_HEAD" && (
+          {currentStatus === "APPROVED_DIV_HEAD" && (
             <button
               type="button"
               className="customer-form__button customer-form__button--primary"
@@ -736,57 +957,30 @@ export default function ApprovalPage() {
             </button>
           )}
 
-          {/* =====================================================
-          REVIEW_ACCOUNTING
-          Muncul setelah Accounting Staff berhasil SAVE.
-          Sekarang Accounting Head boleh Approve.
-      ===================================================== */}
-          {status === "REVIEW_ACCOUNTING" && (
-            <>
-              {!accountingSaved && (
-                <button
-                  type="button"
-                  className="customer-form__button customer-form__button--primary"
-                  onClick={() => handleAction("fill-accounting")}
-                  disabled={
-                    processing ||
-                    !accounting.accountGroup ||
-                    !accounting.recontAccount ||
-                    !accounting.sortKey ||
-                    !accounting.toleranceGroup
-                  }
-                >
-                  {processing ? "Saving..." : "Save Accounting Data"}
-                </button>
-              )}
-
-              {accountingSaved && (
-                <button
-                  type="button"
-                  className="customer-form__button customer-form__button--primary"
-                  style={{
-                    background: "#16a34a",
-                    borderColor: "#16a34a",
-                  }}
-                  onClick={() => handleAction("approve-accounting")}
-                  disabled={processing}
-                >
-                  {processing ? "Processing..." : "Approve as Accounting Head"}
-                </button>
-              )}
-            </>
+          {currentStatus === "REVIEW_ACCOUNTING" && (
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--primary"
+              onClick={() => handleAction("approve-accounting")}
+              disabled={processing || !hasAccountingSaved}
+            >
+              {processing ? "Processing..." : "Approve as Accounting"}
+            </button>
           )}
         </div>
       );
     }
 
-    /* 3. Tax Turn */
-    if (status === "APPROVED_ACCOUNTING" || status === "REVIEW_TAX") {
-      const taxSaved = status === "REVIEW_TAX" && hasTaxSaved;
+    /* =============================================
+       TAX
+    ============================================= */
 
+    if (
+      currentStatus === "APPROVED_ACCOUNTING" ||
+      currentStatus === "REVIEW_TAX"
+    ) {
       return (
         <div className="customer-form__actions">
-          {/* Tax Head tetap bisa Reject */}
           <button
             type="button"
             className="customer-form__button"
@@ -801,11 +995,7 @@ export default function ApprovalPage() {
             Reject
           </button>
 
-          {/* =====================================================
-              APPROVED_ACCOUNTING
-              Tax Staff mendapat giliran mengisi.
-            ===================================================== */}
-          {status === "APPROVED_ACCOUNTING" && (
+          {currentStatus === "APPROVED_ACCOUNTING" && (
             <button
               type="button"
               className="customer-form__button customer-form__button--primary"
@@ -820,65 +1010,54 @@ export default function ApprovalPage() {
             </button>
           )}
 
-          {/* =====================================================
-              REVIEW_TAX
-              Tax Staff sudah Save.
-              Tax Head sekarang boleh Approve.
-            ===================================================== */}
-          {status === "REVIEW_TAX" && (
-            <>
-              {!taxSaved && (
-                <button
-                  type="button"
-                  className="customer-form__button customer-form__button--primary"
-                  onClick={() => handleAction("fill-tax")}
-                  disabled={
-                    processing ||
-                    !tax.witholdingTax ||
-                    tax.witholdingTax.length === 0
-                  }
-                >
-                  {processing ? "Saving..." : "Save Tax Data"}
-                </button>
-              )}
-
-              {taxSaved && (
-                <button
-                  type="button"
-                  className="customer-form__button customer-form__button--primary"
-                  style={{
-                    background: "#16a34a",
-                    borderColor: "#16a34a",
-                  }}
-                  onClick={() => handleAction("approve-tax")}
-                  disabled={processing}
-                >
-                  {processing ? "Processing..." : "Approve as Tax Head"}
-                </button>
-              )}
-            </>
+          {currentStatus === "REVIEW_TAX" && (
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--primary"
+              onClick={() => handleAction("approve-tax")}
+              disabled={processing || !hasTaxSaved}
+            >
+              {processing ? "Processing..." : "Approve as Tax"}
+            </button>
           )}
         </div>
       );
     }
 
-    /* 4. PIC Turn */
-    if (status === "WAITING_PIC" || status === "APPROVED_TAX") {
-      const isNew = selected.form_data?.requestType === "New";
+    /* =============================================
+       PIC
+    ============================================= */
+
+    if (currentStatus === "APPROVED_TAX" || currentStatus === "WAITING_PIC") {
+      const isNewRequest = submission.form_data?.requestType === "New";
 
       return (
         <div className="customer-form__actions">
-          {/* PIC TIDAK BISA REJECT, HANYA BISA RESOLVE */}
+          <FieldWrapper>
+            <label className="customer-form__label">
+              Customer Code
+              {isNewRequest && (
+                <span className="customer-form__required"> *</span>
+              )}
+            </label>
+
+            <input
+              type="text"
+              className="customer-form__input"
+              value={customerCode}
+              onChange={(event) => setCustomerCode(event.target.value)}
+              placeholder={
+                isNewRequest ? "Masukkan Customer Code" : "Customer Code"
+              }
+              disabled={processing}
+            />
+          </FieldWrapper>
+
           <button
             type="button"
             className="customer-form__button customer-form__button--primary"
-            style={{
-              background: "#16a34a",
-              borderColor: "#16a34a",
-              width: "100%",
-            }}
             onClick={() => handleAction("resolve")}
-            disabled={processing || (isNew && !customerCode.trim())}
+            disabled={processing || (isNewRequest && !customerCode.trim())}
           >
             {processing ? "Processing..." : "Resolve Ticket"}
           </button>
@@ -886,836 +1065,288 @@ export default function ApprovalPage() {
       );
     }
 
-    /* Tiket yang sudah selesai / terminal */
-    return (
-      <div className="customer-form__actions">
-        <button
-          type="button"
-          className="customer-form__button customer-form__button--secondary"
-          onClick={closeDetail}
-        >
-          Back to List
-        </button>
-      </div>
-    );
+    return null;
   };
 
-  const formData = selected?.form_data || {};
-  const isAccountingTurn = selected?.status === "APPROVED_DIV_HEAD";
-  const isTaxTurn = selected?.status === "APPROVED_ACCOUNTING";
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
+  if (loading) {
+    return (
+      <div className="customer-form-page">
+        <div className="customer-form-card">
+          <div className="approval-empty">Loading approval...</div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================================================
+     ERROR
+  ========================================================= */
+
+  if (error) {
+    return (
+      <div className="customer-form-page">
+        <div className="customer-form-card">
+          <div className="approval-alert approval-alert--error">{error}</div>
+
+          <div className="customer-form__actions">
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--secondary"
+              onClick={() => navigate("/approval")}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!submission) {
+    return null;
+  }
+
+  const currentStatus = submission.status;
+
+  const isAccountingTurn =
+    currentStatus === "APPROVED_DIV_HEAD" ||
+    currentStatus === "REVIEW_ACCOUNTING";
+
+  const isTaxTurn =
+    currentStatus === "APPROVED_ACCOUNTING" || currentStatus === "REVIEW_TAX";
+
   const isPICTurn =
-    selected?.status === "WAITING_PIC" || selected?.status === "APPROVED_TAX";
-  const isNewRequest = formData.requestType === "New";
+    currentStatus === "APPROVED_TAX" || currentStatus === "WAITING_PIC";
+
+  /* =========================================================
+     DETAIL PAGE
+  ========================================================= */
 
   return (
-    <div className="approval-page">
-      {/* HEADER UTAMA */}
-      <div className="approval-page__header">
-        <div>
-          <h1>Approval List</h1>
-        </div>
+    <div className="customer-form-page">
+      <div className="customer-form-card">
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
 
-        <button
-          type="button"
-          className="approval-refresh"
-          onClick={loadApprovals}
-          disabled={loading}
-        >
-          ↻ Refresh
-        </button>
-      </div>
+        <header className="customer-form__header">
+          <button
+            type="button"
+            className="customer-form__back"
+            onClick={() => navigate("/approval")}
+            disabled={processing}
+          >
+            ← Back
+          </button>
 
-      {/* SUMMARY STATS */}
-      <div className="approval-summary">
-        <div className="approval-summary__card">
-          <span>Total Pending</span>
-          <strong>{submissions.length}</strong>
-        </div>
+          <div className="customer-form__header-content">
+            <div>
+              <p className="customer-form__eyebrow">
+                {submission.type} · {submission.category} ·{" "}
+                {submission.sub_category}
+              </p>
 
-        <div className="approval-summary__card">
-          <span>Accounting</span>
-          <strong>
-            {
-              submissions.filter((item) => item.status === "REVIEW_ACCOUNTING")
-                .length
-            }
-          </strong>
-        </div>
+              <h1>Master Data Customer Request</h1>
 
-        <div className="approval-summary__card">
-          <span>Tax</span>
-          <strong>
-            {submissions.filter((item) => item.status === "REVIEW_TAX").length}
-          </strong>
-        </div>
-
-        <div className="approval-summary__card">
-          <span>PIC</span>
-          <strong>
-            {submissions.filter((item) => item.status === "WAITING_PIC").length}
-          </strong>
-        </div>
-      </div>
-
-      {/* MAIN CARD TABLE */}
-      <div className="approval-card">
-        <div className="approval-card__toolbar">
-          <div>
-            <h2>Pending Requests</h2>
-            <p>
-              {filteredSubmissions.length} request
-              {filteredSubmissions.length !== 1 ? "s" : ""} found
-            </p>
-          </div>
-
-          <div className="approval-filters">
-            <div className="approval-search">
-              <span>⌕</span>
-              <input
-                type="text"
-                placeholder="Search number, requestor, form..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button type="button" onClick={() => setSearch("")}>
-                  ×
-                </button>
-              )}
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: "0.85rem",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                Ticket Number: <strong>{submission.number}</strong>
+              </p>
             </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="ALL">All Status</option>
-              <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
-              <option value="APPROVED_DIV_HEAD">
-                Approved by Division Head
-              </option>
-              <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
-              <option value="APPROVED_ACCOUNTING">
-                Approved by Accounting
-              </option>
-              <option value="REVIEW_TAX">Review by Tax</option>
-              <option value="APPROVED_TAX">Approved by Tax</option>
-              <option value="WAITING_PIC">Waiting PIC</option>
-              <option value="TICKET_SOLVED">Solved</option>
-              <option value="TICKET_CANCELLED">Cancelled</option>
-              <option value="TICKET_REJECTED">Rejected</option>
-            </select>
+            <span className={`approval-status ${status.className}`}>
+              {status.label}
+            </span>
           </div>
-        </div>
+        </header>
 
-        {error && (
-          <div className="approval-alert approval-alert--error">{error}</div>
-        )}
+        {/* =====================================================
+            ACTION ERROR
+        ===================================================== */}
 
-        {loading && (
-          <div className="approval-empty">
-            <strong>Loading approval list...</strong>
-          </div>
-        )}
-
-        {!loading && !error && filteredSubmissions.length === 0 && (
-          <div className="approval-empty">
-            <div className="approval-empty__icon">✓</div>
-            <h3>No pending approval</h3>
-            <p>Tidak ada submission yang sedang menunggu proses approval.</p>
-          </div>
-        )}
-
-        {!loading && filteredSubmissions.length > 0 && (
-          <div className="approval-table-wrapper">
-            <table className="approval-table">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Requestor</th>
-                  <th>Request</th>
-                  <th>Status</th>
-                  <th>Submitted</th>
-                  <th />
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredSubmissions.map((submission) => {
-                  const status = getStatus(submission.status);
-
-                  return (
-                    <tr key={submission.id}>
-                      <td>
-                        <strong>{submission.number}</strong>
-                      </td>
-
-                      <td>
-                        <strong>{submission.requestor?.name || "-"}</strong>
-                      </td>
-
-                      <td>
-                        <strong>{submission.form_type}</strong>
-                      </td>
-
-                      <td>
-                        <span className={`approval-status ${status.className}`}>
-                          {status.label}
-                        </span>
-                      </td>
-
-                      <td>
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
-                        )}
-                      </td>
-
-                      <td>
-                        <button
-                          type="button"
-                          className="approval-table__view"
-                          onClick={() => openDetail(submission)}
-                        >
-                          Review →
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* =========================================================
-          MODAL DETAIL DENGAN TAMPILAN FORM SAMA PERSIS
-      ========================================================= */}
-      {selected && (
-        <div
-          className="approval-modal"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 100,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            padding: "2rem 1rem",
-            background: "rgba(15, 23, 42, 0.55)",
-            overflowY: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget && !processing) {
-              closeDetail();
-            }
-          }}
-        >
+        {actionError && (
           <div
-            className="approval-modal__content"
+            className="approval-alert approval-alert--error"
             style={{
-              maxWidth: "1000px",
-              width: "100%",
-              margin: "0 auto 2rem",
-              background: "var(--color-surface)",
-              borderRadius: "var(--radius)",
-              boxShadow: "var(--shadow-lg)",
-              overflow: "visible",
-              padding: 0,
+              margin: "1rem 1.5rem 0",
             }}
           >
-            <div
-              className="customer-form-card"
-              style={{ border: "none", boxShadow: "none", overflow: "visible" }}
-            >
-              {/* HEADER SAMA PERSIS SEPERTI FORM */}
-              <header className="customer-form__header">
-                <button
-                  type="button"
-                  className="customer-form__back"
-                  onClick={closeDetail}
-                  disabled={processing}
-                >
-                  ← Back
-                </button>
+            {actionError}
+          </div>
+        )}
 
-                <div className="customer-form__header-content">
-                  <div>
-                    <p className="customer-form__eyebrow">
-                      {selected.type || "SAP"} ·{" "}
-                      {selected.category || "Master Data"} ·{" "}
-                      {selected.sub_category || "Customer"}
-                    </p>
-                    <h1>Master Data Customer Request</h1>
-                    <p
-                      style={{
-                        margin: "4px 0 0",
-                        fontSize: "0.85rem",
-                        color: "var(--color-text-muted)",
-                      }}
-                    >
-                      Ticket Number: <strong>{selected.number}</strong>
-                    </p>
-                  </div>
+        <form
+          className="customer-form"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          {/* ===================================================
+              FORM CUSTOMER
+          =================================================== */}
 
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <span
-                      className={`approval-status ${
-                        getStatus(selected.status).className
-                      }`}
-                    >
-                      {getStatus(selected.status).label}
-                    </span>
+          <FormRenderer
+            type={submission.type}
+            category={submission.category}
+            subCategory={submission.sub_category}
+            formData={formData}
+            setFormData={setFormData}
+            mode="approval"
+            approvalRole={approvalRole}
+            requestor={requestor}
+            existingAttachments={submission.attachments || []}
+            accounting={accounting}
+            setAccounting={setAccounting}
+            tax={tax}
+            setTax={setTax}
+            customerCode={customerCode}
+            setCustomerCode={setCustomerCode}
+            processing={processing}
+          />
 
-                    <button
-                      type="button"
-                      className="approval-modal__close"
-                      onClick={closeDetail}
-                      disabled={processing}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              </header>
+          {/* ===================================================
+              APPROVAL HISTORY
+          =================================================== */}
 
-              {detailLoading ? (
-                <div className="approval-empty">Loading detail...</div>
-              ) : (
-                <form
-                  className="customer-form"
-                  onSubmit={(e) => e.preventDefault()}
-                >
-                  {actionError && (
-                    <div
-                      className="approval-alert approval-alert--error"
-                      style={{ margin: "1rem 2rem 0" }}
-                    >
-                      {actionError}
-                    </div>
-                  )}
+          <section className="customer-form__section">
+            <div className="customer-form__section-title">
+              <span>8</span>
 
-                  {/* 1. REQUEST TYPE */}
-                  <Section number="1" title="Request Type">
-                    <ChoiceGroup
-                      label="Request Type"
-                      options={REQUEST_TYPES}
-                      value={formData.requestType || "New"}
-                      disabled={true}
-                    />
+              <h3>Approval History</h3>
+            </div>
 
-                    {isNewRequest ? (
-                      isPICTurn ? (
-                        <Field
-                          label="Customer Code"
-                          required
-                          hint="Customer code wajib diisi oleh PIC untuk request New."
+            <div className="customer-form__section-body">
+              {submission.approval_history?.length ? (
+                <div className="approval-history">
+                  {submission.approval_history.map((item) => {
+                    const rejected = item.action === "REJECTED";
+
+                    let label = item.step;
+
+                    if (item.step === "DIV_HEAD_APPROVE") {
+                      label = "Approved by Division Head";
+                    }
+
+                    if (item.step === "ACCOUNTING_APPROVE") {
+                      label = "Approved by Accounting";
+                    }
+
+                    if (item.step === "TAX_APPROVE") {
+                      label = "Approved by Tax";
+                    }
+
+                    if (item.step === "ACCOUNTING_FILL") {
+                      label = "Accounting Data Saved";
+                    }
+
+                    if (item.step === "TAX_FILL") {
+                      label = "Tax Data Saved";
+                    }
+
+                    if (
+                      item.step === "DIV_HEAD_REVIEW" &&
+                      item.action === "SUBMITTED"
+                    ) {
+                      label = "Submitted for Division Head Review";
+                    }
+
+                    if (item.action === "RESOLVED") {
+                      label = "Ticket Resolved";
+                    }
+
+                    return (
+                      <div key={item.id} className="approval-history__item">
+                        <div
+                          className={`approval-history__marker ${
+                            rejected ? "approval-history__marker--rejected" : ""
+                          }`}
                         >
-                          <input
-                            type="text"
-                            className="customer-form__input"
-                            value={customerCode}
-                            onChange={(e) => setCustomerCode(e.target.value)}
-                            placeholder="Input customer code (PIC)"
-                            disabled={processing}
-                            required
-                          />
-                        </Field>
-                      ) : (
-                        <ReadOnlyField
-                          label="Customer Code"
-                          value={formData.customerCode || "-"}
-                        />
-                      )
-                    ) : (
-                      <ReadOnlyField
-                        label="Customer Code"
-                        value={formData.customerCode || "-"}
-                      />
-                    )}
-                  </Section>
-
-                  {/* 2. REQUESTOR */}
-                  <Section number="2" title="Requestor">
-                    <ReadOnlyField
-                      label="Name"
-                      value={selected.requestor?.name || formData.name || "-"}
-                    />
-                    <ReadOnlyField
-                      label="Position (Jabatan)"
-                      value={
-                        selected.requestor?.position || formData.position || "-"
-                      }
-                    />
-
-                    <div className="customer-form__field">
-                      <label className="customer-form__label">
-                        Division / Department
-                      </label>
-                      <div className="customer-form__two-column">
-                        <input
-                          type="text"
-                          className="customer-form__input customer-form__input--readonly"
-                          value={
-                            selected.requestor?.division ||
-                            formData.division ||
-                            "-"
-                          }
-                          readOnly
-                        />
-                        <span className="customer-form__separator">/</span>
-                        <input
-                          type="text"
-                          className="customer-form__input customer-form__input--readonly"
-                          value={
-                            selected.requestor?.department ||
-                            formData.department ||
-                            "-"
-                          }
-                          readOnly
-                        />
-                      </div>
-                    </div>
-
-                    <ReadOnlyField
-                      label="Telephone"
-                      value={
-                        selected.requestor?.telephone ||
-                        formData.telephone ||
-                        "-"
-                      }
-                    />
-                    <ReadOnlyField
-                      label="Email"
-                      value={selected.requestor?.email || formData.email || "-"}
-                    />
-                  </Section>
-
-                  {/* 3. INITIAL SCREEN */}
-                  <Section number="3" title="Initial Screen">
-                    {/* Account Group: Diisi oleh Accounting saat giliran Accounting */}
-                    {isAccountingTurn ? (
-                      <ChoiceGroup
-                        label="Account Group"
-                        options={ACCOUNT_GROUPS}
-                        value={accounting.accountGroup}
-                        onChange={(val) =>
-                          updateAccounting("accountGroup", val)
-                        }
-                        required
-                        disabled={processing}
-                      />
-                    ) : (
-                      <Field label="Account Group">
-                        <LockedBox title="Filled by Accounting">
-                          <ChoiceGroup
-                            options={ACCOUNT_GROUPS}
-                            value={
-                              accounting.accountGroup ||
-                              formData.accountGroup ||
-                              ""
-                            }
-                            disabled={true}
-                          />
-                        </LockedBox>
-                      </Field>
-                    )}
-
-                    <ChoiceGroup
-                      label="Company Code"
-                      options={COMPANY_CODES}
-                      value={formData.companyCode || "1200"}
-                      disabled={true}
-                    />
-
-                    <ChoiceGroup
-                      label="Sales Organization"
-                      options={SALES_ORGANIZATION}
-                      value={formData.salesOrganization || "1200"}
-                      disabled={true}
-                    />
-
-                    <ChoiceGroup
-                      label="Distribution Channel"
-                      options={DISTRIBUTION_CHANNELS}
-                      value={formData.distributionChannel || ["00"]}
-                      checkbox
-                      disabled={true}
-                    />
-
-                    <ChoiceGroup
-                      label="Division"
-                      options={DIVISIONS}
-                      value={formData.division || ["00"]}
-                      checkbox
-                      disabled={true}
-                    />
-
-                    <ReadOnlyField
-                      label="Customer Code"
-                      value={customerCode || formData.customerCode || "-"}
-                    />
-                  </Section>
-
-                  {/* 4. GENERAL DATA */}
-                  <Section number="4" title="General Data">
-                    <ReadOnlyField
-                      label="Judul (Title)"
-                      value={formData.title}
-                    />
-
-                    <ReadOnlyField
-                      label="Nama Pelanggan (Name)"
-                      value={formData.customerName}
-                    />
-
-                    <ReadOnlyField
-                      label="Search Term 1"
-                      value={formData.searchTerm1}
-                    />
-
-                    <ReadOnlyField
-                      label="Alamat Invoice (Street / House Number)"
-                      value={formData.invoiceStreet}
-                    />
-
-                    <ReadOnlyField
-                      label="Alamat Pajak"
-                      value={formData.taxStreet}
-                    />
-
-                    <PairedTextField
-                      label="Kota / Kode Pos"
-                      leftValue={formData.city}
-                      rightValue={formData.postalCode}
-                      leftPlaceholder="Kota"
-                      rightPlaceholder="Kode Pos"
-                      disabled={true}
-                    />
-
-                    <ReadOnlyField label="Country" value={formData.country} />
-
-                    <ReadOnlyField label="Region" value={formData.region} />
-
-                    <ReadOnlyField
-                      label="Telephone"
-                      value={formData.telephone}
-                    />
-
-                    <ReadOnlyField label="Fax" value={formData.fax} />
-
-                    <PairedTextField
-                      label="NPWP (VAT Reg. No.) / Tanggal Terdaftar"
-                      leftValue={formData.npwp}
-                      rightValue={formData.npwpregisteredDate}
-                      leftPlaceholder="NPWP (VAT Reg. No.)"
-                      rightType="date"
-                      disabled={true}
-                    />
-
-                    <ChoiceGroup
-                      label="Customer Class"
-                      options={CUSTOMER_CLASSES}
-                      value={formData.customerClass}
-                      disabled={true}
-                    />
-                  </Section>
-
-                  {/* 5. COMPANY CODE DATA */}
-                  <Section number="5" title="Company Code Data">
-                    {/* Recon Account: Diisi oleh Accounting saat giliran Accounting */}
-                    {isAccountingTurn ? (
-                      <Field
-                        label="Recon Account"
-                        required
-                        hint="Diisi oleh Accounting"
-                      >
-                        <input
-                          type="text"
-                          className="customer-form__input"
-                          value={accounting.recontAccount}
-                          onChange={(e) =>
-                            updateAccounting("recontAccount", e.target.value)
-                          }
-                          placeholder="Masukkan Recon Account"
-                          disabled={processing}
-                          required
-                        />
-                      </Field>
-                    ) : (
-                      <ReadOnlyField
-                        label="Recon Account"
-                        value={
-                          accounting.recontAccount ||
-                          formData.recontAccount ||
-                          "-"
-                        }
-                        lockedBy="Filled by Accounting"
-                      />
-                    )}
-
-                    {/* SORT KEY: Diisi oleh Accounting saat giliran Accounting */}
-                    {isAccountingTurn ? (
-                      <ChoiceGroup
-                        label="Sort Key"
-                        options={SORT_KEYS}
-                        value={accounting.sortKey}
-                        onChange={(val) => updateAccounting("sortKey", val)}
-                        required
-                        disabled={processing}
-                      />
-                    ) : (
-                      <Field label="Sort Key">
-                        <LockedBox title="Filled by Accounting">
-                          <ChoiceGroup
-                            options={SORT_KEYS}
-                            value={accounting.sortKey || formData.sortKey || ""}
-                            disabled={true}
-                          />
-                        </LockedBox>
-                      </Field>
-                    )}
-
-                    <ChoiceGroup
-                      label="Terms of Payment"
-                      options={TERMS_OF_PAYMENT}
-                      value={formData.paymentTerms}
-                      disabled={true}
-                    />
-
-                    {/* TOLERANCE GROUP: Diisi oleh Accounting saat giliran Accounting */}
-                    {isAccountingTurn ? (
-                      <ChoiceGroup
-                        label="Tolerance Group"
-                        options={TOLERANCE_GROUPS}
-                        value={accounting.toleranceGroup}
-                        onChange={(val) =>
-                          updateAccounting("toleranceGroup", val)
-                        }
-                        required
-                        disabled={processing}
-                      />
-                    ) : (
-                      <Field label="Tolerance Group">
-                        <LockedBox title="Filled by Accounting">
-                          <ChoiceGroup
-                            options={TOLERANCE_GROUPS}
-                            value={
-                              accounting.toleranceGroup ||
-                              formData.toleranceGroup ||
-                              ""
-                            }
-                            disabled={true}
-                          />
-                        </LockedBox>
-                      </Field>
-                    )}
-
-                    {/* WITHOLDING TAX: Diisi oleh Tax saat giliran Tax */}
-                    {isTaxTurn ? (
-                      <ChoiceGroup
-                        label="Witholding Tax"
-                        options={WITHOLDING_TAX}
-                        value={tax.witholdingTax}
-                        onChange={(val) => updateTax(val)}
-                        checkbox
-                        required
-                        disabled={processing}
-                      />
-                    ) : (
-                      <Field label="Witholding Tax">
-                        <LockedBox title="Filled by Tax">
-                          <ChoiceGroup
-                            options={WITHOLDING_TAX}
-                            value={
-                              tax.witholdingTax?.length
-                                ? tax.witholdingTax
-                                : formData.witholdingTax || []
-                            }
-                            checkbox
-                            disabled={true}
-                          />
-                        </LockedBox>
-                      </Field>
-                    )}
-                  </Section>
-
-                  {/* 6. SALES AREA DATA */}
-                  <Section number="6" title="Sales Area Data">
-                    <Field label="Currency">
-                      <div className="customer-form__choices">
-                        {CURRENCIES.map((currency) => (
-                          <label
-                            key={currency}
-                            className="customer-form__choice customer-form__choice--disabled"
-                          >
-                            <input
-                              type="radio"
-                              name="currency"
-                              value={currency}
-                              checked={formData.currency === currency}
-                              disabled={true}
-                            />
-                            <span>{currency}</span>
-                          </label>
-                        ))}
-                      </div>
-
-                      {formData.currency === "Other" && (
-                        <div className="customer-form__nested-field">
-                          <label className="customer-form__nested-label">
-                            Other Currency
-                          </label>
-                          <input
-                            type="text"
-                            className="customer-form__input customer-form__input--readonly"
-                            value={formData.otherCurrency || "-"}
-                            readOnly
-                          />
+                          {rejected
+                            ? "!"
+                            : item.action === "FILLED"
+                              ? "•"
+                              : "✓"}
                         </div>
-                      )}
-                    </Field>
 
-                    <ChoiceGroup
-                      label="Customer Pricing Procedure"
-                      options={CUSTOMER_PRICING_PROCEDURES}
-                      value={formData.customerPricingProcedure || ["1"]}
-                      checkbox
-                      disabled={true}
-                    />
+                        <div className="approval-history__content">
+                          <div className="approval-history__top">
+                            <strong
+                              className={
+                                rejected
+                                  ? "approval-history__action--rejected"
+                                  : ""
+                              }
+                            >
+                              {rejected ? "Rejected" : label}
+                            </strong>
 
-                    <ChoiceGroup
-                      label="Customer Statistic Group"
-                      options={CUSTOMER_STATISTIC_GROUPS}
-                      value={formData.customerStatisticGroup || ["1"]}
-                      checkbox
-                      disabled={true}
-                    />
-
-                    <ChoiceGroup
-                      label="Tax Classification"
-                      options={TAX_CLASSIFICATIONS}
-                      value={formData.taxClassification}
-                      disabled={true}
-                    />
-                  </Section>
-
-                  {/* 7. ATTACHMENT */}
-                  <Section number="7" title="Attachment">
-                    {selected.attachments && selected.attachments.length > 0 ? (
-                      <div className="approval-attachments">
-                        {selected.attachments.map((attachment, index) => (
-                          <div
-                            key={`${attachment.name}-${index}`}
-                            className="approval-attachment"
-                          >
-                            <span>📎</span>
-                            <div>
-                              <strong>{attachment.name}</strong>
-                              <small>
-                                {attachment.size
-                                  ? `${(attachment.size / 1024).toFixed(1)} KB`
-                                  : attachment.type || "File"}
-                              </small>
-                            </div>
+                            <span>{formatDate(item.created_at)}</span>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="customer-form__attachment-readonly">
-                        <span className="customer-form__attachment-readonly-icon">
-                          📎
-                        </span>
-                        <div>
-                          <strong>Attachment</strong>
-                          <p>Tidak ada attachment yang diunggah.</p>
+
+                          <small>By: {item.actor?.name || "-"}</small>
+
+                          {item.notes && (
+                            <div className="approval-history__notes">
+                              {item.notes}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </Section>
-
-                  {/* 8. APPROVAL HISTORY */}
-                  <Section number="8" title="Approval History">
-                    {selected.approval_history?.filter(
-                      (item) =>
-                        item.action === "APPROVED" &&
-                        ["DIV_HEAD_APPROVE", "ACCOUNTING_APPROVE", "TAX_APPROVE"].includes(
-                          item.step,
-                        ),
-                    ).length ? (
-                      <div className="approval-history">
-                        {selected.approval_history
-                          .filter(
-                            (item) =>
-                              item.action === "APPROVED" &&
-                              ["DIV_HEAD_APPROVE", "ACCOUNTING_APPROVE", "TAX_APPROVE"].includes(
-                                item.step,
-                              ),
-                          )
-                          .map((item) => {
-                            let approvalLabel = item.step;
-
-                            if (item.step === "DIV_HEAD_APPROVE") {
-                              approvalLabel = "Approved by Division Head";
-                            } else if (item.step === "ACCOUNTING_APPROVE") {
-                              approvalLabel = "Approved by Accounting";
-                            } else if (item.step === "TAX_APPROVE") {
-                              approvalLabel = "Approved by Tax";
-                            }
-
-                            return (
-                              <div
-                                key={item.id}
-                                className="approval-history__item"
-                              >
-                                <div className="approval-history__marker">
-                                  ✓
-                                </div>
-
-                                <div className="approval-history__content">
-                                  <div className="approval-history__top">
-                                    <strong>{approvalLabel}</strong>
-
-                                    <span>{formatDate(item.created_at)}</span>
-                                  </div>
-
-                                  <small>By: {item.actor?.name || "-"}</small>
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    ) : (
-                      <p className="approval-muted">
-                        Belum ada riwayat approval.
-                      </p>
-                    )}
-                  </Section>
-
-                  {/* TOMBOL AKSI */}
-                  {renderActionButtons()}
-                </form>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="approval-muted">Belum ada riwayat approval.</p>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </section>
 
-      {/* =========================================================
-          MODAL REJECT (CATATAN HANYA MUNCUL KETIKA DI-REJECT)
-      ========================================================= */}
+          {/* ===================================================
+              ACTION BUTTON
+          =================================================== */}
+
+          {renderActionButtons()}
+
+          {/* ===================================================
+              BACK
+          =================================================== */}
+
+          <div className="customer-form__actions">
+            <button
+              type="button"
+              className="customer-form__button customer-form__button--secondary"
+              onClick={() => navigate("/approval")}
+              disabled={processing}
+            >
+              Back to Approval List
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* =====================================================
+          REJECT MODAL
+          
+          INI SAJA YANG TETAP POPUP.
+          DETAIL TICKET SUDAH BUKAN POPUP.
+      ===================================================== */}
+
       {rejectModalOpen && (
         <div
           className="approval-modal"
-          style={{ zIndex: 200, alignItems: "center" }}
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget && !processing) {
+          style={{
+            zIndex: 200,
+            alignItems: "center",
+          }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !processing) {
               setRejectModalOpen(false);
             }
           }}
@@ -1723,6 +1354,7 @@ export default function ApprovalPage() {
           <div className="approval-reject-dialog">
             <div className="approval-reject-dialog__header">
               <h3>Reject Submission</h3>
+
               <button
                 type="button"
                 className="approval-modal__close"
@@ -1735,7 +1367,7 @@ export default function ApprovalPage() {
 
             <div className="approval-reject-dialog__body">
               <p className="approval-reject-dialog__desc">
-                Anda akan menolak ticket <strong>{selected?.number}</strong>.
+                Anda akan menolak ticket <strong>{submission.number}</strong>.
                 Silakan masukkan alasan penolakan pada kolom catatan di bawah
                 ini.
               </p>
@@ -1745,11 +1377,12 @@ export default function ApprovalPage() {
                   Catatan / Alasan Penolakan{" "}
                   <span className="customer-form__required">*</span>
                 </label>
+
                 <textarea
                   className="customer-form__input"
                   rows={4}
                   value={rejectNotes}
-                  onChange={(e) => setRejectNotes(e.target.value)}
+                  onChange={(event) => setRejectNotes(event.target.value)}
                   placeholder="Tuliskan catatan alasan penolakan..."
                   autoFocus
                   disabled={processing}
@@ -1759,7 +1392,9 @@ export default function ApprovalPage() {
               {rejectError && (
                 <div
                   className="approval-alert approval-alert--error"
-                  style={{ margin: "0.75rem 0 0" }}
+                  style={{
+                    margin: "0.75rem 0 0",
+                  }}
                 >
                   {rejectError}
                 </div>
@@ -1770,7 +1405,11 @@ export default function ApprovalPage() {
               <button
                 type="button"
                 className="customer-form__button customer-form__button--secondary"
-                style={{ width: "auto", minHeight: "36px", padding: "0 1rem" }}
+                style={{
+                  width: "auto",
+                  minHeight: "36px",
+                  padding: "0 1rem",
+                }}
                 onClick={() => setRejectModalOpen(false)}
                 disabled={processing}
               >
@@ -1780,7 +1419,10 @@ export default function ApprovalPage() {
               <button
                 type="button"
                 className="approval-btn approval-btn--danger"
-                style={{ minHeight: "36px", padding: "0 1.25rem" }}
+                style={{
+                  minHeight: "36px",
+                  padding: "0 1.25rem",
+                }}
                 onClick={handleConfirmReject}
                 disabled={processing || !rejectNotes.trim()}
               >
@@ -1790,6 +1432,24 @@ export default function ApprovalPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* =========================================================
+   SMALL FIELD WRAPPER
+========================================================= */
+
+function FieldWrapper({ children }) {
+  return (
+    <div
+      className="customer-form__field"
+      style={{
+        flex: "1 1 320px",
+        maxWidth: "420px",
+      }}
+    >
+      {children}
     </div>
   );
 }

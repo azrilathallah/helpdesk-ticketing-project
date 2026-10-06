@@ -29,7 +29,7 @@ class ApprovalController extends Controller
             ->whereIn('status', Submission::activeStatuses())
             ->latest()
             ->get()
-            ->map(fn (Submission $s) => $this->transform($s));
+            ->map(fn(Submission $s) => $this->transform($s));
 
         return response()->json([
             'data' => $submissions,
@@ -72,7 +72,7 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.',
+                'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.',
             ], 422);
         }
 
@@ -104,7 +104,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Submission berhasil di-approve oleh Division Head dan diteruskan ke Accounting.',
+            'Submission berhasil di-approve oleh Division Head dan diteruskan ke Accounting.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -126,7 +126,7 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission belum berada pada tahap Review by Accounting.',
+                'Submission belum berada pada tahap Review by Accounting.',
             ], 422);
         }
 
@@ -134,19 +134,19 @@ class ApprovalController extends Controller
             'accounting_data' => 'required|array',
 
             'accounting_data.accountGroup' =>
-                'required|string',
+            'required|string',
 
             'accounting_data.recontAccount' =>
-                'required|string',
+            'required|string',
 
             'accounting_data.sortKey' =>
-                'required|string',
+            'required|string',
 
             'accounting_data.toleranceGroup' =>
-                'required|string',
+            'required|string',
 
             'notes' =>
-                'nullable|string|max:1000',
+            'nullable|string|max:1000',
         ]);
 
         $accountingData =
@@ -188,7 +188,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Data accounting berhasil disimpan. Menunggu approval Accounting Head.',
+            'Data accounting berhasil disimpan. Menunggu approval Accounting Head.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -209,26 +209,26 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission tidak dalam status Review by Accounting.',
+                'Submission tidak dalam status Review by Accounting.',
             ], 422);
         }
 
         $hasAccountingFill =
             $submission->approvals()
-                ->where('step', 'ACCOUNTING_FILL')
-                ->where('action', 'FILLED')
-                ->exists();
+            ->where('step', 'ACCOUNTING_FILL')
+            ->where('action', 'FILLED')
+            ->exists();
 
         if (!$hasAccountingFill) {
             return response()->json([
                 'message' =>
-                    'Accounting Staff belum mengisi data. Tidak dapat di-approve.',
+                'Accounting Staff belum mengisi data. Tidak dapat di-approve.',
             ], 422);
         }
 
         $request->validate([
             'notes' =>
-                'nullable|string|max:1000',
+            'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use (
@@ -260,7 +260,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Submission berhasil di-approve oleh Accounting Head dan diteruskan ke Tax.',
+            'Submission berhasil di-approve oleh Accounting Head dan diteruskan ke Tax.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -282,19 +282,19 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission belum berada pada tahap Review by Tax.',
+                'Submission belum berada pada tahap Review by Tax.',
             ], 422);
         }
 
         $request->validate([
             'tax_data' =>
-                'required|array',
+            'required|array',
 
             'tax_data.witholdingTax' =>
-                'required|array',
+            'required|array',
 
             'notes' =>
-                'nullable|string|max:1000',
+            'nullable|string|max:1000',
         ]);
 
         $taxData =
@@ -342,7 +342,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Data tax berhasil disimpan. Menunggu approval Tax Head.',
+            'Data tax berhasil disimpan. Menunggu approval Tax Head.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -364,26 +364,26 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission tidak dalam status Review by Tax.',
+                'Submission tidak dalam status Review by Tax.',
             ], 422);
         }
 
         $hasTaxFill =
             $submission->approvals()
-                ->where('step', 'TAX_FILL')
-                ->where('action', 'FILLED')
-                ->exists();
+            ->where('step', 'TAX_FILL')
+            ->where('action', 'FILLED')
+            ->exists();
 
         if (!$hasTaxFill) {
             return response()->json([
                 'message' =>
-                    'Tax Staff belum mengisi data. Tidak dapat di-approve.',
+                'Tax Staff belum mengisi data. Tidak dapat di-approve.',
             ], 422);
         }
 
         $request->validate([
             'notes' =>
-                'nullable|string|max:1000',
+            'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use (
@@ -407,7 +407,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Submission berhasil di-approve oleh Tax Head dan diteruskan ke PIC.',
+            'Submission berhasil di-approve oleh Tax Head dan diteruskan ke PIC.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -429,13 +429,13 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission tidak dalam status Review by Tax Head.',
+                'Submission tidak dalam status Review by Tax Head.',
             ], 422);
         }
 
         $rules = [
             'notes' =>
-                'nullable|string|max:1000',
+            'nullable|string|max:1000',
         ];
 
         /*
@@ -489,9 +489,9 @@ class ApprovalController extends Controller
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'step_data' =>
-                    !empty($stepData)
-                        ? $stepData
-                        : null,
+                !empty($stepData)
+                    ? $stepData
+                    : null,
                 'created_at' => now(),
             ]);
 
@@ -503,7 +503,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Ticket berhasil diselesaikan.',
+            'Ticket berhasil diselesaikan.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -521,7 +521,7 @@ class ApprovalController extends Controller
     ) {
         return response()->json([
             'message' =>
-                'Cancel ticket hanya dapat dilakukan oleh requestor melalui halaman My Submission.',
+            'Cancel ticket hanya dapat dilakukan oleh requestor melalui halaman My Submission.',
         ], 403);
     }
 
@@ -544,16 +544,16 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                    'Submission tidak dapat di-reject pada tahap ini.',
+                'Submission tidak dapat di-reject pada tahap ini.',
             ], 422);
         }
 
         $request->validate([
             'notes' =>
-                'required|string|max:1000',
+            'required|string|max:1000',
         ], [
             'notes.required' =>
-                'Catatan alasan reject wajib diisi.',
+            'Catatan alasan reject wajib diisi.',
         ]);
 
         DB::transaction(function () use (
@@ -568,10 +568,10 @@ class ApprovalController extends Controller
                 'action' => 'REJECTED',
 
                 'acted_by' =>
-                    $request->user()->id,
+                $request->user()->id,
 
                 'notes' =>
-                    $request->input('notes'),
+                $request->input('notes'),
 
                 'created_at' => now(),
             ]);
@@ -587,7 +587,7 @@ class ApprovalController extends Controller
 
         return response()->json([
             'message' =>
-                'Submission berhasil di-reject.',
+            'Submission berhasil di-reject.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -608,44 +608,56 @@ class ApprovalController extends Controller
     ): array {
         $data = [
             'id' =>
-                $submission->id,
+            $submission->id,
 
             'number' =>
-                $submission->number,
+            $submission->number,
 
             'type' =>
-                $submission->type,
+            $submission->type,
 
             'category' =>
-                $submission->category,
+            $submission->category,
 
             'sub_category' =>
-                $submission->sub_category,
+            $submission->sub_category,
 
             'form_type' =>
-                $submission->form_type,
+            $submission->form_type,
 
             'status' =>
-                $submission->status,
+            $submission->status,
 
             'created_at' =>
-                $submission->created_at,
+            $submission->created_at,
 
             'updated_at' =>
-                $submission->updated_at,
+            $submission->updated_at,
 
             'submitted_at' =>
-                $submission->submitted_at,
+            $submission->submitted_at,
 
             'requestor' => [
                 'id' =>
-                    $submission->requestor_id,
+                $submission->requestor_id,
 
                 'name' =>
-                    $submission->requestor?->name,
+                $submission->requestor?->name,
 
                 'email' =>
-                    $submission->requestor?->email,
+                $submission->requestor?->email,
+
+                'position' =>
+                $submission->requestor?->position,
+
+                'division' =>
+                $submission->requestor?->division,
+
+                'department' =>
+                $submission->requestor?->department,
+
+                'telephone' =>
+                $submission->requestor?->telephone,
             ],
         ];
 
@@ -661,42 +673,42 @@ class ApprovalController extends Controller
              */
             $data['approval_history'] =
                 $submission->approvals
-                    ->map(
-                        fn (
-                            SubmissionApproval $a
-                        ) => [
+                ->map(
+                    fn(
+                        SubmissionApproval $approval
+                    ) => [
+                        'id' =>
+                        $approval->id,
+
+                        'step' =>
+                        $approval->step,
+
+                        'action' =>
+                        $approval->action,
+
+                        'notes' =>
+                        $approval->notes,
+
+                        'step_data' =>
+                        $approval->step_data,
+
+                        'actor' => [
                             'id' =>
-                                $a->id,
+                            $approval->acted_by,
 
-                            'step' =>
-                                $a->step,
+                            'name' =>
+                            $approval->actor?->name,
 
-                            'action' =>
-                                $a->action,
+                            'email' =>
+                            $approval->actor?->email,
+                        ],
 
-                            'notes' =>
-                                $a->notes,
-
-                            'step_data' =>
-                                $a->step_data,
-
-                            'actor' => [
-                                'id' =>
-                                    $a->acted_by,
-
-                                'name' =>
-                                    $a->actor?->name,
-
-                                'email' =>
-                                    $a->actor?->email,
-                            ],
-
-                            'created_at' =>
-                                $a->created_at,
-                        ]
-                    )
-                    ->values()
-                    ->all();
+                        'created_at' =>
+                        $approval->created_at,
+                    ]
+                )
+                ->values()
+                ->all();
         }
 
         return $data;

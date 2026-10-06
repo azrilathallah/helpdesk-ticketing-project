@@ -36,31 +36,60 @@ class AuthController extends Controller
         if ($response->successful() && $response->json('status') === true) {
             $hrisData = $response->json('data');
 
-            $email = $hrisData['user_email'];
-            $name = $hrisData['name'];
-            $position = $hrisData['position'];
-            $division = $hrisData['division'];
-            $department = $hrisData['department'];
+            $email      = strtoupper(trim($hrisData['user_email'] ?? $request->email));
+            $name       = $hrisData['name'];
+            $nik        = (string) ($hrisData['nik'] ?? $hrisData['employee_id'] ?? '');
+            $position   = $hrisData['position']    ?? null;
+            $division   = $hrisData['division']    ?? null;
+            $department = $hrisData['department']  ?? null;
+            $divhead    = $hrisData['divhead']     ?? null;
+            $telephone  = $hrisData['telephone']   ?? null;
 
-            $user = User::updateOrCreate(
-                [
-                    'email' => $email,
-                ],
-                [
-                    'name' => $name,
-                ]
-            );
+            if ($nik === '') {
+                $nik = $hrisData['employee_id'] ?? 'TMP-' . strtoupper(explode('@', $email)[0]);
+            }
+
+            $user = User::where('email', $email)->first()
+                ?? User::where('nik', $nik)->first();
+
+            if ($user) {
+                $user->update([
+                    'name'       => $name,
+                    'email'      => $email,
+                    'nik'        => $nik,
+                    'position'   => $position,
+                    'division'   => $division,
+                    'department' => $department,
+                    'divhead'    => $divhead,
+                    'telephone'  => $telephone,
+                ]);
+            } else {
+                $user = User::create([
+                    'name'       => $name,
+                    'email'      => $email,
+                    'nik'        => $nik,
+                    'position'   => $position,
+                    'division'   => $division,
+                    'department' => $department,
+                    'divhead'    => $divhead,
+                    'telephone'  => $telephone,
+                    'password'   => null,
+                ]);
+            }
 
             $token = $user->createToken('auth-token')->plainTextToken;
+
             return response()->json([
                 'message' => 'Login berhasil',
                 'user'    => [
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'email' => $user->email,
-                    'position'  => $position,
-                    'division'  => $division,
-                    'department'  => $department,
+                    'id'         => $user->id,
+                    'name'       => $user->name,
+                    'email'      => $user->email,
+                    'nik'        => $user->nik,
+                    'position'   => $user->position,
+                    'division'   => $user->division,
+                    'department' => $user->department,
+                    'divhead'    => $user->divhead,
                 ],
                 'token' => $token,
             ]);
