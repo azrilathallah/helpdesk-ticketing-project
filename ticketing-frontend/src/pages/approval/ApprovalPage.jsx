@@ -524,6 +524,12 @@ export default function ApprovalPage() {
     }
   };
 
+  const approvedHistory = (selected?.approval_history || []).filter((item) =>
+    ["APPROVED_DIV_HEAD", "APPROVED_ACCOUNTING", "APPROVED_TAX"].includes(
+      item.status,
+    ),
+  );
+
   const handleAction = async (action) => {
     if (!selected || processing) return;
 
@@ -857,7 +863,7 @@ export default function ApprovalPage() {
     }
 
     /* 4. PIC Turn */
-    if (status === "WAITING_PIC" || "APPROVED_TAX") {
+    if (status === "WAITING_PIC" || status === "APPROVED_TAX") {
       const isNew = selected.form_data?.requestType === "New";
 
       return (
@@ -897,7 +903,8 @@ export default function ApprovalPage() {
   const formData = selected?.form_data || {};
   const isAccountingTurn = selected?.status === "APPROVED_DIV_HEAD";
   const isTaxTurn = selected?.status === "APPROVED_ACCOUNTING";
-  const isPICTurn = selected?.status === "WAITING_PIC" || "APPROVED_TAX";
+  const isPICTurn =
+    selected?.status === "WAITING_PIC" || selected?.status === "APPROVED_TAX";
   const isNewRequest = formData.requestType === "New";
 
   return (
@@ -906,10 +913,6 @@ export default function ApprovalPage() {
       <div className="approval-page__header">
         <div>
           <h1>Approval List</h1>
-          <p>
-            Review and process SAP Master Data requests according to the
-            approval workflow.
-          </p>
         </div>
 
         <button
@@ -1639,64 +1642,54 @@ export default function ApprovalPage() {
 
                   {/* 8. APPROVAL HISTORY */}
                   <Section number="8" title="Approval History">
-                    {selected.approval_history?.length ? (
+                    {selected.approval_history?.filter(
+                      (item) =>
+                        item.action === "APPROVED" &&
+                        ["DIV_HEAD_APPROVE", "ACCOUNTING_APPROVE", "TAX_APPROVE"].includes(
+                          item.step,
+                        ),
+                    ).length ? (
                       <div className="approval-history">
-                        {selected.approval_history.map((item) => {
-                          const isRejected = item.action === "REJECTED";
+                        {selected.approval_history
+                          .filter(
+                            (item) =>
+                              item.action === "APPROVED" &&
+                              ["DIV_HEAD_APPROVE", "ACCOUNTING_APPROVE", "TAX_APPROVE"].includes(
+                                item.step,
+                              ),
+                          )
+                          .map((item) => {
+                            let approvalLabel = item.step;
 
-                          return (
-                            <div
-                              key={item.id}
-                              className="approval-history__item"
-                            >
+                            if (item.step === "DIV_HEAD_APPROVE") {
+                              approvalLabel = "Approved by Division Head";
+                            } else if (item.step === "ACCOUNTING_APPROVE") {
+                              approvalLabel = "Approved by Accounting";
+                            } else if (item.step === "TAX_APPROVE") {
+                              approvalLabel = "Approved by Tax";
+                            }
+
+                            return (
                               <div
-                                className={`approval-history__marker ${
-                                  isRejected
-                                    ? "approval-history__marker--rejected"
-                                    : ""
-                                }`}
+                                key={item.id}
+                                className="approval-history__item"
                               >
-                                {isRejected ? "✕" : "✓"}
-                              </div>
-
-                              <div className="approval-history__content">
-                                <div className="approval-history__top">
-                                  <strong>{item.step}</strong>
-                                  <span>{formatDate(item.created_at)}</span>
+                                <div className="approval-history__marker">
+                                  ✓
                                 </div>
 
-                                <p
-                                  className={
-                                    isRejected
-                                      ? "approval-history__action--rejected"
-                                      : ""
-                                  }
-                                >
-                                  {item.action}
-                                </p>
+                                <div className="approval-history__content">
+                                  <div className="approval-history__top">
+                                    <strong>{approvalLabel}</strong>
 
-                                <small>By: {item.actor?.name || "-"}</small>
-
-                                {/* NOTES HANYA MUNCUL KETIKA SUBMISSION DI-REJECT */}
-                                {isRejected && item.notes && (
-                                  <div className="approval-history__notes">
-                                    <strong style={{ color: "#991b1b" }}>
-                                      Catatan / Alasan Penolakan:
-                                    </strong>
-                                    <p
-                                      style={{
-                                        margin: "4px 0 0",
-                                        whiteSpace: "pre-wrap",
-                                      }}
-                                    >
-                                      {item.notes}
-                                    </p>
+                                    <span>{formatDate(item.created_at)}</span>
                                   </div>
-                                )}
+
+                                  <small>By: {item.actor?.name || "-"}</small>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
                       </div>
                     ) : (
                       <p className="approval-muted">

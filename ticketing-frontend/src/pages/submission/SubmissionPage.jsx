@@ -139,17 +139,7 @@ export default function MySubmissionPage() {
    * =========================================================
    */
 
-  const formatDate = (date) => {
-    if (!date) return "-";
-
-    return new Date(date).toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const formatDateTime = (date) => {
+  function formatDate(date) {
     if (!date) return "-";
 
     return new Date(date).toLocaleString("id-ID", {
@@ -159,7 +149,7 @@ export default function MySubmissionPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
+  }
 
   /*
    * =========================================================
@@ -428,8 +418,8 @@ export default function MySubmissionPage() {
         =================================================== */}
 
         {!error && filteredSubmissions.length > 0 && (
-          <div className="my-submission__table-wrapper">
-            <table className="my-submission__table">
+          <div className="approval-table-wrapper">
+            <table className="approval-table">
               <thead>
                 <tr>
                   <th>Number</th>
