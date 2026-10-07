@@ -214,12 +214,6 @@ export default function CustomerFormPage() {
 
               <h1>Master Data Customer Request</h1>
             </div>
-
-            {submissionId && readOnly && (
-              <span className="customer-form__submitted-badge">
-                ✓ Submitted · Read Only
-              </span>
-            )}
           </div>
         </header>
 

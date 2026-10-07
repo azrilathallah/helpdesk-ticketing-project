@@ -586,7 +586,6 @@ export default function CustomerFormFields({
             <Field
               label="Customer Code"
               required
-              hint="Customer code wajib diisi oleh PIC untuk request New."
             >
               <input
                 type="text"
@@ -599,7 +598,7 @@ export default function CustomerFormFields({
 
                   onCustomerCodeChange?.(value);
                 }}
-                placeholder="Input customer code (PIC)"
+                placeholder="Masukkan customer code"
                 required
               />
             </Field>
@@ -674,15 +673,12 @@ export default function CustomerFormFields({
             required
           />
         ) : (
-          <Field label="Account Group">
-            <LockedBox title="Filled by Accounting">
-              <ChoiceGroup
-                options={ACCOUNT_GROUPS}
-                value={form.accountGroup}
-                disabled
-              />
-            </LockedBox>
-          </Field>
+          <ChoiceGroup
+            label="Account Group"
+            options={ACCOUNT_GROUPS}
+            value={form.accountGroup}
+            disabled
+          />
         )}
 
         <ChoiceGroup
@@ -871,7 +867,7 @@ export default function CustomerFormFields({
 
       <Section number="5" title="Company Code Data">
         {isAccounting ? (
-          <Field label="Recon Account" required hint="Diisi oleh Accounting">
+          <Field label="Recon Account" required>
             <input
               type="text"
               className="customer-form__input"
@@ -882,11 +878,7 @@ export default function CustomerFormFields({
             />
           </Field>
         ) : (
-          <ReadOnlyField
-            label="Recon Account"
-            value={form.recontAccount}
-            lockedBy="Filled by Accounting"
-          />
+          <ReadOnlyField label="Recon Account" value={form.recontAccount} />
         )}
 
         {isAccounting ? (
@@ -898,11 +890,12 @@ export default function CustomerFormFields({
             required
           />
         ) : (
-          <Field label="Sort Key">
-            <LockedBox title="Filled by Accounting">
-              <ChoiceGroup options={SORT_KEYS} value={form.sortKey} disabled />
-            </LockedBox>
-          </Field>
+          <ChoiceGroup
+            label="Sort Key"
+            options={SORT_KEYS}
+            value={form.sortKey}
+            disabled
+          />
         )}
 
         <ChoiceGroup
@@ -923,15 +916,12 @@ export default function CustomerFormFields({
             required
           />
         ) : (
-          <Field label="Tolerance Group">
-            <LockedBox title="Filled by Accounting">
-              <ChoiceGroup
-                options={TOLERANCE_GROUPS}
-                value={form.toleranceGroup}
-                disabled
-              />
-            </LockedBox>
-          </Field>
+          <ChoiceGroup
+            label="Tolerance Group"
+            options={TOLERANCE_GROUPS}
+            value={form.toleranceGroup}
+            disabled
+          />
         )}
 
         {isTax ? (
@@ -944,16 +934,13 @@ export default function CustomerFormFields({
             required
           />
         ) : (
-          <Field label="Witholding Tax">
-            <LockedBox title="Filled by Tax">
-              <ChoiceGroup
-                options={WITHOLDING_TAX}
-                value={form.witholdingTax}
-                checkbox
-                disabled
-              />
-            </LockedBox>
-          </Field>
+          <ChoiceGroup
+            label="Witholding Tax"
+            options={WITHOLDING_TAX}
+            value={form.witholdingTax}
+            checkbox
+            disabled
+          />
         )}
       </Section>
 

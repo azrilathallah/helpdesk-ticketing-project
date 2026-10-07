@@ -1133,6 +1133,9 @@ body {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #189cc4;
+  border-radius: var(--radius-sm);
 }
 
 .customer-form__section-title > span {
@@ -1149,13 +1152,13 @@ body {
   background: var(--color-primary-l);
   color: var(--color-primary);
 
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .customer-form__section-title h3 {
   margin: 0;
-  color: var(--color-text-heading);
+  color: var(--color-surface);
   font-size: 1rem;
   font-weight: 700;
 }
@@ -1436,7 +1439,8 @@ body {
 
 .customer-form__actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: grid;
+  justify-content: space-between;
   gap: 0.75rem;
 
   width: 100%;

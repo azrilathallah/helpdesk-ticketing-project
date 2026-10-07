@@ -70,8 +70,6 @@ function SubmissionList({ navigate }) {
     loadSubmissions();
   }, []);
 
-  const totalSubmission = submissions.length;
-
   const totalDraft = submissions.filter(
     (item) => item.status === "DRAFT",
   ).length;
@@ -711,90 +709,99 @@ function SubmissionDetailPage({ id }) {
           <section className="customer-form__section">
             <div className="customer-form__section-title">
               <span>8</span>
-
               <h3>Approval History</h3>
             </div>
 
             <div className="customer-form__section-body">
-              {submission.approval_history?.length ? (
-                <div className="approval-history">
-                  {submission.approval_history.map((item) => {
-                    const rejected = item.action === "REJECTED";
+              {(() => {
+                const visibleHistory = (
+                  submission.approval_history || []
+                ).filter(
+                  (item) =>
+                    item.step === "DIV_HEAD_APPROVE" ||
+                    item.step === "ACCOUNTING_APPROVE" ||
+                    item.step === "TAX_APPROVE" ||
+                    item.action === "RESOLVED" ||
+                    item.action === "REJECTED" ||
+                    item.action === "CANCELLED",
+                );
 
-                    let label = item.step;
+                if (!visibleHistory.length) {
+                  return (
+                    <p className="approval-muted">
+                      Belum ada riwayat approval.
+                    </p>
+                  );
+                }
 
-                    if (item.step === "DIV_HEAD_APPROVE") {
-                      label = "Approved by Division Head";
-                    }
+                return (
+                  <div className="approval-history">
+                    {visibleHistory.map((item) => {
+                      const isRejected = item.action === "REJECTED";
+                      const isCancelled = item.action === "CANCELLED";
+                      const isResolved = item.action === "RESOLVED";
 
-                    if (item.step === "ACCOUNTING_APPROVE") {
-                      label = "Approved by Accounting";
-                    }
+                      let label = item.step;
 
-                    if (item.step === "TAX_APPROVE") {
-                      label = "Approved by Tax";
-                    }
+                      if (item.step === "DIV_HEAD_APPROVE") {
+                        label = "Approved by Division Head";
+                      } else if (item.step === "ACCOUNTING_APPROVE") {
+                        label = "Approved by Accounting";
+                      } else if (item.step === "TAX_APPROVE") {
+                        label = "Approved by Tax";
+                      } else if (isResolved) {
+                        label = "Ticket Solved";
+                      } else if (isRejected) {
+                        label = "Ticket Rejected";
+                      } else if (isCancelled) {
+                        label = "Ticket Cancelled";
+                      }
 
-                    if (item.action === "RESOLVED") {
-                      label = "Ticket Resolved";
-                    }
+                      const isNegative = isRejected || isCancelled;
 
-                    return (
-                      <div key={item.id} className="approval-history__item">
-                        <div
-                          className={`approval-history__marker ${
-                            rejected ? "approval-history__marker--rejected" : ""
-                          }`}
-                        >
-                          {rejected
-                            ? "!"
-                            : item.action === "FILLED"
-                              ? "•"
-                              : "✓"}
-                        </div>
-
-                        <div className="approval-history__content">
-                          <div className="approval-history__top">
-                            <strong
-                              className={
-                                rejected
-                                  ? "approval-history__action--rejected"
-                                  : ""
-                              }
-                            >
-                              {rejected ? "Rejected" : label}
-                            </strong>
-
-                            <span>{formatDate(item.created_at)}</span>
+                      return (
+                        <div key={item.id} className="approval-history__item">
+                          <div
+                            className={`approval-history__marker ${
+                              isNegative
+                                ? "approval-history__marker--rejected"
+                                : ""
+                            }`}
+                          >
+                            {isNegative ? "!" : "✓"}
                           </div>
 
-                          <small>By: {item.actor?.name || "-"}</small>
+                          <div className="approval-history__content">
+                            <div className="approval-history__top">
+                              <strong
+                                className={
+                                  isNegative
+                                    ? "approval-history__action--rejected"
+                                    : ""
+                                }
+                              >
+                                {label}
+                              </strong>
 
-                          {item.notes && (
-                            <div className="approval-history__notes">
-                              {item.notes}
+                              <span>{formatDate(item.created_at)}</span>
                             </div>
-                          )}
+
+                            <small>By: {item.actor?.name || "-"}</small>
+
+                            {item.notes && (
+                              <div className="approval-history__notes">
+                                {item.notes}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="approval-muted">Belum ada riwayat approval.</p>
-              )}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           </section>
-
-          <div className="customer-form__actions">
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--secondary"
-              onClick={() => navigate("/submission")}
-            >
-              Back to My Submission
-            </button>
-          </div>
         </form>
       </div>
     </div>

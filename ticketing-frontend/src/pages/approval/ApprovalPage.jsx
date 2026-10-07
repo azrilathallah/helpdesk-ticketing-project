@@ -101,16 +101,6 @@ export default function ApprovalPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  /*
-   * Sama seperti SubmissionPage:
-   *
-   * /approval
-   *       -> ApprovalList
-   *
-   * /approval/:approvalId
-   *       -> ApprovalDetailPage
-   */
-
   if (id) {
     return <ApprovalDetailPage id={id} />;
   }
@@ -228,25 +218,12 @@ function ApprovalList({ navigate }) {
       <div className="my-submission__summary">
         <div className="my-submission__summary-card">
           <div className="my-submission__summary-icon my-submission__summary-icon--submitted">
-            ✓
+            ✎
           </div>
 
           <div>
             <span>Pending Approval</span>
-
             <strong>{submissions.length}</strong>
-          </div>
-        </div>
-
-        <div className="my-submission__summary-card">
-          <div className="my-submission__summary-icon my-submission__summary-icon--approved">
-            ✓
-          </div>
-
-          <div>
-            <span>Displayed</span>
-
-            <strong>{filteredSubmissions.length}</strong>
           </div>
         </div>
       </div>
@@ -402,7 +379,7 @@ function ApprovalList({ navigate }) {
 
                       <td>{submission.form_type}</td>
 
-                      <td>{submission.requestor?.name || "-"}</td>
+                      <td>{submission.requestor?.name}</td>
 
                       <td>
                         <span
@@ -598,12 +575,16 @@ function ApprovalDetailPage({ id }) {
         return "division_head";
 
       case "APPROVED_DIV_HEAD":
-      case "REVIEW_ACCOUNTING":
         return "accounting";
 
+      case "REVIEW_ACCOUNTING":
+        return null;
+
       case "APPROVED_ACCOUNTING":
-      case "REVIEW_TAX":
         return "tax";
+
+      case "REVIEW_TAX":
+        return null;
 
       case "APPROVED_TAX":
       case "WAITING_PIC":
@@ -659,27 +640,6 @@ function ApprovalDetailPage({ id }) {
 
     return hasHistory || hasFormData;
   }, [submission]);
-
-  /* =========================================================
-     ACCOUNTING CHANGE
-  ========================================================= */
-
-  const updateAccounting = (field, value) => {
-    setAccounting((previous) => ({
-      ...previous,
-      [field]: value,
-    }));
-  };
-
-  /* =========================================================
-     TAX CHANGE
-  ========================================================= */
-
-  const updateTax = (value) => {
-    setTax({
-      witholdingTax: value,
-    });
-  };
 
   /* =========================================================
      REJECT
@@ -757,11 +717,18 @@ function ApprovalDetailPage({ id }) {
         ============================================= */
 
         case "fill-accounting":
+          const accountingData = {
+            accountGroup: formData.accountGroup || "",
+            recontAccount: formData.recontAccount || "",
+            sortKey: formData.sortKey || "",
+            toleranceGroup: formData.toleranceGroup || "",
+          };
+
           if (
-            !accounting.accountGroup ||
-            !accounting.recontAccount ||
-            !accounting.sortKey ||
-            !accounting.toleranceGroup
+            !accountingData.accountGroup ||
+            !accountingData.recontAccount ||
+            !accountingData.sortKey ||
+            !accountingData.toleranceGroup
           ) {
             setActionError(
               "Semua field accounting wajib diisi sebelum disimpan.",
@@ -774,7 +741,7 @@ function ApprovalDetailPage({ id }) {
 
           response = await approvalApi.fillAccounting(
             submission.id,
-            accounting,
+            accountingData,
             "",
           );
           break;
@@ -800,7 +767,10 @@ function ApprovalDetailPage({ id }) {
         ============================================= */
 
         case "fill-tax":
-          if (!tax.witholdingTax || tax.witholdingTax.length === 0) {
+          const taxData = {
+            witholdingTax: formData.witholdingTax || "",
+          };
+          if (!taxData.witholdingTax || taxData.witholdingTax.length === 0) {
             setActionError(
               "Pilih minimal satu withholding tax sebelum disimpan.",
             );
@@ -810,7 +780,7 @@ function ApprovalDetailPage({ id }) {
             return;
           }
 
-          response = await approvalApi.fillTax(submission.id, tax, "");
+          response = await approvalApi.fillTax(submission.id, taxData, "");
           break;
 
         /* =============================================
@@ -834,9 +804,12 @@ function ApprovalDetailPage({ id }) {
         ============================================= */
 
         case "resolve": {
+          const picData = {
+            customerCode: formData.customerCode || "",
+          };
           const isNewRequest = submission.form_data?.requestType === "New";
 
-          if (isNewRequest && !customerCode.trim()) {
+          if (isNewRequest && !picData.customerCode.trim()) {
             setActionError(
               "Customer code wajib diisi oleh PIC untuk request New.",
             );
@@ -848,7 +821,7 @@ function ApprovalDetailPage({ id }) {
 
           response = await approvalApi.resolve(
             submission.id,
-            customerCode.trim(),
+            picData.customerCode.trim(),
             "",
           );
 
@@ -947,10 +920,10 @@ function ApprovalDetailPage({ id }) {
               onClick={() => handleAction("fill-accounting")}
               disabled={
                 processing ||
-                !accounting.accountGroup ||
-                !accounting.recontAccount ||
-                !accounting.sortKey ||
-                !accounting.toleranceGroup
+                !formData.accountGroup ||
+                !formData.recontAccount ||
+                !formData.sortKey ||
+                !formData.toleranceGroup
               }
             >
               {processing ? "Saving..." : "Save Accounting Data"}
@@ -1002,8 +975,8 @@ function ApprovalDetailPage({ id }) {
               onClick={() => handleAction("fill-tax")}
               disabled={
                 processing ||
-                !tax.witholdingTax ||
-                tax.witholdingTax.length === 0
+                !formData.witholdingTax ||
+                formData.witholdingTax.length === 0
               }
             >
               {processing ? "Saving..." : "Save Tax Data"}
@@ -1033,31 +1006,13 @@ function ApprovalDetailPage({ id }) {
 
       return (
         <div className="customer-form__actions">
-          <FieldWrapper>
-            <label className="customer-form__label">
-              Customer Code
-              {isNewRequest && (
-                <span className="customer-form__required"> *</span>
-              )}
-            </label>
-
-            <input
-              type="text"
-              className="customer-form__input"
-              value={customerCode}
-              onChange={(event) => setCustomerCode(event.target.value)}
-              placeholder={
-                isNewRequest ? "Masukkan Customer Code" : "Customer Code"
-              }
-              disabled={processing}
-            />
-          </FieldWrapper>
-
           <button
             type="button"
             className="customer-form__button customer-form__button--primary"
             onClick={() => handleAction("resolve")}
-            disabled={processing || (isNewRequest && !customerCode.trim())}
+            disabled={
+              processing || (isNewRequest && !formData.customerCode.trim())
+            }
           >
             {processing ? "Processing..." : "Resolve Ticket"}
           </button>
@@ -1109,18 +1064,6 @@ function ApprovalDetailPage({ id }) {
   if (!submission) {
     return null;
   }
-
-  const currentStatus = submission.status;
-
-  const isAccountingTurn =
-    currentStatus === "APPROVED_DIV_HEAD" ||
-    currentStatus === "REVIEW_ACCOUNTING";
-
-  const isTaxTurn =
-    currentStatus === "APPROVED_ACCOUNTING" || currentStatus === "REVIEW_TAX";
-
-  const isPICTurn =
-    currentStatus === "APPROVED_TAX" || currentStatus === "WAITING_PIC";
 
   /* =========================================================
      DETAIL PAGE
@@ -1202,12 +1145,6 @@ function ApprovalDetailPage({ id }) {
             approvalRole={approvalRole}
             requestor={requestor}
             existingAttachments={submission.attachments || []}
-            accounting={accounting}
-            setAccounting={setAccounting}
-            tax={tax}
-            setTax={setTax}
-            customerCode={customerCode}
-            setCustomerCode={setCustomerCode}
             processing={processing}
           />
 
@@ -1218,93 +1155,97 @@ function ApprovalDetailPage({ id }) {
           <section className="customer-form__section">
             <div className="customer-form__section-title">
               <span>8</span>
-
               <h3>Approval History</h3>
             </div>
 
             <div className="customer-form__section-body">
-              {submission.approval_history?.length ? (
-                <div className="approval-history">
-                  {submission.approval_history.map((item) => {
-                    const rejected = item.action === "REJECTED";
+              {(() => {
+                const visibleHistory = (
+                  submission.approval_history || []
+                ).filter(
+                  (item) =>
+                    item.step === "DIV_HEAD_APPROVE" ||
+                    item.step === "ACCOUNTING_APPROVE" ||
+                    item.step === "TAX_APPROVE" ||
+                    item.action === "RESOLVED" ||
+                    item.action === "REJECTED" ||
+                    item.action === "CANCELLED",
+                );
 
-                    let label = item.step;
+                if (!visibleHistory.length) {
+                  return (
+                    <p className="approval-muted">
+                      Belum ada riwayat approval.
+                    </p>
+                  );
+                }
 
-                    if (item.step === "DIV_HEAD_APPROVE") {
-                      label = "Approved by Division Head";
-                    }
+                return (
+                  <div className="approval-history">
+                    {visibleHistory.map((item) => {
+                      const isRejected = item.action === "REJECTED";
+                      const isCancelled = item.action === "CANCELLED";
+                      const isResolved = item.action === "RESOLVED";
 
-                    if (item.step === "ACCOUNTING_APPROVE") {
-                      label = "Approved by Accounting";
-                    }
+                      let label = item.step;
 
-                    if (item.step === "TAX_APPROVE") {
-                      label = "Approved by Tax";
-                    }
+                      if (item.step === "DIV_HEAD_APPROVE") {
+                        label = "Approved by Division Head";
+                      } else if (item.step === "ACCOUNTING_APPROVE") {
+                        label = "Approved by Accounting";
+                      } else if (item.step === "TAX_APPROVE") {
+                        label = "Approved by Tax";
+                      } else if (isResolved) {
+                        label = "Ticket Solved";
+                      } else if (isRejected) {
+                        label = "Ticket Rejected";
+                      } else if (isCancelled) {
+                        label = "Ticket Cancelled";
+                      }
 
-                    if (item.step === "ACCOUNTING_FILL") {
-                      label = "Accounting Data Saved";
-                    }
+                      const isNegative = isRejected || isCancelled;
 
-                    if (item.step === "TAX_FILL") {
-                      label = "Tax Data Saved";
-                    }
-
-                    if (
-                      item.step === "DIV_HEAD_REVIEW" &&
-                      item.action === "SUBMITTED"
-                    ) {
-                      label = "Submitted for Division Head Review";
-                    }
-
-                    if (item.action === "RESOLVED") {
-                      label = "Ticket Resolved";
-                    }
-
-                    return (
-                      <div key={item.id} className="approval-history__item">
-                        <div
-                          className={`approval-history__marker ${
-                            rejected ? "approval-history__marker--rejected" : ""
-                          }`}
-                        >
-                          {rejected
-                            ? "!"
-                            : item.action === "FILLED"
-                              ? "•"
-                              : "✓"}
-                        </div>
-
-                        <div className="approval-history__content">
-                          <div className="approval-history__top">
-                            <strong
-                              className={
-                                rejected
-                                  ? "approval-history__action--rejected"
-                                  : ""
-                              }
-                            >
-                              {rejected ? "Rejected" : label}
-                            </strong>
-
-                            <span>{formatDate(item.created_at)}</span>
+                      return (
+                        <div key={item.id} className="approval-history__item">
+                          <div
+                            className={`approval-history__marker ${
+                              isNegative
+                                ? "approval-history__marker--rejected"
+                                : ""
+                            }`}
+                          >
+                            {isNegative ? "!" : "✓"}
                           </div>
 
-                          <small>By: {item.actor?.name || "-"}</small>
+                          <div className="approval-history__content">
+                            <div className="approval-history__top">
+                              <strong
+                                className={
+                                  isNegative
+                                    ? "approval-history__action--rejected"
+                                    : ""
+                                }
+                              >
+                                {label}
+                              </strong>
 
-                          {item.notes && (
-                            <div className="approval-history__notes">
-                              {item.notes}
+                              <span>{formatDate(item.created_at)}</span>
                             </div>
-                          )}
+
+                            <small>By: {item.actor?.name || "-"}</small>
+
+                            {item.notes && (
+                              <div className="approval-history__notes">
+                                {item.notes}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="approval-muted">Belum ada riwayat approval.</p>
-              )}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           </section>
 
@@ -1313,21 +1254,6 @@ function ApprovalDetailPage({ id }) {
           =================================================== */}
 
           {renderActionButtons()}
-
-          {/* ===================================================
-              BACK
-          =================================================== */}
-
-          <div className="customer-form__actions">
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--secondary"
-              onClick={() => navigate("/approval")}
-              disabled={processing}
-            >
-              Back to Approval List
-            </button>
-          </div>
         </form>
       </div>
 
@@ -1432,24 +1358,6 @@ function ApprovalDetailPage({ id }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* =========================================================
-   SMALL FIELD WRAPPER
-========================================================= */
-
-function FieldWrapper({ children }) {
-  return (
-    <div
-      className="customer-form__field"
-      style={{
-        flex: "1 1 320px",
-        maxWidth: "420px",
-      }}
-    >
-      {children}
     </div>
   );
 }
