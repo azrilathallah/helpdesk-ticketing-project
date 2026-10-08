@@ -11,6 +11,82 @@ import {
   getUserValue,
 } from "../../components/forms_sap/customer/CustomerFormFields";
 
+const getStatusConfig = (status) => {
+  switch (status) {
+    case "DRAFT":
+      return {
+        label: "Draft",
+        className: "my-submission__status--draft",
+      };
+
+    case "REVIEW_DIV_HEAD":
+      return {
+        label: "Review by Division Head",
+        className: "my-submission__status--submitted",
+      };
+
+    case "APPROVED_DIV_HEAD":
+      return {
+        label: "Approved by Division Head",
+        className: "my-submission__status--approved",
+      };
+
+    case "REVIEW_ACCOUNTING":
+      return {
+        label: "Review by Accounting",
+        className: "my-submission__status--accounting",
+      };
+
+    case "APPROVED_ACCOUNTING":
+      return {
+        label: "Approved by Accounting",
+        className: "my-submission__status--approved",
+      };
+
+    case "REVIEW_TAX":
+      return {
+        label: "Review by Tax",
+        className: "my-submission__status--tax",
+      };
+
+    case "APPROVED_TAX":
+      return {
+        label: "Approved by Tax",
+        className: "my-submission__status--approved",
+      };
+
+    case "WAITING_PIC":
+      return {
+        label: "Waiting PIC",
+        className: "my-submission__status--pic",
+      };
+
+    case "TICKET_SOLVED":
+      return {
+        label: "Ticket Solved",
+        className: "my-submission__status--solved",
+      };
+
+    case "TICKET_CANCELLED":
+      return {
+        label: "Ticket Cancelled",
+        className: "my-submission__status--cancelled",
+      };
+
+    case "TICKET_REJECTED":
+      return {
+        label: "Ticket Rejected",
+        className: "my-submission__status--rejected",
+      };
+
+    default:
+      return {
+        label: status || "-",
+        className: "",
+      };
+  }
+};
+
 export default function SubmissionPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -163,82 +239,6 @@ function SubmissionList({ navigate }) {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case "DRAFT":
-        return {
-          label: "Draft",
-          className: "my-submission__status--draft",
-        };
-
-      case "REVIEW_DIV_HEAD":
-        return {
-          label: "Review by Division Head",
-          className: "my-submission__status--submitted",
-        };
-
-      case "APPROVED_DIV_HEAD":
-        return {
-          label: "Approved by Division Head",
-          className: "my-submission__status--approved",
-        };
-
-      case "REVIEW_ACCOUNTING":
-        return {
-          label: "Review by Accounting",
-          className: "my-submission__status--accounting",
-        };
-
-      case "APPROVED_ACCOUNTING":
-        return {
-          label: "Approved by Accounting",
-          className: "my-submission__status--approved",
-        };
-
-      case "REVIEW_TAX":
-        return {
-          label: "Review by Tax",
-          className: "my-submission__status--tax",
-        };
-
-      case "APPROVED_TAX":
-        return {
-          label: "Approved by Tax",
-          className: "my-submission__status--approved",
-        };
-
-      case "WAITING_PIC":
-        return {
-          label: "Waiting PIC",
-          className: "my-submission__status--pic",
-        };
-
-      case "TICKET_SOLVED":
-        return {
-          label: "Ticket Solved",
-          className: "my-submission__status--solved",
-        };
-
-      case "TICKET_CANCELLED":
-        return {
-          label: "Ticket Cancelled",
-          className: "my-submission__status--cancelled",
-        };
-
-      case "TICKET_REJECTED":
-        return {
-          label: "Ticket Rejected",
-          className: "my-submission__status--rejected",
-        };
-
-      default:
-        return {
-          label: status,
-          className: "",
-        };
-    }
   };
 
   return (
@@ -572,46 +572,6 @@ function SubmissionDetailPage({ id }) {
     };
   }, [submission]);
 
-  const getStatus = (status) => {
-    switch (status) {
-      case "DRAFT":
-        return "Draft";
-
-      case "REVIEW_DIV_HEAD":
-        return "Review by Division Head";
-
-      case "APPROVED_DIV_HEAD":
-        return "Approved by Division Head";
-
-      case "REVIEW_ACCOUNTING":
-        return "Review by Accounting";
-
-      case "APPROVED_ACCOUNTING":
-        return "Approved by Accounting";
-
-      case "REVIEW_TAX":
-        return "Review by Tax";
-
-      case "APPROVED_TAX":
-        return "Approved by Tax";
-
-      case "WAITING_PIC":
-        return "Waiting PIC";
-
-      case "TICKET_SOLVED":
-        return "Ticket Solved";
-
-      case "TICKET_CANCELLED":
-        return "Ticket Cancelled";
-
-      case "TICKET_REJECTED":
-        return "Ticket Rejected";
-
-      default:
-        return status || "-";
-    }
-  };
-
   if (loading) {
     return (
       <div className="customer-form-page">
@@ -645,6 +605,8 @@ function SubmissionDetailPage({ id }) {
   if (!submission) {
     return null;
   }
+
+  const status = getStatusConfig(submission.status);
 
   return (
     <div className="customer-form-page">
@@ -680,8 +642,8 @@ function SubmissionDetailPage({ id }) {
               </p>
             </div>
 
-            <span className="approval-status approval-status--approved">
-              {getStatus(submission.status)}
+            <span className={`my-submission__status ${status.className}`}>
+              {status.label}
             </span>
           </div>
         </header>

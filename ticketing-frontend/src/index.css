@@ -2114,7 +2114,8 @@ body {
    STATUS
 ========================================================= */
 
-.my-submission__status {
+.my-submission__status,
+.approval-status {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2671,18 +2672,6 @@ body {
 }
 
 /* Status */
-
-.approval-status {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  white-space: nowrap;
-  background: #f1f5f9;
-  color: #475569;
-}
 
 .approval-status--submitted {
   background: #dbeafe;
