@@ -811,7 +811,7 @@ function ApprovalDetailPage({ id }) {
 
           if (isNewRequest && !picData.customerCode.trim()) {
             setActionError(
-              "Customer code wajib diisi oleh PIC untuk request New.",
+              "Customer code wajib diisi.",
             );
 
             setProcessing(false);
@@ -915,16 +915,10 @@ function ApprovalDetailPage({ id }) {
 
           {currentStatus === "APPROVED_DIV_HEAD" && (
             <button
-              type="button"
+              type="submit"
               className="customer-form__button customer-form__button--primary"
               onClick={() => handleAction("fill-accounting")}
-              disabled={
-                processing ||
-                !formData.accountGroup ||
-                !formData.recontAccount ||
-                !formData.sortKey ||
-                !formData.toleranceGroup
-              }
+              disabled={processing}
             >
               {processing ? "Saving..." : "Save Accounting Data"}
             </button>
@@ -970,14 +964,10 @@ function ApprovalDetailPage({ id }) {
 
           {currentStatus === "APPROVED_ACCOUNTING" && (
             <button
-              type="button"
+              type="submit"
               className="customer-form__button customer-form__button--primary"
               onClick={() => handleAction("fill-tax")}
-              disabled={
-                processing ||
-                !formData.witholdingTax ||
-                formData.witholdingTax.length === 0
-              }
+              disabled={processing}
             >
               {processing ? "Saving..." : "Save Tax Data"}
             </button>
@@ -1002,17 +992,13 @@ function ApprovalDetailPage({ id }) {
     ============================================= */
 
     if (currentStatus === "APPROVED_TAX" || currentStatus === "WAITING_PIC") {
-      const isNewRequest = submission.form_data?.requestType === "New";
-
       return (
         <div className="customer-form__actions">
           <button
-            type="button"
+            type="submit"
             className="customer-form__button customer-form__button--primary"
             onClick={() => handleAction("resolve")}
-            disabled={
-              processing || (isNewRequest && !formData.customerCode.trim())
-            }
+            disabled={processing}
           >
             {processing ? "Processing..." : "Resolve Ticket"}
           </button>
@@ -1167,7 +1153,7 @@ function ApprovalDetailPage({ id }) {
                     item.step === "DIV_HEAD_APPROVE" ||
                     item.step === "ACCOUNTING_APPROVE" ||
                     item.step === "TAX_APPROVE" ||
-                    item.action === "RESOLVED" ||
+                    item.action === "SOLVED" ||
                     item.action === "REJECTED" ||
                     item.action === "CANCELLED",
                 );
@@ -1185,7 +1171,7 @@ function ApprovalDetailPage({ id }) {
                     {visibleHistory.map((item) => {
                       const isRejected = item.action === "REJECTED";
                       const isCancelled = item.action === "CANCELLED";
-                      const isResolved = item.action === "RESOLVED";
+                      const isResolved = item.action === "SOLVED";
 
                       let label = item.step;
 
@@ -1259,9 +1245,6 @@ function ApprovalDetailPage({ id }) {
 
       {/* =====================================================
           REJECT MODAL
-          
-          INI SAJA YANG TETAP POPUP.
-          DETAIL TICKET SUDAH BUKAN POPUP.
       ===================================================== */}
 
       {rejectModalOpen && (

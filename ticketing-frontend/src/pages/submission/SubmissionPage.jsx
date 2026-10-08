@@ -683,7 +683,7 @@ function SubmissionDetailPage({ id }) {
                     item.step === "DIV_HEAD_APPROVE" ||
                     item.step === "ACCOUNTING_APPROVE" ||
                     item.step === "TAX_APPROVE" ||
-                    item.action === "RESOLVED" ||
+                    item.action === "SOLVED" ||
                     item.action === "REJECTED" ||
                     item.action === "CANCELLED",
                 );
@@ -701,7 +701,7 @@ function SubmissionDetailPage({ id }) {
                     {visibleHistory.map((item) => {
                       const isRejected = item.action === "REJECTED";
                       const isCancelled = item.action === "CANCELLED";
-                      const isResolved = item.action === "RESOLVED";
+                      const isResolved = item.action === "SOLVED";
 
                       let label = item.step;
 

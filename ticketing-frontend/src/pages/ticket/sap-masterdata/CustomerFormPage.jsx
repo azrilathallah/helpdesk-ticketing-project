@@ -131,7 +131,7 @@ export default function CustomerFormPage() {
         type: "SAP",
         category: "Master Data",
         sub_category: "Customer",
-        form_type: "SAP Master Data - Customer",
+        form_type: "SAP - Master Data - Customer",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -219,7 +219,7 @@ export default function CustomerFormPage() {
 
         <form
           className="customer-form"
-          onSubmit={(event) => event.preventDefault()}
+          onSubmit={handleSubmit("submit")}
         >
           <FormRenderer
             type="SAP"
@@ -257,9 +257,8 @@ export default function CustomerFormPage() {
                 </button>
 
                 <button
-                  type="button"
+                  type="submit"
                   className="customer-form__button customer-form__button--primary"
-                  onClick={handleSubmit("submit")}
                   disabled={Boolean(submitMode)}
                 >
                   {submitMode === "submit" ? "Submitting..." : "Submit"}

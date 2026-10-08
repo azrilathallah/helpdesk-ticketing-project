@@ -73,6 +73,19 @@ const CreateTicketPage = () => {
     attachment: null,
   });
 
+  const TYPE_OPTIONS = [
+    {
+      key: "IT",
+      title: "IT",
+      desc: "Hardware, softare, network, access, etc.",
+    },
+    {
+      key: "SAP",
+      title: "SAP",
+      desc: "SAP master data, application support",
+    },
+  ];
+
   // ── Daftar Kategori per Tipe ──
   const IT_CATEGORIES = [
     {
@@ -306,32 +319,27 @@ const CreateTicketPage = () => {
             Select the category that best matches your request.
           </p>
 
-          <div className="type-grid">
-            <button
-              type="button"
-              className={`type-card ${
-                selection.type === "IT" ? "type-card--selected" : ""
-              }`}
-              onClick={() => selectType("IT")}
-            >
-              <span className="type-card__title">IT</span>
-              <span className="type-card__desc">
-                Hardware, software, network, access, etc.
-              </span>
-            </button>
+          <div className="radio-list">
+            {TYPE_OPTIONS.map((item) => (
+              <div
+                key={item.key}
+                className={`radio-card ${
+                  selection.type === item.key ? "radio-card--selected" : ""
+                }`}
+                onClick={() => selectType(item.key)}
+              >
+                <div className="radio-card__circle">
+                  {selection.type === item.key && (
+                    <div className="radio-card__circle-inner" />
+                  )}
+                </div>
 
-            <button
-              type="button"
-              className={`type-card ${
-                selection.type === "SAP" ? "type-card--selected" : ""
-              }`}
-              onClick={() => selectType("SAP")}
-            >
-              <span className="type-card__title">SAP</span>
-              <span className="type-card__desc">
-                SAP master data, application support
-              </span>
-            </button>
+                <div>
+                  <h4 className="radio-card__title">{item.title}</h4>
+                  <p className="radio-card__desc">{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       );

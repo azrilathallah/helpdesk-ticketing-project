@@ -255,6 +255,9 @@ export function ChoiceGroup({
 }) {
   const normalizedValue = value || (checkbox ? [] : "");
 
+  const checkboxGroupEmpty =
+    checkbox && Array.isArray(normalizedValue) && normalizedValue.length === 0;
+
   return (
     <Field label={label} required={required}>
       <div
@@ -262,10 +265,14 @@ export function ChoiceGroup({
           checkbox ? "customer-form__choices--checkbox" : ""
         } ${disabled ? "customer-form__choices--disabled" : ""}`}
       >
-        {options.map(([code, name]) => {
+        {options.map(([code, name], index) => {
           const checked = checkbox
             ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
             : normalizedValue === code;
+
+          const inputRequired = checkbox
+            ? required && !disabled && checkboxGroupEmpty && index === 0
+            : required && !disabled;
 
           return (
             <label
@@ -280,7 +287,7 @@ export function ChoiceGroup({
                 value={code}
                 checked={checked}
                 disabled={disabled}
-                required={required && !disabled && !checkbox}
+                required={inputRequired}
                 onChange={(event) => {
                   if (disabled || !onChange) {
                     return;
