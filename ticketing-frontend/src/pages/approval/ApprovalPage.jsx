@@ -321,15 +321,10 @@ function ApprovalList({ navigate }) {
               <thead>
                 <tr>
                   <th>Number</th>
-
                   <th>Request</th>
-
                   <th>Requestor</th>
-
-                  <th>Status</th>
-
                   <th>Created</th>
-
+                  <th>Status</th>
                   <th />
                 </tr>
               </thead>
@@ -352,17 +347,17 @@ function ApprovalList({ navigate }) {
                       <td>{submission.requestor?.name}</td>
 
                       <td>
+                        {formatDate(
+                          submission.submitted_at || submission.created_at,
+                        )}
+                      </td>
+
+                      <td>
                         <span
                           className={`my-submission__status ${status.className}`}
                         >
                           {status.label}
                         </span>
-                      </td>
-
-                      <td>
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
-                        )}
                       </td>
 
                       <td>

@@ -403,8 +403,8 @@ function SubmissionList({ navigate }) {
                 <tr>
                   <th>Number</th>
                   <th>Request</th>
-                  <th>Status</th>
                   <th>Created</th>
+                  <th>Status</th>
                   <th />
                 </tr>
               </thead>
@@ -425,6 +425,12 @@ function SubmissionList({ navigate }) {
                       <td>{submission.form_type}</td>
 
                       <td>
+                        {formatDate(
+                          submission.submitted_at || submission.created_at,
+                        )}
+                      </td>
+
+                      <td>
                         <span
                           className={`my-submission__status ${status.className}`}
                         >
@@ -433,45 +439,31 @@ function SubmissionList({ navigate }) {
                       </td>
 
                       <td>
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
-                        )}
-                      </td>
+                        <button
+                          type="button"
+                          className="my-submission__action"
+                          onClick={(event) => {
+                            event.stopPropagation();
 
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
+                            handleOpen(submission);
                           }}
                         >
+                          {submission.status === "DRAFT" ? "Edit" : "View"}
+
+                          <span>→</span>
+                        </button>
+
+                        {canCancel(submission.status) && (
                           <button
                             type="button"
-                            className="my-submission__action"
-                            onClick={(event) => {
-                              event.stopPropagation();
-
-                              handleOpen(submission);
-                            }}
+                            className="my-submission__action my-submission__action--cancel"
+                            onClick={(event) =>
+                              handleCancelSubmission(submission, event)
+                            }
                           >
-                            {submission.status === "DRAFT" ? "Edit" : "View"}
-
-                            <span>→</span>
+                            Cancel
                           </button>
-
-                          {canCancel(submission.status) && (
-                            <button
-                              type="button"
-                              className="my-submission__action my-submission__action--cancel"
-                              onClick={(event) =>
-                                handleCancelSubmission(submission, event)
-                              }
-                            >
-                              Cancel
-                            </button>
-                          )}
-                        </div>
+                        )}
                       </td>
                     </tr>
                   );

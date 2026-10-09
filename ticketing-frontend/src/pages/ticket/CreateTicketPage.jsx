@@ -257,7 +257,7 @@ const CreateTicketPage = () => {
       step === 3 &&
       selection.type === "SAP" &&
       selection.category === "Support" &&
-      (!selection.module || !selection.description)
+      !selection.description
     ) {
       return true;
     }
@@ -462,14 +462,21 @@ const CreateTicketPage = () => {
             {/* MODULE */}
             <div className="support-form__row">
               <label className="support-form__label">Module</label>
-              <input
-                type="text"
+              <select
                 name="module"
-                value={selection.module}
+                value={selection.module ?? ""}
                 onChange={handleInputChange}
                 className="support-form__input"
-                placeholder="Enter module name"
-              />
+              >
+                <option value="">Select module</option>
+                <option value="SD">SD</option>
+                <option value="MM">MM</option>
+                <option value="HR">HR</option>
+                <option value="PS">PS</option>
+                <option value="Fico">FICO</option>
+                <option value="Basis">Basis</option>
+                <option value="Financial Control">Financial Control</option>
+              </select>
             </div>
 
             {/* DESCRIPTION */}
