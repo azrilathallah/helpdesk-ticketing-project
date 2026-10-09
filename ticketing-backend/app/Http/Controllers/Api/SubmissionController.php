@@ -250,14 +250,20 @@ class SubmissionController extends Controller
             $submission
         );
 
-        if ($submission->status !== 'DRAFT') {
+        $canEdit = in_array($submission->status, [
+            Submission::STATUS_DRAFT,
+            Submission::STATUS_REVISION_REQUESTOR,
+        ], true);
+
+        if (!$canEdit) {
             return response()->json([
-                'message' =>
-                'Submission yang sudah disubmit tidak dapat diedit oleh requestor.',
+                'message' => 'Submission ini tidak sedang menunggu revisi dari Requestor.',
             ], 422);
         }
 
         $data = $this->validatePayload($request);
+
+        $wasRevision = $submission->status === Submission::STATUS_REVISION_REQUESTOR;
 
         $submission->update([
             'type' => $data['type'],
@@ -307,8 +313,12 @@ class SubmissionController extends Controller
 
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'DIV_HEAD_REVIEW',
-                'action' => 'SUBMITTED',
+                'step' => $wasRevision
+                    ? 'REQUESTOR_RESUBMITTED'
+                    : 'DIV_HEAD_REVIEW',
+                'action' => $wasRevision
+                    ? 'RESUBMITTED'
+                    : 'SUBMITTED',
                 'acted_by' => $request->user()->id,
                 'notes' => null,
                 'created_at' => now(),
@@ -316,14 +326,19 @@ class SubmissionController extends Controller
         }
 
         return response()->json([
-            'message' =>
-            $submission->status === 'SUBMITTED'
-                ? 'Form berhasil disubmit dan menunggu review Division Head.'
+            'message' => $data['status'] === 'SUBMITTED'
+                ? (
+                    $wasRevision
+                    ? 'Revisi berhasil diajukan kembali dan menunggu Division Head.'
+                    : 'Form berhasil disubmit dan menunggu review Division Head.'
+                )
                 : 'Draft berhasil diperbarui.',
 
-            'data' =>
-            $this->transform(
-                $submission,
+            'data' => $this->transform(
+                $submission->fresh([
+                    'requestor',
+                    'approvals.actor',
+                ]),
                 true
             ),
         ]);

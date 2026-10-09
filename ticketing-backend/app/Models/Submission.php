@@ -22,6 +22,9 @@ class Submission extends Model
     const STATUS_TICKET_SOLVED = 'TICKET_SOLVED';
     const STATUS_TICKET_CANCELLED = 'TICKET_CANCELLED';
     const STATUS_TICKET_REJECTED = 'TICKET_REJECTED';
+    const STATUS_REVISION_REQUESTOR = 'REVISION_REQUESTOR';
+    const STATUS_REVISION_ACCOUNTING = 'REVISION_ACCOUNTING';
+    const STATUS_REVISION_TAX = 'REVISION_TAX';
 
     /**
      * Urutan flow status.
@@ -72,7 +75,10 @@ class Submission extends Model
 
     public function isEditableByRequestor(): bool
     {
-        return $this->status === self::STATUS_DRAFT;
+        return in_array($this->status, [
+            self::STATUS_DRAFT,
+            self::STATUS_REVISION_REQUESTOR,
+        ], true);
     }
 
     public static function activeStatuses(): array
@@ -85,6 +91,9 @@ class Submission extends Model
             self::STATUS_REVIEW_TAX,
             self::STATUS_APPROVED_TAX,
             self::STATUS_WAITING_PIC,
+            self::STATUS_REVISION_REQUESTOR,
+            self::STATUS_REVISION_ACCOUNTING,
+            self::STATUS_REVISION_TAX,
         ];
     }
 }

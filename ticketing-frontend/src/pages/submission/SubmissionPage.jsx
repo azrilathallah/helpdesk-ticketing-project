@@ -79,6 +79,24 @@ const getStatusConfig = (status) => {
         className: "my-submission__status--rejected",
       };
 
+    case "REVISION_REQUESTOR":
+      return {
+        label: "Needs Revision",
+        className: "my-submission__status--revision",
+      };
+
+    case "REVISION_ACCOUNTING":
+      return {
+        label: "Needs Revision",
+        className: "my-submission__status--revision",
+      };
+
+    case "REVISION_TAX":
+      return {
+        label: "Needs Revision",
+        className: "my-submission__status--revision",
+      };
+
     default:
       return {
         label: status || "-",
@@ -170,7 +188,9 @@ function SubmissionList({ navigate }) {
   }, [submissions, search, statusFilter, typeFilter]);
 
   const handleOpen = (submission) => {
-    if (submission.status === "DRAFT") {
+    const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
+
+    if (editableStatuses.includes(submission.status)) {
       if (
         submission.type === "SAP" &&
         submission.category === "Master Data" &&
@@ -348,6 +368,12 @@ function SubmissionList({ navigate }) {
               <option value="TICKET_CANCELLED">Cancelled</option>
 
               <option value="TICKET_REJECTED">Rejected</option>
+
+              <option value="REVISION_REQUESTOR">Requestor Revision</option>
+
+              <option value="REVISION_ACCOUNTING">Accounting Revision</option>
+
+              <option value="REVISION_TAX">Tax Revision</option>
             </select>
           </div>
         </div>
@@ -448,7 +474,7 @@ function SubmissionList({ navigate }) {
                             handleOpen(submission);
                           }}
                         >
-                          {submission.status === "DRAFT" ? "Edit" : "View"}
+                          {submission.status === "DRAFT" || submission.status === "REVISION_REQUESTOR" ? "Edit" : "View"}
 
                           <span>→</span>
                         </button>

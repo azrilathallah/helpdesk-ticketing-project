@@ -49,4 +49,9 @@ export const approvalApi = {
     api.post(`/approvals/${id}/reject`, {
       notes,
     }),
+
+  revise: (id, notes = "") =>
+    api.post(`/approvals/${id}/revise`, {
+      notes,
+    }),
 };

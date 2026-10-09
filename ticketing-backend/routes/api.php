@@ -98,8 +98,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/approvals/{submission}/reject', [
         ApprovalController::class,
-    'reject'
+        'reject'
+    ]);
+
+    Route::post('/approvals/{submission}/revise', [
+        ApprovalController::class,
+        'revise',
     ]);
 });
-
-

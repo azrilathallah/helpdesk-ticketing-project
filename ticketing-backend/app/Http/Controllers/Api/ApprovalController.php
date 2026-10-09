@@ -103,13 +103,13 @@ class ApprovalController extends Controller
         Request $request,
         Submission $submission
     ) {
-        if (
-            $submission->status !==
-            Submission::STATUS_APPROVED_DIV_HEAD
-        ) {
+        if (!in_array($submission->status, [
+            Submission::STATUS_APPROVED_DIV_HEAD,
+            Submission::STATUS_REVISION_ACCOUNTING,
+        ], true)) {
             return response()->json([
                 'message' =>
-                'Submission belum berada pada tahap Review by Accounting.',
+                'Submission tidak berada pada tahap pengisian Accounting.',
             ], 422);
         }
 
@@ -257,13 +257,13 @@ class ApprovalController extends Controller
         Request $request,
         Submission $submission
     ) {
-        if (
-            $submission->status !==
-            Submission::STATUS_APPROVED_ACCOUNTING
-        ) {
+        if (!in_array($submission->status, [
+            Submission::STATUS_APPROVED_ACCOUNTING,
+            Submission::STATUS_REVISION_TAX,
+        ], true)) {
             return response()->json([
                 'message' =>
-                'Submission belum berada pada tahap Review by Tax.',
+                'Submission belum berada pada tahap pengisian Tax.',
             ], 422);
         }
 
@@ -569,6 +569,73 @@ class ApprovalController extends Controller
             'message' =>
             'Submission berhasil di-reject.',
 
+            'data' => $this->transform(
+                $submission->fresh([
+                    'requestor',
+                    'approvals.actor',
+                ]),
+                true
+            ),
+        ]);
+    }
+
+    public function revise(Request $request, Submission $submission)
+    {
+        $request->validate([
+            'notes' => 'required|string|min:1|max:1000',
+        ], [
+            'notes.required' => 'Catatan revisi wajib diisi.',
+        ]);
+
+        $revisionFlow = [
+            Submission::STATUS_REVIEW_DIV_HEAD => [
+                'next_status' => Submission::STATUS_REVISION_REQUESTOR,
+                'step' => 'DIV_HEAD_REVISION',
+                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.',
+            ],
+            Submission::STATUS_REVIEW_ACCOUNTING => [
+                'next_status' => Submission::STATUS_REVISION_ACCOUNTING,
+                'step' => 'ACCOUNTING_REVISION',
+                'message' => 'Tiket dikembalikan kepada Accounting Staff untuk direvisi.',
+            ],
+            Submission::STATUS_REVIEW_TAX => [
+                'next_status' => Submission::STATUS_REVISION_TAX,
+                'step' => 'TAX_REVISION',
+                'message' => 'Tiket dikembalikan kepada Tax Staff untuk direvisi.',
+            ],
+        ];
+
+        $currentStatus = $submission->status;
+
+        if (!isset($revisionFlow[$currentStatus])) {
+            return response()->json([
+                'message' => 'Revisi tidak dapat dilakukan pada status tiket ini.',
+            ], 422);
+        }
+
+        $flow = $revisionFlow[$currentStatus];
+
+        DB::transaction(function () use (
+            $request,
+            $submission,
+            $currentStatus,
+            $flow
+        ) {
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => $flow['step'],
+                'action' => 'REVISION_REQUESTED',
+                'acted_by' => $request->user()->id,
+                'notes' => trim($request->input('notes')),
+                'created_at' => now(),
+            ]);
+
+            $submission->status = $flow['next_status'];
+            $submission->save();
+        });
+
+        return response()->json([
+            'message' => $flow['message'],
             'data' => $this->transform(
                 $submission->fresh([
                     'requestor',

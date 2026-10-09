@@ -64,6 +64,21 @@ const STATUS_CONFIG = {
     label: "Ticket Rejected",
     className: "approval-status--rejected",
   },
+
+  REVISION_REQUESTOR: {
+    label: "Pending Requestor Revision",
+    className: "approval-status--revision",
+  },
+
+  REVISION_ACCOUNTING: {
+    label: "Pending Accounting Revision",
+    className: "approval-status--revision",
+  },
+
+  REVISION_TAX: {
+    label: "Pending Tax Revision",
+    className: "approval-status--revision",
+  },
 };
 
 function formatDate(date) {
@@ -394,15 +409,12 @@ function ApprovalDetailPage({ id }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   const [submission, setSubmission] = useState(null);
-
   const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
 
   const [processing, setProcessing] = useState(false);
-
   const [actionError, setActionError] = useState("");
 
   /* =========================================================
@@ -435,10 +447,12 @@ function ApprovalDetailPage({ id }) {
   ========================================================= */
 
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
-
   const [rejectNotes, setRejectNotes] = useState("");
-
   const [rejectError, setRejectError] = useState("");
+
+  const [revisionModalOpen, setRevisionModalOpen] = useState(false);
+  const [revisionNotes, setRevisionNotes] = useState("");
+  const [revisionError, setRevisionError] = useState("");
 
   const loadDetail = async () => {
     try {
@@ -637,6 +651,44 @@ function ApprovalDetailPage({ id }) {
     }
   };
 
+  const openRevisionModal = () => {
+    setRevisionNotes("");
+    setRevisionError("");
+    setRevisionModalOpen(true);
+  };
+
+  const handleConfirmRevision = async () => {
+    if (!submission || processing) return;
+
+    if (!revisionNotes.trim()) {
+      setRevisionError("Catatan revisi wajib diisi.");
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      setRevisionError("");
+
+      const response = await approvalApi.revise(
+        submission.id,
+        revisionNotes.trim(),
+      );
+
+      alert(response?.data?.message || "Revisi berhasil dikirim.");
+
+      setRevisionModalOpen(false);
+      setRevisionNotes("");
+
+      await loadDetail();
+    } catch (err) {
+      console.error(err);
+
+      setRevisionError(err.response?.data?.message || "Revisi gagal dikirim.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   /* =========================================================
      ACTION
   ========================================================= */
@@ -759,9 +811,7 @@ function ApprovalDetailPage({ id }) {
           const isNewRequest = submission.form_data?.requestType === "New";
 
           if (isNewRequest && !picData.customerCode.trim()) {
-            setActionError(
-              "Customer code wajib diisi.",
-            );
+            setActionError("Customer code wajib diisi.");
 
             setProcessing(false);
 
@@ -815,11 +865,29 @@ function ApprovalDetailPage({ id }) {
           <button
             type="button"
             className="customer-form__button"
-            
+            style={{
+              background: "#dc2626",
+              color: "#fff",
+              border: "1.5px solid #dc2626",
+            }}
             onClick={openRejectModal}
             disabled={processing}
           >
             Reject
+          </button>
+
+          <button
+            type="button"
+            className="customer-form__button"
+            style={{
+              background: "#f6832bff",
+              color: "#fff",
+              border: "1.5px solid #f6832bff",
+            }}
+            onClick={openRevisionModal}
+            disabled={processing}
+          >
+            Give Revision
           </button>
 
           <button
@@ -878,7 +946,25 @@ function ApprovalDetailPage({ id }) {
             >
               {processing ? "Processing..." : "Approve as Accounting"}
             </button>
+
           )}
+          {currentStatus === "REVIEW_ACCOUNTING" && (
+            
+            <button
+            type="button"
+            className="customer-form__button"
+            style={{
+              background: "#f6832bff",
+              color: "#fff",
+              border: "1.5px solid #f6832bff",
+            }}
+            onClick={openRevisionModal}
+            disabled={processing}
+          >
+            Give Revision
+          </button>
+          )}
+
         </div>
       );
     }
@@ -928,6 +1014,15 @@ function ApprovalDetailPage({ id }) {
               {processing ? "Processing..." : "Approve as Tax"}
             </button>
           )}
+
+          <button
+            type="button"
+            className="customer-form__button"
+            onClick={openRevisionModal}
+            disabled={processing}
+          >
+            Revision
+          </button>
         </div>
       );
     }
@@ -1100,7 +1195,10 @@ function ApprovalDetailPage({ id }) {
                     item.step === "TAX_APPROVE" ||
                     item.action === "SOLVED" ||
                     item.action === "REJECTED" ||
-                    item.action === "CANCELLED",
+                    item.action === "CANCELLED" ||
+                    item.step === "DIV_HEAD_REVISION" ||
+                    item.step === "ACCOUNTING_REVISION" ||
+                    item.step === "TAX_REVISION",
                 );
 
                 if (!visibleHistory.length) {
@@ -1132,6 +1230,12 @@ function ApprovalDetailPage({ id }) {
                         label = "Ticket Rejected";
                       } else if (isCancelled) {
                         label = "Ticket Cancelled";
+                      } else if (item.step === "DIV_HEAD_REVISION") {
+                        label = "Requestor Revision";
+                      } else if (item.step === "ACCOUNTING_REVISION") {
+                        label = "Accounting Revision";
+                      } else if (item.step === "TAX_REVISION") {
+                        label = "Tax Revision";
                       }
 
                       const isNegative = isRejected || isCancelled;
@@ -1273,6 +1377,100 @@ function ApprovalDetailPage({ id }) {
                 disabled={processing || !rejectNotes.trim()}
               >
                 {processing ? "Memproses..." : "Konfirmasi Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {revisionModalOpen && (
+        <div
+          className="approval-modal"
+          style={{
+            zIndex: 200,
+            alignItems: "center",
+          }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !processing) {
+              setRevisionModalOpen(false);
+            }
+          }}
+        >
+          <div className="approval-reject-dialog">
+            <div className="approval-reject-dialog__header">
+              <h3>Revisi Submission</h3>
+
+              <button
+                type="button"
+                className="approval-modal__close"
+                onClick={() => setRevisionModalOpen(false)}
+                disabled={processing}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="approval-reject-dialog__body">
+              <p className="approval-reject-dialog__desc">
+                Silakan jelaskan data yang perlu diperbaiki pada kolom catatan
+                di bawah ini.
+              </p>
+
+              <div className="customer-form__field">
+                <label className="customer-form__label">
+                  Catatan Revisi{" "}
+                  <span className="customer-form__required">*</span>
+                </label>
+
+                <textarea
+                  className="customer-form__input"
+                  rows={4}
+                  value={revisionNotes}
+                  onChange={(event) => setRevisionNotes(event.target.value)}
+                  placeholder="Tuliskan catatan revisi..."
+                  autoFocus
+                  disabled={processing}
+                />
+              </div>
+
+              {revisionError && (
+                <div
+                  className="approval-alert approval-alert--error"
+                  style={{
+                    margin: "0.75rem 0 0",
+                  }}
+                >
+                  {revisionError}
+                </div>
+              )}
+            </div>
+
+            <div className="approval-reject-dialog__footer">
+              <button
+                type="button"
+                className="customer-form__button customer-form__button--secondary"
+                style={{
+                  width: "auto",
+                  minHeight: "36px",
+                  padding: "0 1rem",
+                }}
+                onClick={() => setRevisionModalOpen(false)}
+                disabled={processing}
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                className="approval-btn approval-btn--danger"
+                style={{
+                  minHeight: "36px",
+                  padding: "0 1.25rem",
+                }}
+                onClick={handleConfirmRevision}
+                disabled={processing || !revisionNotes.trim()}
+              >
+                {processing ? "Memproses..." : "Kirim Revisi"}
               </button>
             </div>
           </div>

@@ -2725,6 +2725,12 @@ body {
   color: #991b1b;
 }
 
+.approval-status--revision,
+.my-submission__status--revision {
+  color: #92400e;
+  background: #fef3c7;
+}
+
 /* Empty */
 
 .approval-empty {
