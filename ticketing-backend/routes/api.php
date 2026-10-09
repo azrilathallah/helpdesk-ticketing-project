@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user',      [AuthController::class, 'user']);
 
+    // Submission Routes
     Route::get('/submissions', [
         SubmissionController::class,
         'index'
@@ -43,16 +44,13 @@ Route::middleware('auth:sanctum')->group(function () {
         'cancel'
     ]);
 
+    // Dashboard Stats Routes
     Route::get('/dashboard/stats', [
         SubmissionController::class,
         'dashboardStats'
     ]);
 
-    /*
-     * ─────────────────────────────────────
-     * Approval Routes
-     * ─────────────────────────────────────
-     */
+    // Approval Routes
     Route::get('/approvals', [
         ApprovalController::class,
         'index'

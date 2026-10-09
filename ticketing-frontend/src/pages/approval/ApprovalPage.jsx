@@ -66,10 +66,6 @@ const STATUS_CONFIG = {
   },
 };
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
 function formatDate(date) {
   if (!date) {
     return "-";
@@ -123,10 +119,6 @@ function ApprovalList({ navigate }) {
 
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  /* =========================================================
-     LOAD APPROVAL
-  ========================================================= */
-
   const loadApprovals = async () => {
     try {
       setLoading(true);
@@ -147,10 +139,6 @@ function ApprovalList({ navigate }) {
   useEffect(() => {
     loadApprovals();
   }, []);
-
-  /* =========================================================
-     FILTER
-  ========================================================= */
 
   const filteredSubmissions = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -183,17 +171,9 @@ function ApprovalList({ navigate }) {
     navigate(`/approval/${submission.id}`);
   };
 
-  /* =========================================================
-     STATUS
-  ========================================================= */
-
   const getStatus = (status) => {
     return getStatusConfig(status);
   };
-
-  /* =========================================================
-     RENDER
-  ========================================================= */
 
   return (
     <div className="my-submission">
@@ -244,8 +224,6 @@ function ApprovalList({ navigate }) {
           </div>
 
           <div className="my-submission__filters">
-            {/* SEARCH */}
-
             <div className="my-submission__search">
               <span>⌕</span>
 
@@ -262,8 +240,6 @@ function ApprovalList({ navigate }) {
                 </button>
               )}
             </div>
-
-            {/* STATUS */}
 
             <select
               className="my-submission__select"
@@ -293,8 +269,6 @@ function ApprovalList({ navigate }) {
           </div>
         </div>
 
-        {/* ERROR */}
-
         {error && (
           <div className="my-submission__error">
             <span>!</span>
@@ -311,8 +285,6 @@ function ApprovalList({ navigate }) {
           </div>
         )}
 
-        {/* LOADING */}
-
         {loading && !error && (
           <div className="my-submission__empty">
             <div className="my-submission__empty-icon">⏳</div>
@@ -322,8 +294,6 @@ function ApprovalList({ navigate }) {
             <p>Please wait while approval data is being loaded.</p>
           </div>
         )}
-
-        {/* EMPTY */}
 
         {!loading && !error && filteredSubmissions.length === 0 && (
           <div className="my-submission__empty">
@@ -436,10 +406,6 @@ function ApprovalDetailPage({ id }) {
 
   const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
 
-  /* =========================================================
-     ACTION STATE
-  ========================================================= */
-
   const [processing, setProcessing] = useState(false);
 
   const [actionError, setActionError] = useState("");
@@ -478,10 +444,6 @@ function ApprovalDetailPage({ id }) {
   const [rejectNotes, setRejectNotes] = useState("");
 
   const [rejectError, setRejectError] = useState("");
-
-  /* =========================================================
-     LOAD DETAIL
-  ========================================================= */
 
   const loadDetail = async () => {
     try {
@@ -557,17 +519,9 @@ function ApprovalDetailPage({ id }) {
     };
   }, [submission]);
 
-  /* =========================================================
-     STATUS
-  ========================================================= */
-
   const status = useMemo(() => {
     return getStatusConfig(submission?.status);
   }, [submission]);
-
-  /* =========================================================
-     APPROVAL ROLE / TURN
-  ========================================================= */
 
   const approvalRole = useMemo(() => {
     switch (submission?.status) {
@@ -866,11 +820,7 @@ function ApprovalDetailPage({ id }) {
           <button
             type="button"
             className="customer-form__button"
-            style={{
-              background: "#dc2626",
-              color: "#fff",
-              border: "1.5px solid #dc2626",
-            }}
+            
             onClick={openRejectModal}
             disabled={processing}
           >
@@ -1235,17 +1185,9 @@ function ApprovalDetailPage({ id }) {
             </div>
           </section>
 
-          {/* ===================================================
-              ACTION BUTTON
-          =================================================== */}
-
           {renderActionButtons()}
         </form>
       </div>
-
-      {/* =====================================================
-          REJECT MODAL
-      ===================================================== */}
 
       {rejectModalOpen && (
         <div

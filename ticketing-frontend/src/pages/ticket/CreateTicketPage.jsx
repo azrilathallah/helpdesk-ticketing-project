@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// ── Stepper Component ──
 const Stepper = ({ currentStep, labels }) => {
   const progressWidth =
     labels.length > 1
@@ -86,7 +85,6 @@ const CreateTicketPage = () => {
     },
   ];
 
-  // ── Daftar Kategori per Tipe ──
   const IT_CATEGORIES = [
     {
       key: "Application / System",
@@ -123,30 +121,17 @@ const CreateTicketPage = () => {
     },
   ];
 
-  // ─────────────────────────────────────
-  // STEPPER LABELS (DINAMIS)
-  // Hanya 3 step, tapi label ke-3 bisa berubah
-  // ─────────────────────────────────────
   const getStepLabels = () => {
-    // Khusus SAP Master Data → label step 3 = "Sub Category"
     if (selection.type === "SAP" && selection.category === "Master Data") {
       return ["Ticket Type", "Category", "Sub Category"];
     }
 
-    // Sisanya → label step 3 = "Details"
     return ["Ticket Type", "Category", "Details"];
   };
-
-  // ─────────────────────────────────────
-  // BACK
-  // ─────────────────────────────────────
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  // ─────────────────────────────────────
-  // NEXT
-  // ─────────────────────────────────────
   const handleNext = () => {
     if (step === 1) {
       if (!selection.type) return;
@@ -294,16 +279,11 @@ const CreateTicketPage = () => {
         return "Next";
       }
 
-      // Sisanya → Submit
       return "Submit";
     }
 
     return "Next";
   };
-
-  // ─────────────────────────────────────
-  // RENDER CONTENT
-  // ─────────────────────────────────────
   const renderStepContent = () => {
     // ═══════════════════════════════════
     // STEP 1
@@ -529,9 +509,6 @@ const CreateTicketPage = () => {
     return null;
   };
 
-  // ═══════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════
   return (
     <div className="ticket-page">
       <div className="ticket-card">

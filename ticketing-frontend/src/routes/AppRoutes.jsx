@@ -21,10 +21,13 @@ export default function AppRoutes() {
         } 
       >
         <Route path="/dashboard" element={<DashboardPage />} />
+        
         <Route path="/create-ticket" element={<CreateTicketPage />} /> 
         <Route path="/create-ticket/sap-masterdata/customer-form" element={<CustomerFormPage />} />
+
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={ <SubmissionPage /> } />
+
         <Route path="/approval" element={<ApprovalPage />} />
         <Route path="/approval/:id" element={ <ApprovalPage /> } />
       </Route>

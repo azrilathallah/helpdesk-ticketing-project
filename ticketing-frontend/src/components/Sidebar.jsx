@@ -77,7 +77,7 @@ export default function Sidebar() {
   );
 }
 
-/* ── Inline SVG Icons ── */
+// Icon
 
 function PlusIcon() {
   return (

@@ -32,14 +32,12 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* Decorative background shapes */}
       <div className="login-page__bg">
         <div className="login-page__circle login-page__circle--1" />
         <div className="login-page__circle login-page__circle--2" />
       </div>
 
       <div className="login-card">
-        {/* Logo / Brand */}
         <div className="login-card__header">
           <div className="login-card__logo">
             <img src="icon/IBS-logo.png" alt="IBSW" />
@@ -48,14 +46,12 @@ export default function LoginPage() {
           <p className="login-card__subtitle">Sign in to continue.</p>
         </div>
 
-        {/* Error alert */}
         {error && (
           <div className="login-card__alert">
             <Alert type="error">{error}</Alert>
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="login-card__form">
           <Input
             label="Email"

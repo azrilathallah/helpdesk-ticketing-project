@@ -11,11 +11,6 @@ class Submission extends Model
 {
     use HasFactory;
 
-    /*
-     * ──────────────────────────────────────────
-     * Status Constants
-     * ──────────────────────────────────────────
-     */
     const STATUS_DRAFT = 'DRAFT';
     const STATUS_REVIEW_DIV_HEAD = 'REVIEW_DIV_HEAD';
     const STATUS_APPROVED_DIV_HEAD = 'APPROVED_DIV_HEAD';
@@ -75,20 +70,11 @@ class Submission extends Model
             ->orderBy('created_at', 'asc');
     }
 
-    /**
-     * Cek apakah requestor masih boleh
-     * mengedit submission ini.
-     *
-     * Hanya DRAFT yang boleh diedit.
-     */
     public function isEditableByRequestor(): bool
     {
         return $this->status === self::STATUS_DRAFT;
     }
 
-    /**
-     * Status yang termasuk "aktif" (belum selesai).
-     */
     public static function activeStatuses(): array
     {
         return [

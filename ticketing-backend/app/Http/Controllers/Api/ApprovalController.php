@@ -12,15 +12,6 @@ class ApprovalController extends Controller
 {
     /**
      * GET /approvals
-     *
-     * Mengambil semua submission yang sedang
-     * dalam proses approval / pengerjaan PIC.
-     *
-     * Status aktif:
-     * - REVIEW_DIV_HEAD
-     * - REVIEW_ACCOUNTING
-     * - REVIEW_TAX
-     * - WAITING_PIC
      */
     public function index(Request $request)
     {
@@ -38,8 +29,6 @@ class ApprovalController extends Controller
 
     /**
      * GET /approvals/{submission}
-     *
-     * Detail submission + approval history.
      */
     public function show(Request $request, Submission $submission)
     {
@@ -55,12 +44,6 @@ class ApprovalController extends Controller
 
     /**
      * POST /approvals/{submission}/approve-divhead
-     *
-     * Division Head approve.
-     *
-     * REVIEW_DIV_HEAD
-     *      ↓
-     * REVIEW_ACCOUNTING
      */
     public function approveDivHead(
         Request $request,
@@ -236,8 +219,7 @@ class ApprovalController extends Controller
             $submission
         ) {
             /*
-             * Simpan approval Accounting Head
-             * ke approval history.
+             * Simpan approval Accounting Head ke approval history.
              */
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
@@ -249,8 +231,7 @@ class ApprovalController extends Controller
             ]);
 
             /*
-             * Setelah Accounting Head approve,
-             * langsung masuk tahap Tax.
+             * Setelah Accounting Head approve, langsung masuk tahap Tax.
              */
             $submission->status =
                 Submission::STATUS_APPROVED_ACCOUNTING;
@@ -439,8 +420,7 @@ class ApprovalController extends Controller
         ];
 
         /*
-         * Jika request type New,
-         * customer code wajib diisi.
+         * Jika request type New, customer code wajib diisi.
          */
         $formData =
             $submission->form_data ?? [];

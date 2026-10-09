@@ -36,20 +36,10 @@ return new class extends Migration
 
             $table->string('form_type', 100);
 
-            /*
-             * DRAFT
-             * SUBMITTED
-             */
             $table->string('status', 20)->default('DRAFT');
 
-            /*
-             * Seluruh isi form disimpan sebagai JSON.
-             */
             $table->json('form_data');
 
-            /*
-             * Metadata attachment.
-             */
             $table->json('attachments')->nullable();
 
             $table->timestamp('submitted_at')->nullable();

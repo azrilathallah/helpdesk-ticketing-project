@@ -13,8 +13,6 @@ class SubmissionController extends Controller
 {
     /**
      * GET /submissions
-     *
-     * Hanya mengambil submission milik requestor yang sedang login.
      */
     public function index(Request $request)
     {
@@ -31,9 +29,6 @@ class SubmissionController extends Controller
 
     /**
      * GET /dashboard/stats
-     *
-     * Mengambil statistik ticket milik requestor
-     * yang sedang login.
      */
     public function dashboardStats(Request $request)
     {
@@ -112,10 +107,6 @@ class SubmissionController extends Controller
 
     /**
      * POST /submissions
-     *
-     * Membuat submission baru.
-     *
-     * Draft maupun Submit sama-sama masuk database.
      */
     public function store(Request $request)
     {
@@ -133,12 +124,6 @@ class SubmissionController extends Controller
 
             $year = (int) now()->format('Y');
 
-            /*
-             * Ambil sequence dengan lock.
-             *
-             * Ini penting agar dua request bersamaan
-             * tidak mendapatkan nomor yang sama.
-             */
             $sequence = DB::table('form_sequences')
                 ->where('prefix', $prefix)
                 ->where('year', $year)
@@ -164,9 +149,6 @@ class SubmissionController extends Controller
                     ->first();
             }
 
-            /*
-             * Running number berikutnya.
-             */
             $nextNumber = ((int) $sequence->last_number) + 1;
 
             DB::table('form_sequences')
@@ -202,8 +184,6 @@ class SubmissionController extends Controller
                 'form_type' => $data['form_type'],
 
                 /*
-                * Jangan simpan SUBMITTED sebagai status workflow.
-                *
                 * Jika requestor langsung submit:
                 * SUBMITTED -> REVIEW_DIV_HEAD
                 */
@@ -260,13 +240,6 @@ class SubmissionController extends Controller
 
     /**
      * POST /submissions/{submission}
-     *
-     * Digunakan untuk:
-     *
-     * DRAFT -> DRAFT
-     * DRAFT -> SUBMITTED
-     *
-     * SUBMITTED -> tidak boleh.
      */
     public function update(
         Request $request,
@@ -277,10 +250,6 @@ class SubmissionController extends Controller
             $submission
         );
 
-        /*
-         * Submission yang sudah submit
-         * tidak boleh diedit requestor.
-         */
         if ($submission->status !== 'DRAFT') {
             return response()->json([
                 'message' =>
@@ -514,8 +483,6 @@ class SubmissionController extends Controller
 
     /**
      * POST /submissions/{submission}/cancel
-     *
-     * Cancel tiket oleh requestor pemilik tiket.
      */
     public function cancel(Request $request, Submission $submission)
     {
@@ -557,11 +524,6 @@ class SubmissionController extends Controller
             'data' => $this->transform($submission->fresh(['requestor']), true),
         ]);
     }
-
-    /**
-     * Pastikan requestor hanya bisa mengakses
-     * submission miliknya sendiri.
-     */
     private function ensureOwner(
         Request $request,
         Submission $submission

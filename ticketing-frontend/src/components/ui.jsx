@@ -1,8 +1,3 @@
-/**
- * Reusable UI Components
- * Consolidated from separate Alert, Button, and Input files
- */
-
 export function Alert({ type = 'error', children }) {
   const styles = {
     error:   'alert alert--error',

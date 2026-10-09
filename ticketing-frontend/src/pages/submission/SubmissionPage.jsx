@@ -91,23 +91,15 @@ export default function SubmissionPage() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  /* =========================================================
-     DETAIL MODE
-  ========================================================= */
-
   if (id) {
     return <SubmissionDetailPage id={id} />;
   }
-
-  /* =========================================================
-     LIST MODE
-  ========================================================= */
 
   return <SubmissionList navigate={navigate} />;
 }
 
 /* =========================================================
-   LIST
+   SUBMISSION LIST
 ========================================================= */
 
 function SubmissionList({ navigate }) {
@@ -493,10 +485,6 @@ function SubmissionList({ navigate }) {
   );
 }
 
-/* =========================================================
-   DETAIL
-========================================================= */
-
 function formatDate(date) {
   if (!date) {
     return "-";
@@ -510,6 +498,10 @@ function formatDate(date) {
     minute: "2-digit",
   });
 }
+
+/* =========================================================
+   SUBMISSION DETAIL
+========================================================= */
 
 function SubmissionDetailPage({ id }) {
   const navigate = useNavigate();

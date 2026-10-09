@@ -1,9 +1,3 @@
-import React from "react";
-
-/* =========================================================
-   CONSTANTS
-========================================================= */
-
 export const REQUEST_TYPES = [
   ["New"],
   ["Change"],
@@ -109,10 +103,6 @@ export const DEFAULT_CUSTOMER_FORM = {
   taxClassification: "",
 };
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
 export const getUserValue = (user, keys) => {
   for (const key of keys) {
     const value = user?.[key];
@@ -142,10 +132,6 @@ export const validateAttachments = (files) => {
 
   return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
 };
-
-/* =========================================================
-   MODE HELPERS
-========================================================= */
 
 function isEditable({ mode, readOnly, approvalRole, field }) {
   if (readOnly) {
@@ -455,8 +441,7 @@ export function AttachmentField({
             </span>
 
             <small className="customer-form__attachment-hint">
-              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file
-              dalam 1 ZIP. Maks. 10 MB.
+              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file dalam 1 ZIP. Maks. 10 MB.
             </small>
           </label>
 
