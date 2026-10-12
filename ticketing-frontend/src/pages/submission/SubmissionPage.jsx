@@ -695,7 +695,8 @@ function SubmissionDetailPage({ id }) {
                     item.step === "TAX_APPROVE" ||
                     item.action === "SOLVED" ||
                     item.action === "REJECTED" ||
-                    item.action === "CANCELLED",
+                    item.action === "CANCELLED" ||
+                    item.step === "DIV_HEAD_REVISION",
                 );
 
                 if (!visibleHistory.length) {
@@ -727,9 +728,11 @@ function SubmissionDetailPage({ id }) {
                         label = "Ticket Rejected";
                       } else if (isCancelled) {
                         label = "Ticket Cancelled";
+                      } else if (item.step === "DIV_HEAD_REVISION") {
+                        label = "Requestor Revision";
                       }
 
-                      const isNegative = isRejected || isCancelled;
+                      const isNegative = isRejected || isCancelled || item.step === "DIV_HEAD_REVISION";
 
                       return (
                         <div key={item.id} className="approval-history__item">

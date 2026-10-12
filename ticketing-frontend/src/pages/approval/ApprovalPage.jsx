@@ -538,12 +538,14 @@ function ApprovalDetailPage({ id }) {
         return "division_head";
 
       case "APPROVED_DIV_HEAD":
+      case "REVISION_ACCOUNTING":
         return "accounting";
 
       case "REVIEW_ACCOUNTING":
         return null;
 
       case "APPROVED_ACCOUNTING":
+      case "REVISION_TAX":
         return "tax";
 
       case "REVIEW_TAX":
@@ -638,6 +640,7 @@ function ApprovalDetailPage({ id }) {
 
       setRejectModalOpen(false);
       setRejectNotes("");
+      navigate("/approval");
 
       await loadDetail();
     } catch (err) {
@@ -678,6 +681,7 @@ function ApprovalDetailPage({ id }) {
 
       setRevisionModalOpen(false);
       setRevisionNotes("");
+      navigate("/approval");
 
       await loadDetail();
     } catch (err) {
@@ -824,6 +828,7 @@ function ApprovalDetailPage({ id }) {
             "",
           );
 
+          navigate("/approval");
           break;
         }
 
@@ -908,25 +913,13 @@ function ApprovalDetailPage({ id }) {
 
     if (
       currentStatus === "APPROVED_DIV_HEAD" ||
+      currentStatus === "REVISION_ACCOUNTING" ||
       currentStatus === "REVIEW_ACCOUNTING"
     ) {
       return (
         <div className="customer-form__actions">
-          <button
-            type="button"
-            className="customer-form__button"
-            style={{
-              background: "#dc2626",
-              color: "#fff",
-              border: "1.5px solid #dc2626",
-            }}
-            onClick={openRejectModal}
-            disabled={processing}
-          >
-            Reject
-          </button>
-
-          {currentStatus === "APPROVED_DIV_HEAD" && (
+          {(currentStatus === "APPROVED_DIV_HEAD" ||
+            currentStatus === "REVISION_ACCOUNTING") && (
             <button
               type="submit"
               className="customer-form__button customer-form__button--primary"
@@ -938,33 +931,45 @@ function ApprovalDetailPage({ id }) {
           )}
 
           {currentStatus === "REVIEW_ACCOUNTING" && (
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--primary"
-              onClick={() => handleAction("approve-accounting")}
-              disabled={processing || !hasAccountingSaved}
-            >
-              {processing ? "Processing..." : "Approve as Accounting"}
-            </button>
+            <>
+              <button
+                type="button"
+                className="customer-form__button"
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "1.5px solid #dc2626",
+                }}
+                onClick={openRejectModal}
+                disabled={processing}
+              >
+                Reject
+              </button>
 
-          )}
-          {currentStatus === "REVIEW_ACCOUNTING" && (
-            
-            <button
-            type="button"
-            className="customer-form__button"
-            style={{
-              background: "#f6832bff",
-              color: "#fff",
-              border: "1.5px solid #f6832bff",
-            }}
-            onClick={openRevisionModal}
-            disabled={processing}
-          >
-            Give Revision
-          </button>
-          )}
+              <button
+                type="button"
+                className="customer-form__button"
+                style={{
+                  background: "#f6832bff",
+                  color: "#fff",
+                  border: "1.5px solid #f6832bff",
+                }}
+                onClick={openRevisionModal}
+                disabled={processing}
+              >
+                Give Revision
+              </button>
 
+              <button
+                type="button"
+                className="customer-form__button customer-form__button--primary"
+                onClick={() => handleAction("approve-accounting")}
+                disabled={processing || !hasAccountingSaved}
+              >
+                {processing ? "Processing..." : "Approve as Accounting"}
+              </button>
+            </>
+          )}
         </div>
       );
     }
@@ -975,25 +980,13 @@ function ApprovalDetailPage({ id }) {
 
     if (
       currentStatus === "APPROVED_ACCOUNTING" ||
+      currentStatus === "REVISION_TAX" ||
       currentStatus === "REVIEW_TAX"
     ) {
       return (
         <div className="customer-form__actions">
-          <button
-            type="button"
-            className="customer-form__button"
-            style={{
-              background: "#dc2626",
-              color: "#fff",
-              border: "1.5px solid #dc2626",
-            }}
-            onClick={openRejectModal}
-            disabled={processing}
-          >
-            Reject
-          </button>
-
-          {currentStatus === "APPROVED_ACCOUNTING" && (
+          {(currentStatus === "APPROVED_ACCOUNTING" ||
+            currentStatus === "REVISION_TAX") && (
             <button
               type="submit"
               className="customer-form__button customer-form__button--primary"
@@ -1005,24 +998,45 @@ function ApprovalDetailPage({ id }) {
           )}
 
           {currentStatus === "REVIEW_TAX" && (
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--primary"
-              onClick={() => handleAction("approve-tax")}
-              disabled={processing || !hasTaxSaved}
-            >
-              {processing ? "Processing..." : "Approve as Tax"}
-            </button>
-          )}
+            <>
+              <button
+                type="button"
+                className="customer-form__button"
+                style={{
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "1.5px solid #dc2626",
+                }}
+                onClick={openRejectModal}
+                disabled={processing}
+              >
+                Reject
+              </button>
 
-          <button
-            type="button"
-            className="customer-form__button"
-            onClick={openRevisionModal}
-            disabled={processing}
-          >
-            Revision
-          </button>
+              <button
+                type="button"
+                className="customer-form__button"
+                style={{
+                  background: "#f6832bff",
+                  color: "#fff",
+                  border: "1.5px solid #f6832bff",
+                }}
+                onClick={openRevisionModal}
+                disabled={processing}
+              >
+                Give Revision
+              </button>
+
+              <button
+                type="button"
+                className="customer-form__button customer-form__button--primary"
+                onClick={() => handleAction("approve-tax")}
+                disabled={processing || !hasTaxSaved}
+              >
+                {processing ? "Processing..." : "Approve as Tax"}
+              </button>
+            </>
+          )}
         </div>
       );
     }
@@ -1238,7 +1252,12 @@ function ApprovalDetailPage({ id }) {
                         label = "Tax Revision";
                       }
 
-                      const isNegative = isRejected || isCancelled;
+                      const isNegative =
+                        isRejected ||
+                        isCancelled ||
+                        item.step === "DIV_HEAD_REVISION" ||
+                        item.step === "ACCOUNTING_REVISION" ||
+                        item.step === "TAX_REVISION";
 
                       return (
                         <div key={item.id} className="approval-history__item">
@@ -1303,7 +1322,7 @@ function ApprovalDetailPage({ id }) {
         >
           <div className="approval-reject-dialog">
             <div className="approval-reject-dialog__header">
-              <h3>Reject Submission</h3>
+              <h3>Reject Request</h3>
 
               <button
                 type="button"
@@ -1398,7 +1417,7 @@ function ApprovalDetailPage({ id }) {
         >
           <div className="approval-reject-dialog">
             <div className="approval-reject-dialog__header">
-              <h3>Revisi Submission</h3>
+              <h3>Revisi Request</h3>
 
               <button
                 type="button"

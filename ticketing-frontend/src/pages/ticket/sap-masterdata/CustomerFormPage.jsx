@@ -68,9 +68,9 @@ export default function CustomerFormPage() {
           return;
         }
 
-        if (submission.status !== "DRAFT") {
-          setReadOnly(true);
-        }
+        const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
+
+        setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
           ...DEFAULT_CUSTOMER_FORM,
@@ -157,7 +157,11 @@ export default function CustomerFormPage() {
       const saved = response.data?.data;
 
       if (saved?.status === "REVIEW_DIV_HEAD") {
-        alert(`Form berhasil disubmit.\n\nNumber: ${saved.number}`);
+        alert(
+          `Form berhasil ${
+            submissionId ? "diajukan kembali" : "disubmit"
+          }.\n\nNumber: ${saved.number}`,
+        );
 
         navigate("/submission");
 
@@ -217,10 +221,7 @@ export default function CustomerFormPage() {
           </div>
         </header>
 
-        <form
-          className="customer-form"
-          onSubmit={handleSubmit("submit")}
-        >
+        <form className="customer-form" onSubmit={handleSubmit("submit")}>
           <FormRenderer
             type="SAP"
             category="Master Data"

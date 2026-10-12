@@ -135,15 +135,18 @@ class ApprovalController extends Controller
         $accountingData =
             $request->input('accounting_data');
 
+        $wasRevisionAccounting = $submission->status === Submission::STATUS_REVISION_ACCOUNTING;
+
         DB::transaction(function () use (
             $request,
             $submission,
-            $accountingData
+            $accountingData,
+            $wasRevisionAccounting,
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'ACCOUNTING_FILL',
-                'action' => 'FILLED',
+                'step' => $wasRevisionAccounting ? 'ACCOUNTING_REFILLED' : 'ACCOUNTING_FILL',
+                'action' => $wasRevisionAccounting ? 'REFILLED' : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'step_data' => $accountingData,
@@ -281,18 +284,21 @@ class ApprovalController extends Controller
         $taxData =
             $request->input('tax_data');
 
+        $wasRevisionTax = $submission->status === Submission::STATUS_REVISION_TAX;
+
         DB::transaction(function () use (
             $request,
             $submission,
-            $taxData
+            $taxData,
+            $wasRevisionTax
         ) {
             /*
              * Simpan history Tax Staff.
              */
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'TAX_FILL',
-                'action' => 'FILLED',
+                'step' => $wasRevisionTax ? 'TAX_REFILLED' : 'TAX_FILL',
+                'action' => $wasRevisionTax ? 'REFILLED' : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'step_data' => $taxData,

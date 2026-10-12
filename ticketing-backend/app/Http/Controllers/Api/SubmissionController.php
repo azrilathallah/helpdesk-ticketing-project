@@ -55,6 +55,9 @@ class SubmissionController extends Controller
                 Submission::STATUS_REVIEW_TAX,
                 Submission::STATUS_APPROVED_TAX,
                 Submission::STATUS_WAITING_PIC,
+                Submission::STATUS_REVISION_REQUESTOR,
+                Submission::STATUS_REVISION_ACCOUNTING,
+                Submission::STATUS_REVISION_TAX
             ])
             ->count();
 
@@ -257,7 +260,7 @@ class SubmissionController extends Controller
 
         if (!$canEdit) {
             return response()->json([
-                'message' => 'Submission ini tidak sedang menunggu revisi dari Requestor.',
+                'message' => 'Submission ini tidak dapat diedit.',
             ], 422);
         }
 
