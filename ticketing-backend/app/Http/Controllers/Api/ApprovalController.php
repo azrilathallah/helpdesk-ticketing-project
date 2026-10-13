@@ -141,7 +141,7 @@ class ApprovalController extends Controller
             $request,
             $submission,
             $accountingData,
-            $wasRevisionAccounting,
+            $wasRevisionAccounting
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
@@ -201,8 +201,8 @@ class ApprovalController extends Controller
 
         $hasAccountingFill =
             $submission->approvals()
-            ->where('step', 'ACCOUNTING_FILL')
-            ->where('action', 'FILLED')
+            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILLED'])
+            ->whereIn('action', ['FILLED', 'REFILLED'])
             ->exists();
 
         if (!$hasAccountingFill) {
@@ -357,8 +357,8 @@ class ApprovalController extends Controller
 
         $hasTaxFill =
             $submission->approvals()
-            ->where('step', 'TAX_FILL')
-            ->where('action', 'FILLED')
+            ->whereIn('step', ['TAX_FILL', 'TAX_REFILLED'])
+            ->whereIn('action', ['FILLED', 'REFILLED'])
             ->exists();
 
         if (!$hasTaxFill) {
@@ -501,16 +501,6 @@ class ApprovalController extends Controller
         ]);
     }
 
-    public function cancel(
-        Request $request,
-        Submission $submission
-    ) {
-        return response()->json([
-            'message' =>
-            'Cancel ticket hanya dapat dilakukan oleh requestor melalui halaman My Submission.',
-        ], 403);
-    }
-
     public function reject(
         Request $request,
         Submission $submission
@@ -548,17 +538,10 @@ class ApprovalController extends Controller
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-
                 'step' => $submission->status,
-
                 'action' => 'REJECTED',
-
-                'acted_by' =>
-                $request->user()->id,
-
-                'notes' =>
-                $request->input('notes'),
-
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes'),
                 'created_at' => now(),
             ]);
 
@@ -624,7 +607,6 @@ class ApprovalController extends Controller
         DB::transaction(function () use (
             $request,
             $submission,
-            $currentStatus,
             $flow
         ) {
             SubmissionApproval::create([
