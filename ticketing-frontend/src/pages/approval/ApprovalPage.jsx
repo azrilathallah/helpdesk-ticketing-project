@@ -892,7 +892,7 @@ function ApprovalDetailPage({ id }) {
             onClick={openRevisionModal}
             disabled={processing}
           >
-            Give Revision
+            Revision
           </button>
 
           <button
@@ -957,7 +957,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={openRevisionModal}
                 disabled={processing}
               >
-                Give Revision
+                Revision
               </button>
 
               <button
@@ -1024,7 +1024,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={openRevisionModal}
                 disabled={processing}
               >
-                Give Revision
+                Revision
               </button>
 
               <button

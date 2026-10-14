@@ -669,9 +669,6 @@ class ApprovalController extends Controller
             'updated_at' =>
             $submission->updated_at,
 
-            'submitted_at' =>
-            $submission->submitted_at,
-
             'requestor' => [
                 'id' =>
                 $submission->requestor_id,

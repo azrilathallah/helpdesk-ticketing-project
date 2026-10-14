@@ -710,8 +710,6 @@ export default function CustomerFormFields({
           required={isCreateMode}
           disabled={!editable("division")}
         />
-
-        <ReadOnlyField label="Customer Code" value={form.customerCode || "-"} />
       </Section>
 
       {/* =====================================================

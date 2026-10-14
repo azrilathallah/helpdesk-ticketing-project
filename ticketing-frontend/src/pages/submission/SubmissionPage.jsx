@@ -208,7 +208,7 @@ function SubmissionList({ navigate }) {
   };
 
   const canCancel = (status) =>
-    !["DRAFT", "TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(
+    !["TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(
       status,
     );
 

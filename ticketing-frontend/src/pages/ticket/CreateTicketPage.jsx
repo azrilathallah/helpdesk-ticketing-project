@@ -92,11 +92,6 @@ const CreateTicketPage = () => {
       desc: "Issues related to business applications or system.",
     },
     {
-      key: "Design",
-      title: "Design",
-      desc: "UI/UX, design assets, or design-related requests.",
-    },
-    {
       key: "Network",
       title: "Network",
       desc: "Connectivity, VPN, internet, or network access issues.",
@@ -473,9 +468,8 @@ const CreateTicketPage = () => {
                 <option value="MM">MM</option>
                 <option value="HR">HR</option>
                 <option value="PS">PS</option>
-                <option value="Fico">FICO</option>
-                <option value="Basis">Basis</option>
-                <option value="Financial Control">Financial Control</option>
+                <option value="FI">FI</option>
+                <option value="CO">CO</option>
               </select>
             </div>
 

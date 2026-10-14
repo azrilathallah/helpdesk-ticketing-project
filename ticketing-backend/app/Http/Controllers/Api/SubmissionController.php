@@ -175,15 +175,10 @@ class SubmissionController extends Controller
 
             $submission = Submission::create([
                 'requestor_id' => $request->user()->id,
-
                 'number' => $number,
-
                 'type' => $type,
-
                 'category' => $data['category'] ?? null,
-
                 'sub_category' => $data['sub_category'] ?? null,
-
                 'form_type' => $data['form_type'],
 
                 /*
@@ -197,10 +192,6 @@ class SubmissionController extends Controller
                 'form_data' => $data['form_data'],
 
                 'attachments' => null,
-
-                'submitted_at' => $isSubmitted
-                    ? now()
-                    : null,
             ]);
 
             /*
@@ -311,7 +302,7 @@ class SubmissionController extends Controller
          */
         if ($data['status'] === 'SUBMITTED') {
             $submission->status = Submission::STATUS_REVIEW_DIV_HEAD;
-            $submission->submitted_at = now();
+            $submission->updated_at = now();
             $submission->save();
 
             SubmissionApproval::create([
@@ -590,9 +581,6 @@ class SubmissionController extends Controller
 
             'updated_at' =>
             $submission->updated_at,
-
-            'submitted_at' =>
-            $submission->submitted_at,
 
             'requestor' => [
                 'id' =>

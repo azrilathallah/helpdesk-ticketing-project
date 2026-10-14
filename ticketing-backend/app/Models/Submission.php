@@ -50,7 +50,6 @@ class Submission extends Model
         'status',
         'form_data',
         'attachments',
-        'submitted_at',
     ];
 
     protected function casts(): array
@@ -58,7 +57,6 @@ class Submission extends Model
         return [
             'form_data' => 'array',
             'attachments' => 'array',
-            'submitted_at' => 'datetime',
         ];
     }
 

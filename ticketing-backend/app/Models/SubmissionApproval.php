@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubmissionApproval extends Model
 {
-    public $timestamps = false;
-
     protected $fillable = [
         'submission_id',
         'step',
@@ -16,14 +14,12 @@ class SubmissionApproval extends Model
         'acted_by',
         'notes',
         'step_data',
-        'created_at',
     ];
 
     protected function casts(): array
     {
         return [
             'step_data' => 'array',
-            'created_at' => 'datetime',
         ];
     }
 

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('position')->nullable();
             $table->string('division')->nullable();
             $table->string('department')->nullable();
-            $table->string('telephone')->nullable();
             $table->string('divhead')->nullable();
             $table->rememberToken();
             $table->timestamps();
