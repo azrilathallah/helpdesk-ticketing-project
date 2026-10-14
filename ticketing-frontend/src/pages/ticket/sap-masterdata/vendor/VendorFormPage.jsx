@@ -1,20 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { useAuth } from "../../../context/AuthContext";
-import { submissionApi } from "../../../api/submission";
+import { submissionApi } from "../../../../api/submission";
 
-import FormRenderer from "../../../components/forms_sap/FormRenderer";
+import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
 
 import {
-  DEFAULT_CUSTOMER_FORM,
-  getUserValue,
+  DEFAULT_VENDOR_FORM,
   validateAttachments,
-} from "../../../components/forms_sap/customer/CustomerFormFields";
+} from "../../../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
-export default function CustomerFormPage() {
+export default function VendorFormPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [searchParams] = useSearchParams();
 
@@ -24,23 +21,11 @@ export default function CustomerFormPage() {
 
   const [readOnly, setReadOnly] = useState(false);
 
-  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+  const [formData, setFormData] = useState(DEFAULT_VENDOR_FORM);
 
   const [attachments, setAttachments] = useState([]);
 
   const [submitMode, setSubmitMode] = useState("");
-
-  const requestor = useMemo(
-    () => ({
-      name: getUserValue(user, ["name", "nama"]),
-      position: getUserValue(user, ["position"]),
-      division: getUserValue(user, ["division"]),
-      department: getUserValue(user, ["department"]),
-      telephone: getUserValue(user, ["telephone"]),
-      email: getUserValue(user, ["email"]),
-    }),
-    [user],
-  );
 
   useEffect(() => {
     if (!submissionId) {
@@ -62,7 +47,7 @@ export default function CustomerFormPage() {
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "Customer"
+          submission.sub_category !== "Vendor"
         ) {
           navigate("/submission");
           return;
@@ -73,7 +58,7 @@ export default function CustomerFormPage() {
         setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
-          ...DEFAULT_CUSTOMER_FORM,
+          ...DEFAULT_VENDOR_FORM,
           ...(submission.form_data || {}),
         });
       } catch (error) {
@@ -119,7 +104,7 @@ export default function CustomerFormPage() {
         return;
       }
 
-      if (formData.requestType !== "New" && !formData.customerCode) {
+      if (formData.requestType !== "New" && !formData.vendorCode) {
         return;
       }
     }
@@ -130,8 +115,8 @@ export default function CustomerFormPage() {
       const payload = {
         type: "SAP",
         category: "Master Data",
-        sub_category: "Customer",
-        form_type: "SAP - Master Data - Customer",
+        sub_category: "Vendor",
+        form_type: "SAP - Master Data - Vendor",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -213,10 +198,10 @@ export default function CustomerFormPage() {
           <div className="customer-form__header-content">
             <div>
               <p className="customer-form__eyebrow">
-                SAP · Master Data · Customer
+                SAP · Master Data · Vendor
               </p>
 
-              <h1>Master Data Customer Request</h1>
+              <h1>Master Data Vendor Request</h1>
             </div>
           </div>
         </header>
@@ -225,12 +210,11 @@ export default function CustomerFormPage() {
           <FormRenderer
             type="SAP"
             category="Master Data"
-            subCategory="Customer"
+            subCategory="Vendor"
             formData={formData}
             setFormData={setFormData}
             mode="create"
             readOnly={readOnly}
-            requestor={requestor}
             attachments={attachments}
             setAttachments={setAttachments}
           />

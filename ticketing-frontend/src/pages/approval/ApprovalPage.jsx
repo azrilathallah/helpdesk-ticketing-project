@@ -3,12 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { approvalApi } from "../../api/approval";
 
-import FormRenderer from "../../components/forms_sap/FormRenderer";
+import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
 import {
   DEFAULT_CUSTOMER_FORM,
   getUserValue,
-} from "../../components/forms_sap/customer/CustomerFormFields";
+} from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
+
+import {
+  DEFAULT_VENDOR_FORM,
+} from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
 /* =========================================================
    STATUS
@@ -654,6 +658,10 @@ function ApprovalDetailPage({ id }) {
     }
   };
 
+  /* =========================================================
+     REVISION
+  ========================================================= */
+
   const openRevisionModal = () => {
     setRevisionNotes("");
     setRevisionError("");
@@ -1129,20 +1137,19 @@ function ApprovalDetailPage({ id }) {
           <div className="customer-form__header-content">
             <div>
               <p className="customer-form__eyebrow">
-                {submission.type} · {submission.category} ·{" "}
+                {submission.type} · {submission.category} · {" "}
                 {submission.sub_category}
               </p>
 
-              <h1>Master Data Customer Request</h1>
+              <h1>{submission.category} {submission.sub_category} Request</h1>
 
               <p
                 style={{
                   margin: "4px 0 0",
                   fontSize: "0.85rem",
-                  color: "var(--color-text-muted)",
                 }}
               >
-                Ticket Number: <strong>{submission.number}</strong>
+                Request Number: <strong>{submission.number}</strong>
               </p>
             </div>
 

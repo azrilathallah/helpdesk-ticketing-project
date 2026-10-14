@@ -4,12 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { submissionApi } from "../../api/submission";
 
-import FormRenderer from "../../components/forms_sap/FormRenderer";
+import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
 import {
   DEFAULT_CUSTOMER_FORM,
   getUserValue,
-} from "../../components/forms_sap/customer/CustomerFormFields";
+} from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
+
+import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
 const getStatusConfig = (status) => {
   switch (status) {
@@ -202,15 +204,25 @@ function SubmissionList({ navigate }) {
 
         return;
       }
+
+      if (
+        submission.type === "SAP" &&
+        submission.category === "Master Data" &&
+        submission.sub_category === "Vendor"
+      ) {
+        navigate(
+          `/create-ticket/sap-masterdata/vendor-form?submission=${submission.id}`,
+        );
+
+        return;
+      }
     }
 
     navigate(`/submission/${submission.id}`);
   };
 
   const canCancel = (status) =>
-    !["TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(
-      status,
-    );
+    !["TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(status);
 
   const handleCancelSubmission = async (submission, event) => {
     event?.stopPropagation();
@@ -474,7 +486,10 @@ function SubmissionList({ navigate }) {
                             handleOpen(submission);
                           }}
                         >
-                          {submission.status === "DRAFT" || submission.status === "REVISION_REQUESTOR" ? "Edit" : "View"}
+                          {submission.status === "DRAFT" ||
+                          submission.status === "REVISION_REQUESTOR"
+                            ? "Edit"
+                            : "View"}
 
                           <span>→</span>
                         </button>
@@ -530,7 +545,19 @@ function SubmissionDetailPage({ id }) {
 
   const [submission, setSubmission] = useState(null);
 
-  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+  const [formData, setFormData] = useState();
+
+  const getDefaultForm = (submission) => {
+    if (submission?.sub_category === "Customer") {
+      return DEFAULT_CUSTOMER_FORM;
+    }
+
+    if (submission?.sub_category === "Vendor") {
+      return DEFAULT_VENDOR_FORM;
+    }
+
+    return {};
+  };
 
   useEffect(() => {
     const loadDetail = async () => {
@@ -548,8 +575,10 @@ function SubmissionDetailPage({ id }) {
 
         setSubmission(data);
 
+        const defaultForm = getDefaultForm(data);
+
         setFormData({
-          ...DEFAULT_CUSTOMER_FORM,
+          ...defaultForm,
           ...(data.form_data || {}),
         });
       } catch (err) {
@@ -639,16 +668,15 @@ function SubmissionDetailPage({ id }) {
                 {submission.sub_category}
               </p>
 
-              <h1>Master Data Customer Request</h1>
+              <h1>{submission.category} {submission.sub_category} Request</h1>
 
               <p
                 style={{
                   margin: "4px 0 0",
                   fontSize: "0.85rem",
-                  color: "var(--color-text-muted)",
                 }}
               >
-                Ticket Number: <strong>{submission.number}</strong>
+                Request Number: <strong>{submission.number}</strong>
               </p>
             </div>
 
@@ -732,7 +760,10 @@ function SubmissionDetailPage({ id }) {
                         label = "Requestor Revision";
                       }
 
-                      const isNegative = isRejected || isCancelled || item.step === "DIV_HEAD_REVISION";
+                      const isNegative =
+                        isRejected ||
+                        isCancelled ||
+                        item.step === "DIV_HEAD_REVISION";
 
                       return (
                         <div key={item.id} className="approval-history__item">

@@ -1,4 +1,5 @@
 import CustomerFormFields from "./customer/CustomerFormFields";
+import VendorFormFields from "./vendor/VendorFormFields";
 
 export default function FormRenderer({
   type,
@@ -14,6 +15,7 @@ export default function FormRenderer({
   setAttachments,
   existingAttachments = [],
   onCustomerCodeChange,
+  onVendorCodeChange
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -48,15 +50,24 @@ export default function FormRenderer({
     );
   }
 
-  return (
-    <div className="customer-form__empty">
-      <p>
-        Form untuk{" "}
-        <strong>
-          {type || "-"} / {category || "-"} / {subCategory || "-"}
-        </strong>{" "}
-        belum tersedia.
-      </p>
-    </div>
-  );
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "vendor"
+  ) {
+    return (
+      <VendorFormFields
+        formData={formData}
+        setFormData={setFormData}
+        mode={mode}
+        readOnly={readOnly}
+        approvalRole={approvalRole}
+        requestor={requestor}
+        attachments={attachments}
+        setAttachments={setAttachments}
+        existingAttachments={existingAttachments}
+        onVendorCodeChange={onVendorCodeChange}
+      />
+    );
+  }
 }

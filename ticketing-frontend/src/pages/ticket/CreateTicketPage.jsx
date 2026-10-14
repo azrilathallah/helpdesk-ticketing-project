@@ -152,6 +152,12 @@ const CreateTicketPage = () => {
           return;
         }
 
+        // Customer → halaman form Customer
+        if (selection.subCategory === "Vendor") {
+          navigate("/create-ticket/sap-masterdata/vendor-form");
+          return;
+        }
+
         // Form lainnya dibuat setelah Customer selesai
         console.log("Form belum dibuat:", selection.subCategory);
 

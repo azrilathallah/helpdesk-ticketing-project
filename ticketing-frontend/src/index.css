@@ -1683,7 +1683,7 @@ body {
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .my-submission__title {
@@ -1695,7 +1695,7 @@ body {
 }
 
 .my-submission__description {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
 
   font-size: 14px;
   line-height: 1.5;

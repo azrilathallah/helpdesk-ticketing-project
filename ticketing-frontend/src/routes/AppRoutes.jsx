@@ -3,7 +3,8 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import LoginPage from '../pages/auth/LoginPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import CreateTicketPage from '../pages/ticket/CreateTicketPage';
-import CustomerFormPage from '../pages/ticket/sap-masterdata/CustomerFormPage';
+import CustomerFormPage from '../pages/ticket/sap-masterdata/customer/CustomerFormPage';
+import VendorFormPage from '../pages/ticket/sap-masterdata/vendor/VendorFormPage';
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';
 
@@ -24,6 +25,7 @@ export default function AppRoutes() {
         
         <Route path="/create-ticket" element={<CreateTicketPage />} /> 
         <Route path="/create-ticket/sap-masterdata/customer-form" element={<CustomerFormPage />} />
+        <Route path="/create-ticket/sap-masterdata/vendor-form" element={<VendorFormPage />} />
 
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={ <SubmissionPage /> } />

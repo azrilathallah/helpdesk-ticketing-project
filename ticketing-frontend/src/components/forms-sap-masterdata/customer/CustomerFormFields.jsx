@@ -45,8 +45,8 @@ export const TERMS_OF_PAYMENT = [
 export const TOLERANCE_GROUPS = [["1200", "Cust/Vend Tolerance"]];
 
 export const WITHOLDING_TAX = [
-  ["P4", "PPh4(2) - Customer Payment Deduction"],
-  ["P5", "PPh23 - Customer Payment Deduction"],
+  ["P4", "PPH4(2) - Customer Payment Deduction"],
+  ["P5", "PPH23 - Customer Payment Deduction"],
 ];
 
 export const CURRENCIES = ["IDR", "USD", "Other"];
@@ -77,12 +77,12 @@ export const DEFAULT_CUSTOMER_FORM = {
 
   title: "",
   customerName: "",
-  searchTerm1: "",
+  searchTerm: "",
   invoiceStreet: "",
   taxStreet: "",
   city: "",
   postalCode: "",
-  country: "",
+  country: "Indonesia",
   region: "",
   telephone: "",
   fax: "",
@@ -301,7 +301,7 @@ export function ChoiceGroup({
               <span>
                 <strong>{code}</strong>
 
-                {name && ` - ${name}`}
+                {name && ` ${name}`}
               </span>
             </label>
           );
@@ -437,7 +437,7 @@ export function AttachmentField({
             />
 
             <span className="customer-form__attachment-text">
-              Klik untuk memilih file
+              Klik untuk unggah file
             </span>
 
             <small className="customer-form__attachment-hint">
@@ -739,13 +739,13 @@ export default function CustomerFormFields({
           />
         </Field>
 
-        <Field label="Search Term 1">
+        <Field label="Search Term">
           <input
             type="text"
             className="customer-form__input"
-            value={form.searchTerm1 || ""}
-            onChange={(event) => update("searchTerm1", event.target.value)}
-            disabled={!editable("searchTerm1")}
+            value={form.searchTerm || ""}
+            onChange={(event) => update("searchTerm", event.target.value)}
+            disabled={!editable("searchTerm")}
           />
         </Field>
 
