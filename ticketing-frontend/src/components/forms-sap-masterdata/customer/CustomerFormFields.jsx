@@ -49,7 +49,7 @@ export const WITHOLDING_TAX = [
   ["P5", "PPH23 - Customer Payment Deduction"],
 ];
 
-export const CURRENCIES = ["IDR", "USD", "Other"];
+export const CURRENCIES = ["IDR", "USD"];
 
 export const CUSTOMER_PRICING_PROCEDURES = [["1", "Standard"]];
 
@@ -441,7 +441,8 @@ export function AttachmentField({
             </span>
 
             <small className="customer-form__attachment-hint">
-              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file dalam 1 ZIP. Maks. 10 MB.
+              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file
+              dalam 1 ZIP. Maks. 10 MB.
             </small>
           </label>
 
@@ -575,10 +576,7 @@ export default function CustomerFormFields({
 
         {isNewRequest ? (
           isPIC ? (
-            <Field
-              label="Customer Code"
-              required
-            >
+            <Field label="Customer Code" required>
               <input
                 type="text"
                 className="customer-form__input"
@@ -939,53 +937,14 @@ export default function CustomerFormFields({
       ===================================================== */}
 
       <Section number="6" title="Sales Area Data">
-        <Field label="Currency" required={isCreateMode}>
-          <div className="customer-form__choices">
-            {CURRENCIES.map((currency) => (
-              <label
-                key={currency}
-                className={`customer-form__choice ${
-                  !editable("currency") ? "customer-form__choice--disabled" : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="currency"
-                  value={currency}
-                  checked={form.currency === currency}
-                  onChange={(event) => update("currency", event.target.value)}
-                  required={isCreateMode}
-                  disabled={!editable("currency")}
-                />
-
-                <span>{currency}</span>
-              </label>
-            ))}
-          </div>
-
-          {form.currency === "Other" && (
-            <div className="customer-form__nested-field">
-              <label className="customer-form__nested-label">
-                Other Currency
-              </label>
-
-              <input
-                type="text"
-                className={`customer-form__input ${
-                  !editable("otherCurrency")
-                    ? "customer-form__input--readonly"
-                    : ""
-                }`}
-                value={form.otherCurrency || ""}
-                onChange={(event) =>
-                  update("otherCurrency", event.target.value)
-                }
-                required={isCreateMode}
-                disabled={!editable("otherCurrency")}
-              />
-            </div>
-          )}
-        </Field>
+        <ChoiceGroup
+          label="Currency"
+          options={CURRENCIES}
+          value={form.currency}
+          onChange={(value) => update("currency", value)}
+          required={isCreateMode}
+          disabled={!editable("currency")}
+        />
 
         <ChoiceGroup
           label="Customer Pricing Procedure"

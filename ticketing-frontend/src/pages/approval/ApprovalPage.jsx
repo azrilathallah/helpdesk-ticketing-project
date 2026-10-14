@@ -10,9 +10,7 @@ import {
   getUserValue,
 } from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
 
-import {
-  DEFAULT_VENDOR_FORM,
-} from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
+import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
 /* =========================================================
    STATUS
@@ -416,10 +414,22 @@ function ApprovalDetailPage({ id }) {
   const [error, setError] = useState("");
 
   const [submission, setSubmission] = useState(null);
-  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+  const [formData, setFormData] = useState({});
 
   const [processing, setProcessing] = useState(false);
   const [actionError, setActionError] = useState("");
+
+  const getDefaultForm = (submission) => {
+    if (submission?.sub_category === "Customer") {
+      return DEFAULT_CUSTOMER_FORM;
+    }
+
+    if (submission?.sub_category === "Vendor") {
+      return DEFAULT_VENDOR_FORM;
+    }
+
+    return {};
+  };
 
   /* =========================================================
      ACCOUNTING
@@ -473,8 +483,10 @@ function ApprovalDetailPage({ id }) {
 
       setSubmission(data);
 
+      const defaultForm = getDefaultForm(data);
+
       setFormData({
-        ...DEFAULT_CUSTOMER_FORM,
+        ...defaultForm,
         ...(data.form_data || {}),
       });
 
@@ -574,19 +586,34 @@ function ApprovalDetailPage({ id }) {
     }
 
     const hasHistory = submission.approval_history?.some(
-      (item) => item.step === "ACCOUNTING_FILL" && item.action === "FILLED",
+      (item) =>
+        ["ACCOUNTING_FILL", "ACCOUNTING_REFILLED"].includes(item.step) &&
+        ["FILLED", "REFILLED"].includes(item.action),
     );
 
     const data = submission.form_data || {};
+    const isVendor =
+      String(submission.sub_category || "").toLowerCase() === "vendor";
 
-    const hasFormData = Boolean(
+    if (isVendor) {
+      const hasPaymentMethod =
+        Array.isArray(data.paymentMethod) && data.paymentMethod.length > 0;
+
+      const hasVendorAccountingData = Boolean(
+        data.accountGroup && data.recontAccount && hasPaymentMethod,
+      );
+
+      return hasVendorAccountingData || hasHistory;
+    }
+
+    const hasCustomerAccountingData = Boolean(
       data.accountGroup &&
       data.recontAccount &&
       data.sortKey &&
       data.toleranceGroup,
     );
 
-    return hasHistory || hasFormData;
+    return hasCustomerAccountingData || hasHistory;
   }, [submission]);
 
   /* =========================================================
@@ -599,7 +626,9 @@ function ApprovalDetailPage({ id }) {
     }
 
     const hasHistory = submission.approval_history?.some(
-      (item) => item.step === "TAX_FILL" && item.action === "FILLED",
+      (item) =>
+        ["TAX_FILL", "TAX_REFILLED"].includes(item.step) &&
+        ["FILLED", "REFILLED"].includes(item.action),
     );
 
     const data = submission.form_data || {};
@@ -730,25 +759,41 @@ function ApprovalDetailPage({ id }) {
         ============================================= */
 
         case "fill-accounting":
-          const accountingData = {
-            accountGroup: formData.accountGroup || "",
-            recontAccount: formData.recontAccount || "",
-            sortKey: formData.sortKey || "",
-            toleranceGroup: formData.toleranceGroup || "",
-          };
+          const isVendor =
+            String(submission.sub_category || "").toLowerCase() === "vendor";
 
-          if (
-            !accountingData.accountGroup ||
-            !accountingData.recontAccount ||
-            !accountingData.sortKey ||
-            !accountingData.toleranceGroup
-          ) {
+          const accountingData = isVendor
+            ? {
+                accountGroup: formData.accountGroup || "",
+                recontAccount: formData.recontAccount || "",
+                paymentMethod: Array.isArray(formData.paymentMethod)
+                  ? formData.paymentMethod
+                  : [],
+              }
+            : {
+                accountGroup: formData.accountGroup || "",
+                recontAccount: formData.recontAccount || "",
+                sortKey: formData.sortKey || "",
+                toleranceGroup: formData.toleranceGroup || "",
+              };
+
+          const isAccountingInvalid = isVendor
+            ? !accountingData.accountGroup ||
+              !accountingData.recontAccount ||
+              accountingData.paymentMethod.length === 0
+            : !accountingData.accountGroup ||
+              !accountingData.recontAccount ||
+              !accountingData.sortKey ||
+              !accountingData.toleranceGroup;
+
+          if (isAccountingInvalid) {
             setActionError(
-              "Semua field accounting wajib diisi sebelum disimpan.",
+              isVendor
+                ? "Account Group, Recon Account, dan minimal satu Payment Method wajib diisi."
+                : "Semua field Accounting wajib diisi sebelum disimpan.",
             );
 
             setProcessing(false);
-
             return;
           }
 
@@ -757,6 +802,7 @@ function ApprovalDetailPage({ id }) {
             accountingData,
             "",
           );
+
           break;
 
         /* =============================================
@@ -817,23 +863,34 @@ function ApprovalDetailPage({ id }) {
         ============================================= */
 
         case "resolve": {
-          const picData = {
-            customerCode: formData.customerCode || "",
-          };
-          const isNewRequest = submission.form_data?.requestType === "New";
+          const isVendor =
+            String(submission.sub_category || "").toLowerCase() === "vendor";
 
-          if (isNewRequest && !picData.customerCode.trim()) {
-            setActionError("Customer code wajib diisi.");
+          const requestType =
+            submission.form_data?.requestType || formData.requestType;
+
+          const isNewRequest = requestType === "New";
+
+          const code = isVendor
+            ? String(formData.vendorCode || "").trim()
+            : String(formData.customerCode || "").trim();
+
+          if (isNewRequest && !code) {
+            setActionError(
+              isVendor
+                ? "Vendor code wajib diisi."
+                : "Customer code wajib diisi.",
+            );
 
             setProcessing(false);
-
             return;
           }
 
           response = await approvalApi.resolve(
             submission.id,
-            picData.customerCode.trim(),
+            code,
             "",
+            isVendor,
           );
 
           navigate("/approval");
@@ -1137,11 +1194,13 @@ function ApprovalDetailPage({ id }) {
           <div className="customer-form__header-content">
             <div>
               <p className="customer-form__eyebrow">
-                {submission.type} · {submission.category} · {" "}
+                {submission.type} · {submission.category} ·{" "}
                 {submission.sub_category}
               </p>
 
-              <h1>{submission.category} {submission.sub_category} Request</h1>
+              <h1>
+                {submission.category} {submission.sub_category} Request
+              </h1>
 
               <p
                 style={{

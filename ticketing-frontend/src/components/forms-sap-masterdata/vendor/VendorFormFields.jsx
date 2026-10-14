@@ -24,8 +24,9 @@ export const RECON_ACCOUNTS = [
 export const PAYMENT_METHODS = [
   ["Transfer"],
   ["Giro"],
-  ["Cash Kontan"],
+  ["Cash/Kontan"],
   ["Cheque"],
+  ["C/L"],
 ];
 
 export const WITHOLDING_TAX = [
@@ -46,7 +47,7 @@ export const DUE_DATE_PAYMENTS = [
   ["AP05", "AP-Due Net 60 days"],
 ];
 
-export const CURRENCIES = ["IDR", "USD", "Other"];
+export const CURRENCIES = [["IDR"], ["USD"]];
 
 /* =========================================================
    DEFAULT FORM
@@ -814,53 +815,14 @@ export default function VendorFormFields({
       ===================================================== */}
 
       <Section number="5" title="Purchasing Organization Data">
-        <Field label="Order Currency" required={isCreateMode}>
-          <div className="customer-form__choices">
-            {CURRENCIES.map((currency) => (
-              <label
-                key={currency}
-                className={`customer-form__choice ${
-                  !editable("currency") ? "customer-form__choice--disabled" : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="currency"
-                  value={currency}
-                  checked={form.currency === currency}
-                  onChange={(event) => update("currency", event.target.value)}
-                  required={isCreateMode}
-                  disabled={!editable("currency")}
-                />
-
-                <span>{currency}</span>
-              </label>
-            ))}
-          </div>
-
-          {form.currency === "Other" && (
-            <div className="customer-form__nested-field">
-              <label className="customer-form__nested-label">
-                Other Currency
-              </label>
-
-              <input
-                type="text"
-                className={`customer-form__input ${
-                  !editable("otherCurrency")
-                    ? "customer-form__input--readonly"
-                    : ""
-                }`}
-                value={form.otherCurrency || ""}
-                onChange={(event) =>
-                  update("otherCurrency", event.target.value)
-                }
-                required={isCreateMode}
-                disabled={!editable("otherCurrency")}
-              />
-            </div>
-          )}
-        </Field>
+        <ChoiceGroup
+          label="Order Currency"
+          options={CURRENCIES}
+          value={form.currency}
+          onChange={(value) => update("currency", value)}
+          required={isCreateMode}
+          disabled={!editable("currency")}
+        />
 
         <Field label="Salesperson">
           <input

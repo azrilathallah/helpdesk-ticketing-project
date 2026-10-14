@@ -545,7 +545,7 @@ function SubmissionDetailPage({ id }) {
 
   const [submission, setSubmission] = useState(null);
 
-  const [formData, setFormData] = useState();
+  const [formData, setFormData] = useState({});
 
   const getDefaultForm = (submission) => {
     if (submission?.sub_category === "Customer") {

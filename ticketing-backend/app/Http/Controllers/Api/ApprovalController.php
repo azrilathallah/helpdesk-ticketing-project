@@ -113,24 +113,24 @@ class ApprovalController extends Controller
             ], 422);
         }
 
-        $request->validate([
+        $isVendor = strtolower((string) $submission->sub_category) === 'vendor';
+
+        $rules = [
             'accounting_data' => 'required|array',
+            'accounting_data.accountGroup' => 'required|string',
+            'accounting_data.recontAccount' => 'required|string',
+            'notes' => 'nullable|string|max:1000',
+        ];
 
-            'accounting_data.accountGroup' =>
-            'required|string',
+        if ($isVendor) {
+            $rules['accounting_data.paymentMethod'] = 'required|array|min:1';
+            $rules['accounting_data.paymentMethod.*'] = 'required|string';
+        } else {
+            $rules['accounting_data.sortKey'] = 'required|string';
+            $rules['accounting_data.toleranceGroup'] = 'required|string';
+        }
 
-            'accounting_data.recontAccount' =>
-            'required|string',
-
-            'accounting_data.sortKey' =>
-            'required|string',
-
-            'accounting_data.toleranceGroup' =>
-            'required|string',
-
-            'notes' =>
-            'nullable|string|max:1000',
-        ]);
+        $request->validate($rules);
 
         $accountingData =
             $request->input('accounting_data');
@@ -416,14 +416,9 @@ class ApprovalController extends Controller
         ) {
             return response()->json([
                 'message' =>
-                'Submission tidak dalam status Review by Tax Head.',
+                'Submission belum berada pada tahap penyelesaian PIC.',
             ], 422);
         }
-
-        $rules = [
-            'notes' =>
-            'nullable|string|max:1000',
-        ];
 
         /*
          * Jika request type New, customer code wajib diisi.
@@ -431,11 +426,25 @@ class ApprovalController extends Controller
         $formData =
             $submission->form_data ?? [];
 
+        $isVendor = strtolower((string) $submission->sub_category) === 'vendor';
+
         $isNewRequest =
             ($formData['requestType'] ?? '') === 'New';
 
+        $codeRequestField = $isVendor
+            ? 'vendor_code'
+            : 'customer_code';
+
+        $codeFormField = $isVendor
+            ? 'vendorCode'
+            : 'customerCode';
+
+        $rules = [
+            'notes' => 'nullable|string|max:1000',
+        ];
+
         if ($isNewRequest) {
-            $rules['customer_code'] =
+            $rules[$codeRequestField] =
                 'required|string|max:50';
         }
 
@@ -444,28 +453,20 @@ class ApprovalController extends Controller
         DB::transaction(function () use (
             $request,
             $submission,
-            $isNewRequest
+            $isNewRequest,
+            $codeRequestField,
+            $codeFormField
         ) {
             $stepData = [];
 
-            if (
-                $isNewRequest &&
-                $request->has('customer_code')
-            ) {
-                $stepData['customerCode'] =
-                    $request->input('customer_code');
+            if ($isNewRequest) {
+                $code = trim((string) $request->input($codeRequestField));
 
-                /*
-                 * Simpan customer code ke form_data.
-                 */
-                $formData =
-                    $submission->form_data ?? [];
+                $stepData[$codeFormField] = $code;
 
-                $formData['customerCode'] =
-                    $request->input('customer_code');
-
-                $submission->form_data =
-                    $formData;
+                $formData = $submission->form_data ?? [];
+                $formData[$codeFormField] = $code;
+                $submission->form_data = $formData;
             }
 
             SubmissionApproval::create([

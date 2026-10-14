@@ -1,11 +1,9 @@
 import api from "./axios";
 
 export const approvalApi = {
-  getAll: () =>
-    api.get("/approvals"),
+  getAll: () => api.get("/approvals"),
 
-  getById: (id) =>
-    api.get(`/approvals/${id}`),
+  getById: (id) => api.get(`/approvals/${id}`),
 
   approveDivHead: (id, notes = "") =>
     api.post(`/approvals/${id}/approve-divhead`, {
@@ -34,9 +32,9 @@ export const approvalApi = {
       notes,
     }),
 
-  resolve: (id, customerCode = "", notes = "") =>
+  resolve: (id, code = "", notes = "", isVendor = false) =>
     api.post(`/approvals/${id}/resolve`, {
-      customer_code: customerCode,
+      ...(isVendor ? { vendor_code: code } : { customer_code: code }),
       notes,
     }),
 
