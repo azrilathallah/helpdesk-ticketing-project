@@ -97,7 +97,6 @@ export const DEFAULT_CUSTOMER_FORM = {
   witholdingTax: [],
 
   currency: "IDR",
-  otherCurrency: "",
   customerPricingProcedure: ["1"],
   customerStatisticGroup: ["1"],
   taxClassification: "",

@@ -1,3 +1,5 @@
+import { Trash2 } from "lucide-react";
+
 export const REQUEST_TYPES = [
   ["New"],
   ["Change"],
@@ -79,8 +81,17 @@ export const DEFAULT_VENDOR_FORM = {
   dueDatePayment: "AP01",
 
   currency: "IDR",
-  otherCurrency: "",
   salesperson: "",
+
+  paymentTransactions: [
+    {
+      bankName: "",
+      bankAccountNumber: "",
+      benificiary: "",
+      bankCurrency: "IDR",
+      swiftCode: "",
+    },
+  ],
 };
 
 export const validateAttachments = (files) => {
@@ -473,6 +484,205 @@ export function AttachmentField({
   );
 }
 
+const EMPTY_PAYMENT_TRANSACTION = {
+  bankName: "",
+  bankAccountNumber: "",
+  beneficiary: "",
+  bankCurrency: "IDR",
+  swiftCode: "",
+};
+
+export function PaymentTransactionsTable({
+  label,
+  value = [],
+  onChange,
+  disabled = false,
+  required = false,
+}) {
+  // Selalu tampilkan minimal satu baris.
+  const rows =
+    Array.isArray(value) && value.length > 0
+      ? value
+      : [{ ...EMPTY_PAYMENT_TRANSACTION }];
+
+  const updateRow = (index, field, newValue) => {
+    const updatedRows = rows.map((row, rowIndex) =>
+      rowIndex === index ? { ...row, [field]: newValue } : row,
+    );
+
+    onChange?.(updatedRows);
+  };
+
+  const addRow = () => {
+    onChange?.([...rows, { ...EMPTY_PAYMENT_TRANSACTION }]);
+  };
+
+  const removeRow = (index) => {
+    if (rows.length <= 1) return;
+
+    onChange?.(rows.filter((_, rowIndex) => rowIndex !== index));
+  };
+
+  const inputClass = "customer-form__input";
+
+  return (
+    <div className="w-full min-w-0">
+      {/* Header */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 className="font-semibold text-gray-800">{label}</h4>
+        </div>
+
+        {!disabled && (
+          <button
+            type="button"
+            onClick={addRow}
+            className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            + Add Bank Account
+          </button>
+        )}
+      </div>
+
+      {/* Table */}
+      <div className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200">
+        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+          <colgroup>
+            <col style={{ width: "3%" }} />
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "19%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: disabled ? "30%" : "17%" }} />
+            {!disabled && <col style={{ width: "5%" }} />}
+          </colgroup>
+
+          <thead className="bg-gray-50 text-gray-600">
+            <tr>
+              {[
+                "No.",
+                "Bank Name",
+                "Account Number",
+                "Beneficiary",
+                "Currency",
+                "Swift Code",
+              ].map((heading) => (
+                <th
+                  key={heading}
+                  className="border-b border-gray-200 px-2 py-3 font-semibold break-words sm:px-3"
+                >
+                  {heading}
+                </th>
+              ))}
+
+              {!disabled && <th />}
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-100">
+            {rows.map((row, index) => (
+              <tr key={index} className="bg-white hover:bg-gray-50">
+                <td className="px-1 py-3 text-center text-gray-500">
+                  {index + 1}
+                </td>
+
+                <td className="min-w-0 px-1 py-2 sm:px-2">
+                  <input
+                    type="text"
+                    className={`${inputClass} w-full min-w-0 box-border`}
+                    value={row.bankName || ""}
+                    onChange={(event) =>
+                      updateRow(index, "bankName", event.target.value)
+                    }
+                    required={required && !disabled}
+                    disabled={disabled}
+                  />
+                </td>
+
+                <td className="min-w-0 px-1 py-2 sm:px-2">
+                  <input
+                    type="text"
+                    className={`${inputClass} w-full min-w-0 box-border`}
+                    value={row.bankAccountNumber || ""}
+                    onChange={(event) =>
+                      updateRow(index, "bankAccountNumber", event.target.value)
+                    }
+                    required={required && !disabled}
+                    disabled={disabled}
+                  />
+                </td>
+
+                <td className="min-w-0 px-1 py-2 sm:px-2">
+                  <input
+                    type="text"
+                    className={`${inputClass} w-full min-w-0 box-border`}
+                    value={row.benificiary || ""}
+                    onChange={(event) =>
+                      updateRow(index, "benificiary", event.target.value)
+                    }
+                    required={required && !disabled}
+                    disabled={disabled}
+                  />
+                </td>
+
+                <td className="min-w-0 px-1 py-2 sm:px-2">
+                  <select
+                    className={`${inputClass} w-full min-w-0 box-border`}
+                    value={row.bankCurrency}
+                    onChange={(event) =>
+                      updateRow(index, "bankCurrency", event.target.value)
+                    }
+                    required={required && !disabled}
+                    disabled={disabled}
+                  >
+                    <option value="IDR">IDR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </td>
+
+                <td className="min-w-0 px-1 py-2 sm:px-2">
+                  <input
+                    type="text"
+                    className={`${inputClass} w-full min-w-0 box-border`}
+                    value={row.swiftCode || ""}
+                    onChange={(event) =>
+                      updateRow(index, "swiftCode", event.target.value)
+                    }
+                    disabled={disabled}
+                  />
+                </td>
+
+                {!disabled && (
+                  <td className="px-1 py-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => removeRow(index)}
+                      disabled={rows.length === 1}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+                      title={
+                        rows.length === 1
+                          ? "Minimal satu rekening bank"
+                          : "Hapus rekening bank"
+                      }
+                      aria-label={`Hapus rekening bank ${index + 1}`}
+                    >
+                      <Trash2 size={17} strokeWidth={2} />
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="mt-2 text-xs text-gray-500">
+        * Minimal satu rekening bank.
+      </p>
+    </div>
+  );
+}
+
 /* =========================================================
    MAIN SHARED FORM
 ========================================================= */
@@ -836,10 +1046,24 @@ export default function VendorFormFields({
       </Section>
 
       {/* =====================================================
-          6. ATTACHMENT
+          6. PAYMENT TRANSACTIONS
       ===================================================== */}
 
-      <Section number="6" title="Attachment">
+      <Section number="6" title="Payment Transactions">
+        <PaymentTransactionsTable
+          label="Bank Account Details"
+          value={form.paymentTransactions}
+          onChange={(value) => update("paymentTransactions", value)}
+          required={isCreateMode}
+          disabled={!editable("paymentTransactions")}
+        />
+      </Section>
+
+      {/* =====================================================
+          7. ATTACHMENT
+      ===================================================== */}
+
+      <Section number="7" title="Attachment">
         <AttachmentField
           files={attachments}
           existingFiles={existingAttachments}
