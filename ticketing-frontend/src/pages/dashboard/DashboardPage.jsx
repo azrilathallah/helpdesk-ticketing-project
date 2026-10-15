@@ -6,40 +6,40 @@ const TICKET_STATS = [
   {
     key: "total",
     label: "Total",
-    color: "var(--stat-total)",
+    accent: "border-l-slate-500",
+    count: "text-slate-800",
   },
   {
     key: "open",
     label: "Open",
-    color: "var(--stat-open)",
+    accent: "border-l-blue-500",
+    count: "text-blue-600",
   },
   {
     key: "in_progress",
     label: "In Progress",
-    color: "var(--stat-progress)",
+    accent: "border-l-amber-500",
+    count: "text-amber-600",
   },
   {
     key: "closed",
     label: "Closed",
-    color: "var(--stat-closed)",
+    accent: "border-l-green-500",
+    count: "text-green-600",
   },
   {
     key: "rejected",
     label: "Rejected",
-    color: "var(--stat-rejected)",
+    accent: "border-l-red-500",
+    count: "text-red-600",
   },
 ];
 
 function getGreeting() {
   const hour = new Date().getHours();
 
-  if (hour < 12) {
-    return "Good Morning";
-  }
-
-  if (hour < 17) {
-    return "Good Afternoon";
-  }
+  if (hour < 12) return "Good Morning";
+  if (hour < 17) return "Good Afternoon";
 
   return "Good Evening";
 }
@@ -68,34 +68,27 @@ export default function DashboardPage() {
 
         const response = await dashboardApi.getStats();
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
+
+        const data = response.data?.data || {};
 
         setStats({
-          total: response.data?.data?.total ?? 0,
-          open: response.data?.data?.open ?? 0,
-          in_progress:
-            response.data?.data?.in_progress ?? 0,
-          closed: response.data?.data?.closed ?? 0,
-          rejected:
-            response.data?.data?.rejected ?? 0,
+          total: data.total ?? 0,
+          open: data.open ?? 0,
+          in_progress: data.in_progress ?? 0,
+          closed: data.closed ?? 0,
+          rejected: data.rejected ?? 0,
         });
       } catch (err) {
         console.error("Dashboard error:", err);
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         setError(
-          err.response?.data?.message ||
-            "Gagal mengambil data dashboard."
+          err.response?.data?.message || "Gagal mengambil data dashboard.",
         );
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
@@ -107,59 +100,56 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <>
-      {/* Greeting */}
-      <section className="dashboard__greeting">
-        <h2 className="dashboard__greeting-text">
+    <div className="mx-auto w-full max-w-screen-2xl">
+      <section className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
           {getGreeting()},{" "}
-          <span className="dashboard__greeting-name">
-            {user?.name || "User"}
-          </span>
-        </h2>
+          <span className="text-red-600">{user?.name || "User"}</span>
+        </h1>
 
-        <p className="dashboard__greeting-sub">
+        <p className="mt-2 text-sm text-slate-500 sm:text-base">
           Welcome to Helpdesk System IBS
         </p>
       </section>
 
-      {/* Error */}
       {error && (
-        <div className="dashboard__error">
-          <span>!</span>
+        <div
+          role="alert"
+          className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 font-bold">
+            !
+          </span>
 
-          <div>
-            <strong>Failed to load dashboard</strong>
-            <p>{error}</p>
+          <div className="min-w-0">
+            <strong className="font-semibold">Failed to load dashboard</strong>
+
+            <p className="mt-1 wrap-break-word text-sm">{error}</p>
           </div>
         </div>
       )}
 
-      {/* Stats Cards */}
-      <section className="dashboard__stats">
-        {TICKET_STATS.map(
-          ({ key, label, color }) => (
-            <div
-              key={key}
-              className="stat-card"
-              style={{
-                "--stat-accent": color,
-              }}
-            >
-              <div className="stat-card__bar" />
+      <section
+        aria-label="Ticket statistics"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5"
+      >
+        {TICKET_STATS.map(({ key, label, accent, count }) => (
+          <article
+            key={key}
+            className={`min-w-0 rounded-xl border border-slate-200 border-l-4 ${accent} bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6`}
+          >
+            <div className="flex min-h-20 flex-col justify-between gap-3">
+              <span className={`text-3xl font-bold tracking-tight ${count}`}>
+                {loading ? "—" : stats[key]}
+              </span>
 
-              <div className="stat-card__body">
-                <span className="stat-card__count">
-                  {loading ? "—" : stats[key]}
-                </span>
-
-                <span className="stat-card__label">
-                  {label}
-                </span>
-              </div>
+              <span className={`text-lg font-medium ${count}`}>
+                {label}
+              </span>
             </div>
-          )
-        )}
+          </article>
+        ))}
       </section>
-    </>
+    </div>
   );
 }

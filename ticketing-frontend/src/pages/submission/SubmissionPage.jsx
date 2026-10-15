@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-
 import { useNavigate, useParams } from "react-router-dom";
 
 import { submissionApi } from "../../api/submission";
-
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
 import {
@@ -13,126 +11,174 @@ import {
 
 import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
-const getStatusConfig = (status) => {
-  switch (status) {
-    case "DRAFT":
-      return {
-        label: "Draft",
-        className: "my-submission__status--draft",
-      };
-
-    case "REVIEW_DIV_HEAD":
-      return {
-        label: "Review by Division Head",
-        className: "my-submission__status--submitted",
-      };
-
-    case "APPROVED_DIV_HEAD":
-      return {
-        label: "Approved by Division Head",
-        className: "my-submission__status--approved",
-      };
-
-    case "REVIEW_ACCOUNTING":
-      return {
-        label: "Review by Accounting",
-        className: "my-submission__status--accounting",
-      };
-
-    case "APPROVED_ACCOUNTING":
-      return {
-        label: "Approved by Accounting",
-        className: "my-submission__status--approved",
-      };
-
-    case "REVIEW_TAX":
-      return {
-        label: "Review by Tax",
-        className: "my-submission__status--tax",
-      };
-
-    case "APPROVED_TAX":
-      return {
-        label: "Approved by Tax",
-        className: "my-submission__status--approved",
-      };
-
-    case "WAITING_PIC":
-      return {
-        label: "Waiting PIC",
-        className: "my-submission__status--pic",
-      };
-
-    case "TICKET_SOLVED":
-      return {
-        label: "Ticket Solved",
-        className: "my-submission__status--solved",
-      };
-
-    case "TICKET_CANCELLED":
-      return {
-        label: "Ticket Cancelled",
-        className: "my-submission__status--cancelled",
-      };
-
-    case "TICKET_REJECTED":
-      return {
-        label: "Ticket Rejected",
-        className: "my-submission__status--rejected",
-      };
-
-    case "REVISION_REQUESTOR":
-      return {
-        label: "Needs Revision",
-        className: "my-submission__status--revision",
-      };
-
-    case "REVISION_ACCOUNTING":
-      return {
-        label: "Needs Revision",
-        className: "my-submission__status--revision",
-      };
-
-    case "REVISION_TAX":
-      return {
-        label: "Needs Revision",
-        className: "my-submission__status--revision",
-      };
-
-    default:
-      return {
-        label: status || "-",
-        className: "",
-      };
-  }
+const STATUS_CONFIG = {
+  DRAFT: {
+    label: "Draft",
+    style: "bg-slate-100 text-slate-700 ring-slate-200",
+  },
+  REVIEW_DIV_HEAD: {
+    label: "Review by Division Head",
+    style: "bg-blue-50 text-blue-700 ring-blue-200",
+  },
+  APPROVED_DIV_HEAD: {
+    label: "Approved by Division Head",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
+  REVIEW_ACCOUNTING: {
+    label: "Review by Accounting",
+    style: "bg-indigo-50 text-indigo-700 ring-indigo-200",
+  },
+  APPROVED_ACCOUNTING: {
+    label: "Approved by Accounting",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
+  REVIEW_TAX: {
+    label: "Review by Tax",
+    style: "bg-violet-50 text-violet-700 ring-violet-200",
+  },
+  APPROVED_TAX: {
+    label: "Approved by Tax",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
+  WAITING_PIC: {
+    label: "Waiting PIC",
+    style: "bg-amber-50 text-amber-700 ring-amber-200",
+  },
+  TICKET_SOLVED: {
+    label: "Ticket Solved",
+    style: "bg-green-50 text-green-700 ring-green-200",
+  },
+  TICKET_CANCELLED: {
+    label: "Ticket Cancelled",
+    style: "bg-slate-100 text-slate-600 ring-slate-200",
+  },
+  TICKET_REJECTED: {
+    label: "Ticket Rejected",
+    style: "bg-red-50 text-red-700 ring-red-200",
+  },
+  REVISION_REQUESTOR: {
+    label: "Needs Revision",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
+  REVISION_ACCOUNTING: {
+    label: "Needs Revision - Accounting",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
+  REVISION_TAX: {
+    label: "Needs Revision - Tax",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
 };
 
+function getStatusConfig(status) {
+  return (
+    STATUS_CONFIG[status] || {
+      label: status || "-",
+      style: "bg-slate-100 text-slate-700 ring-slate-200",
+    }
+  );
+}
+
+function StatusBadge({ status }) {
+  const config = getStatusConfig(status);
+
+  return (
+    <span
+      className={`inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${config.style}`}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+function formatDate(date) {
+  if (!date) return "-";
+
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) return "-";
+
+  return parsedDate.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function PageLoading({ message = "Loading..." }) {
+  return (
+    <div className="flex min-h-64 items-center justify-center rounded-2xl border border-slate-200 bg-white p-8">
+      <div className="text-center">
+        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+        <p className="text-sm text-slate-500">{message}</p>
+      </div>
+    </div>
+  );
+}
+
+function ErrorPanel({ message, onBack, onRetry }) {
+  return (
+    <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+      <div className="flex gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 font-bold text-red-700">
+          !
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h2 className="font-semibold text-slate-900">Something went wrong</h2>
+          <p className="mt-1 wrap-break-word text-sm text-red-700">{message}</p>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Try again
+              </button>
+            )}
+
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Back
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SubmissionPage() {
-  const navigate = useNavigate();
   const { id } = useParams();
 
   if (id) {
     return <SubmissionDetailPage id={id} />;
   }
 
-  return <SubmissionList navigate={navigate} />;
+  return <SubmissionList />;
 }
 
 /* =========================================================
-   SUBMISSION LIST
+   MY SUBMISSION
 ========================================================= */
 
-function SubmissionList({ navigate }) {
+function SubmissionList() {
+  const navigate = useNavigate();
+
   const [submissions, setSubmissions] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-
   const [search, setSearch] = useState("");
-
   const [statusFilter, setStatusFilter] = useState("ALL");
-
   const [typeFilter, setTypeFilter] = useState("ALL");
 
   const loadSubmissions = async () => {
@@ -141,11 +187,9 @@ function SubmissionList({ navigate }) {
       setError("");
 
       const response = await submissionApi.getAll();
-
       setSubmissions(response.data?.data || []);
     } catch (err) {
       console.error(err);
-
       setError(
         err.response?.data?.message || "Gagal mengambil data submission.",
       );
@@ -201,7 +245,6 @@ function SubmissionList({ navigate }) {
         navigate(
           `/create-ticket/sap-masterdata/customer-form?submission=${submission.id}`,
         );
-
         return;
       }
 
@@ -213,7 +256,6 @@ function SubmissionList({ navigate }) {
         navigate(
           `/create-ticket/sap-masterdata/vendor-form?submission=${submission.id}`,
         );
-
         return;
       }
     }
@@ -227,13 +269,11 @@ function SubmissionList({ navigate }) {
   const handleCancelSubmission = async (submission, event) => {
     event?.stopPropagation();
 
-    if (
-      !window.confirm(
-        `Apakah Anda yakin ingin membatalkan ticket ${submission.number}?`,
-      )
-    ) {
-      return;
-    }
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin membatalkan ticket ${submission.number}?`,
+    );
+
+    if (!confirmed) return;
 
     try {
       const response = await submissionApi.cancel(
@@ -241,295 +281,322 @@ function SubmissionList({ navigate }) {
         "Dibatalkan oleh requestor",
       );
 
-      alert(response?.data?.message || "Ticket berhasil dibatalkan.");
-
+      window.alert(response?.data?.message || "Ticket berhasil dibatalkan.");
       await loadSubmissions();
     } catch (err) {
       console.error(err);
-
-      alert(err.response?.data?.message || "Gagal membatalkan tiket.");
+      window.alert(err.response?.data?.message || "Gagal membatalkan tiket.");
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) {
-      return "-";
-    }
+  const selectClass =
+    "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-    return new Date(date).toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const inputClass =
+    "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   return (
-    <div className="my-submission">
-      {/* HEADER */}
-
-      <div className="my-submission__header">
+    <main className="mx-auto w-full space-y-5">
+      {/* Header */}
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="my-submission__title">My Submission</h1>
-
-          <p className="my-submission__description">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            My Submission
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
             View and manage all requests that you have created.
           </p>
         </div>
-      </div>
+      </header>
 
-      {/* SUMMARY */}
-
-      <div className="my-submission__summary">
-        <div className="my-submission__summary-card">
-          <div className="my-submission__summary-icon my-submission__summary-icon--draft">
+      {/* Summary */}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-xl text-amber-700">
             ✎
           </div>
-
           <div>
-            <span>Draft</span>
-            <strong>{totalDraft}</strong>
+            <p className="text-sm font-medium text-slate-500">Draft</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+              {totalDraft}
+            </p>
           </div>
         </div>
 
-        <div className="my-submission__summary-card">
-          <div className="my-submission__summary-icon my-submission__summary-icon--submitted">
+        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-xl text-emerald-700">
             ✓
           </div>
-
           <div>
-            <span>Submitted</span>
-            <strong>{totalSubmitted}</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* LIST */}
-
-      <div className="my-submission__card">
-        <div className="my-submission__toolbar">
-          <div>
-            <h2>Submission List</h2>
-
-            <p>
-              {filteredSubmissions.length} request
-              {filteredSubmissions.length !== 1 ? "s" : ""} found
+            <p className="text-sm font-medium text-slate-500">Submitted</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+              {totalSubmitted}
             </p>
           </div>
-
-          <div className="my-submission__filters">
-            <div className="my-submission__search">
-              <span>⌕</span>
-
-              <input
-                type="text"
-                placeholder="Search number or form..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-
-              {search && (
-                <button type="button" onClick={() => setSearch("")}>
-                  ×
-                </button>
-              )}
-            </div>
-
-            <select
-              className="my-submission__select"
-              value={typeFilter}
-              onChange={(event) => setTypeFilter(event.target.value)}
-            >
-              <option value="ALL">All Type</option>
-
-              <option value="SAP">SAP</option>
-
-              <option value="IT">IT</option>
-            </select>
-
-            <select
-              className="my-submission__select"
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="ALL">All Status</option>
-
-              <option value="DRAFT">Draft</option>
-
-              <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
-
-              <option value="APPROVED_DIV_HEAD">
-                Approved by Division Head
-              </option>
-
-              <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
-
-              <option value="APPROVED_ACCOUNTING">
-                Approved by Accounting
-              </option>
-
-              <option value="REVIEW_TAX">Review by Tax</option>
-
-              <option value="APPROVED_TAX">Approved by Tax</option>
-
-              <option value="WAITING_PIC">Waiting PIC</option>
-
-              <option value="TICKET_SOLVED">Solved</option>
-
-              <option value="TICKET_CANCELLED">Cancelled</option>
-
-              <option value="TICKET_REJECTED">Rejected</option>
-
-              <option value="REVISION_REQUESTOR">Requestor Revision</option>
-
-              <option value="REVISION_ACCOUNTING">Accounting Revision</option>
-
-              <option value="REVISION_TAX">Tax Revision</option>
-            </select>
-          </div>
         </div>
+      </section>
 
-        {error && (
-          <div className="my-submission__error">
-            <span>!</span>
-
+      {/* List */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 p-4">
+          <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
             <div>
-              <strong>Failed to load submissions</strong>
-
-              <p>{error}</p>
+              <h2 className="text-lg font-bold text-slate-900">
+                Submission List
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {filteredSubmissions.length} request
+                {filteredSubmissions.length !== 1 ? "s" : ""} found
+              </p>
             </div>
 
-            <button type="button" onClick={loadSubmissions}>
-              Retry
-            </button>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:w-170 xl:grid-cols-[minmax(220px,1fr)_140px_210px]">
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
+                  ⌕
+                </span>
+
+                <input
+                  type="search"
+                  aria-label="Search submission"
+                  placeholder="Search number or form..."
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  className={`${inputClass} pl-9`}
+                />
+
+                {search && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => setSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded px-1 text-slate-400 hover:text-slate-700"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              <select
+                aria-label="Filter by type"
+                className={selectClass}
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value)}
+              >
+                <option value="ALL">All Type</option>
+                <option value="SAP">SAP</option>
+                <option value="IT">IT</option>
+              </select>
+
+              <select
+                aria-label="Filter by status"
+                className={selectClass}
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option value="ALL">All Status</option>
+                <option value="DRAFT">Draft</option>
+                <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
+                <option value="APPROVED_DIV_HEAD">
+                  Approved by Division Head
+                </option>
+                <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
+                <option value="APPROVED_ACCOUNTING">
+                  Approved by Accounting
+                </option>
+                <option value="REVIEW_TAX">Review by Tax</option>
+                <option value="APPROVED_TAX">Approved by Tax</option>
+                <option value="WAITING_PIC">Waiting PIC</option>
+                <option value="TICKET_SOLVED">Solved</option>
+                <option value="TICKET_CANCELLED">Cancelled</option>
+                <option value="TICKET_REJECTED">Rejected</option>
+                <option value="REVISION_REQUESTOR">Requestor Revision</option>
+                <option value="REVISION_ACCOUNTING">Accounting Revision</option>
+                <option value="REVISION_TAX">Tax Revision</option>
+              </select>
+            </div>
           </div>
-        )}
+        </div>
 
-        {loading && !error && (
-          <div className="my-submission__empty">
-            <div className="my-submission__empty-icon">⏳</div>
+        <div>
+          {error && <ErrorPanel message={error} onRetry={loadSubmissions} />}
 
-            <h3>Loading submissions...</h3>
+          {loading && !error && (
+            <PageLoading message="Please wait while submission data is being loaded." />
+          )}
 
-            <p>Please wait while submission data is being loaded.</p>
-          </div>
-        )}
+          {!loading && !error && filteredSubmissions.length === 0 && (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-14 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-slate-200">
+                📄
+              </div>
+              <h3 className="mt-4 font-semibold text-slate-900">
+                {submissions.length === 0
+                  ? "No submissions yet"
+                  : "No matching submissions"}
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+                {submissions.length === 0
+                  ? "Your saved drafts and submitted requests will appear here."
+                  : "Try changing your search keyword or filters."}
+              </p>
+            </div>
+          )}
 
-        {!loading && !error && filteredSubmissions.length === 0 && (
-          <div className="my-submission__empty">
-            <div className="my-submission__empty-icon">📄</div>
+          {!error && filteredSubmissions.length > 0 && (
+            <>
+              {/* Desktop table */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full border-separate border-spacing-0 text-left">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      {[
+                        "Number",
+                        "Request",
+                        "Created",
+                        "Status",
+                        "Actions",
+                      ].map((heading) => (
+                        <th
+                          key={heading}
+                          className="border-b border-slate-200 px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
+                        >
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
 
-            <h3>
-              {submissions.length === 0
-                ? "No submissions yet"
-                : "No matching submissions"}
-            </h3>
+                  <tbody>
+                    {filteredSubmissions.map((submission) => (
+                      <tr
+                        key={submission.id}
+                        onClick={() => handleOpen(submission)}
+                        className="cursor-pointer transition hover:bg-blue-50/40"
+                      >
+                        <td className="border-b border-slate-100 px-4 py-4">
+                          <span className="text-sm font-semibold text-blue-700">
+                            {submission.number || "-"}
+                          </span>
+                        </td>
 
-            <p>
-              {submissions.length === 0
-                ? "Your saved drafts and submitted requests will appear here."
-                : "Try changing your search or filter."}
-            </p>
-          </div>
-        )}
+                        <td className="border-b border-slate-100 px-4 py-4">
+                          <p className="text-sm font-medium text-slate-800">
+                            {submission.form_type ||
+                              `${submission.category || ""} ${submission.sub_category || ""}`}
+                          </p>
+                        </td>
 
-        {!error && filteredSubmissions.length > 0 && (
-          <div className="approval-table-wrapper">
-            <table className="approval-table">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Request</th>
-                  <th>Created</th>
-                  <th>Status</th>
-                  <th />
-                </tr>
-              </thead>
+                        <td className="whitespace-nowrap border-b border-slate-100 px-4 py-4 text-sm text-slate-600">
+                          {formatDate(
+                            submission.submitted_at || submission.created_at,
+                          )}
+                        </td>
 
-              <tbody>
-                {filteredSubmissions.map((submission) => {
-                  const status = getStatusConfig(submission.status);
+                        <td className="border-b border-slate-100 px-4 py-4">
+                          <StatusBadge status={submission.status} />
+                        </td>
 
-                  return (
-                    <tr
-                      key={submission.id}
-                      onClick={() => handleOpen(submission)}
-                    >
-                      <td>
-                        <strong>{submission.number}</strong>
-                      </td>
+                        <td className="border-b border-slate-100 px-4 py-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleOpen(submission);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                            >
+                              {["DRAFT", "REVISION_REQUESTOR"].includes(
+                                submission.status,
+                              )
+                                ? "Edit"
+                                : "View"}
+                              <span aria-hidden="true">→</span>
+                            </button>
 
-                      <td>{submission.form_type}</td>
+                            {canCancel(submission.status) && (
+                              <button
+                                type="button"
+                                onClick={(event) =>
+                                  handleCancelSubmission(submission, event)
+                                }
+                                className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                      <td>
+              {/* Mobile cards */}
+              <div className="grid grid-cols-1 gap-3 md:hidden">
+                {filteredSubmissions.map((submission) => (
+                  <article
+                    key={submission.id}
+                    className="rounded-xl border border-slate-200 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="wrap-break-word font-semibold text-blue-700">
+                          {submission.number || "-"}
+                        </p>
+                        <h3 className="mt-1 wrap-break-word font-semibold text-slate-900">
+                          {submission.form_type ||
+                            `${submission.category || ""} ${submission.sub_category || ""}`}
+                        </h3>
+                      </div>
+                      <StatusBadge status={submission.status} />
+                    </div>
+
+                    <div className="mt-3 space-y-1 text-sm text-slate-500">
+                      <p>
+                        Created:{" "}
                         {formatDate(
                           submission.submitted_at || submission.created_at,
                         )}
-                      </td>
+                      </p>
+                    </div>
 
-                      <td>
-                        <span
-                          className={`my-submission__status ${status.className}`}
-                        >
-                          {status.label}
-                        </span>
-                      </td>
+                    <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+                      <button
+                        type="button"
+                        onClick={() => handleOpen(submission)}
+                        className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        {["DRAFT", "REVISION_REQUESTOR"].includes(
+                          submission.status,
+                        )
+                          ? "Edit Submission"
+                          : "View Details"}
+                      </button>
 
-                      <td>
+                      {canCancel(submission.status) && (
                         <button
                           type="button"
-                          className="my-submission__action"
-                          onClick={(event) => {
-                            event.stopPropagation();
-
-                            handleOpen(submission);
-                          }}
+                          onClick={(event) =>
+                            handleCancelSubmission(submission, event)
+                          }
+                          className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                         >
-                          {submission.status === "DRAFT" ||
-                          submission.status === "REVISION_REQUESTOR"
-                            ? "Edit"
-                            : "View"}
-
-                          <span>→</span>
+                          Cancel
                         </button>
-
-                        {canCancel(submission.status) && (
-                          <button
-                            type="button"
-                            className="my-submission__action my-submission__action--cancel"
-                            onClick={(event) =>
-                              handleCancelSubmission(submission, event)
-                            }
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+    </main>
   );
-}
-
-function formatDate(date) {
-  if (!date) {
-    return "-";
-  }
-
-  return new Date(date).toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 /* =========================================================
@@ -540,276 +607,244 @@ function SubmissionDetailPage({ id }) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-
   const [submission, setSubmission] = useState(null);
-
   const [formData, setFormData] = useState({});
 
-  const getDefaultForm = (submission) => {
-    if (submission?.sub_category === "Customer") {
+  const getDefaultForm = (data) => {
+    if (data?.sub_category === "Customer") {
       return DEFAULT_CUSTOMER_FORM;
     }
 
-    if (submission?.sub_category === "Vendor") {
+    if (data?.sub_category === "Vendor") {
       return DEFAULT_VENDOR_FORM;
     }
 
     return {};
   };
 
-  useEffect(() => {
-    const loadDetail = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const loadDetail = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const response = await submissionApi.getById(id);
+      const response = await submissionApi.getById(id);
+      const data = response.data?.data;
 
-        const data = response.data?.data;
-
-        if (!data) {
-          throw new Error("Submission tidak ditemukan.");
-        }
-
-        setSubmission(data);
-
-        const defaultForm = getDefaultForm(data);
-
-        setFormData({
-          ...defaultForm,
-          ...(data.form_data || {}),
-        });
-      } catch (err) {
-        console.error(err);
-
-        setError(
-          err.response?.data?.message || "Gagal mengambil detail submission.",
-        );
-      } finally {
-        setLoading(false);
+      if (!data) {
+        throw new Error("Submission tidak ditemukan.");
       }
-    };
 
+      setSubmission(data);
+
+      setFormData({
+        ...getDefaultForm(data),
+        ...(data.form_data || {}),
+      });
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Gagal mengambil detail submission.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadDetail();
   }, [id]);
 
-  const requestor = useMemo(() => {
-    return {
+  const requestor = useMemo(
+    () => ({
       name: getUserValue(submission?.requestor, ["name"]),
-
       position: getUserValue(submission?.requestor, ["position"]),
-
       division: getUserValue(submission?.requestor, ["division"]),
-
       department: getUserValue(submission?.requestor, ["department"]),
-
       telephone: getUserValue(submission?.requestor, ["telephone"]),
-
       email: getUserValue(submission?.requestor, ["email"]),
-    };
-  }, [submission]);
+    }),
+    [submission],
+  );
 
   if (loading) {
     return (
-      <div className="customer-form-page">
-        <div className="customer-form-card">
-          <div className="approval-empty">Loading submission...</div>
-        </div>
-      </div>
+      <main className="mx-auto w-full max-w-300">
+        <PageLoading message="Loading submission detail..." />
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="customer-form-page">
-        <div className="customer-form-card">
-          <div className="approval-alert approval-alert--error">{error}</div>
-
-          <div className="customer-form__actions">
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--secondary"
-              onClick={() => navigate("/submission")}
-            >
-              Back
-            </button>
-          </div>
-        </div>
-      </div>
+      <main className="mx-auto w-full max-w-300">
+        <ErrorPanel
+          message={error}
+          onRetry={loadDetail}
+          onBack={() => navigate("/submission")}
+        />
+      </main>
     );
   }
 
-  if (!submission) {
-    return null;
-  }
+  if (!submission) return null;
 
-  const status = getStatusConfig(submission.status);
+  const visibleHistory = (submission.approval_history || []).filter(
+    (item) =>
+      [
+        "DIV_HEAD_APPROVE",
+        "ACCOUNTING_APPROVE",
+        "TAX_APPROVE",
+        "DIV_HEAD_REVISION",
+      ].includes(item.step) ||
+      ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
+  );
+
+  const getHistoryLabel = (item) => {
+    if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
+    if (item.step === "ACCOUNTING_APPROVE") return "Approved by Accounting";
+    if (item.step === "TAX_APPROVE") return "Approved by Tax";
+    if (item.step === "DIV_HEAD_REVISION") return "Requestor Revision";
+    if (item.action === "SOLVED") return "Ticket Solved";
+    if (item.action === "REJECTED") return "Ticket Rejected";
+    if (item.action === "CANCELLED") return "Ticket Cancelled";
+
+    return item.step || item.action || "Activity";
+  };
+
+  const isNegativeHistoryItem = (item) =>
+    ["REJECTED", "CANCELLED"].includes(item.action) ||
+    item.step === "DIV_HEAD_REVISION";
 
   return (
-    <div className="customer-form-page">
-      <div className="customer-form-card">
-        {/* HEADER */}
-
-        <header className="customer-form__header">
+    <main className="mx-auto w-full space-y-5">
+      {/* Detail header */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <header className="border-b border-slate-200 p-5 sm:p-7">
           <button
             type="button"
-            className="customer-form__back"
             onClick={() => navigate("/submission")}
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
           >
-            ← Back
+            <span aria-hidden="true">←</span>
+            Back
           </button>
 
-          <div className="customer-form__header-content">
-            <div>
-              <p className="customer-form__eyebrow">
+          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
                 {submission.type} · {submission.category} ·{" "}
                 {submission.sub_category}
               </p>
 
-              <h1>{submission.category} {submission.sub_category} Request</h1>
+              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                {submission.category} {submission.sub_category} Request
+              </h1>
 
-              <p
-                style={{
-                  margin: "4px 0 0",
-                  fontSize: "0.85rem",
-                }}
-              >
-                Request Number: <strong>{submission.number}</strong>
-              </p>
+              <p className="mt-3 font-semibold text-slate-800">Request Number: {submission.number || "-"}</p>
+              
             </div>
 
-            <span className={`my-submission__status ${status.className}`}>
-              {status.label}
-            </span>
+            <div className="flex flex-wrap items-center gap-2 ">
+              <StatusBadge status={submission.status} />
+            </div>
           </div>
         </header>
 
-        <form
-          className="customer-form"
-          onSubmit={(event) => event.preventDefault()}
-        >
-          <FormRenderer
-            type={submission.type}
-            category={submission.category}
-            subCategory={submission.sub_category}
-            formData={formData}
-            setFormData={setFormData}
-            mode="submission"
-            readOnly
-            requestor={requestor}
-            existingAttachments={submission.attachments || []}
-          />
+        {/* Read-only request form */}
+        <div className="p-4 sm:p-6 lg:p-7">
+          <form onSubmit={(event) => event.preventDefault()}>
+            <FormRenderer
+              type={submission.type}
+              category={submission.category}
+              subCategory={submission.sub_category}
+              formData={formData}
+              setFormData={setFormData}
+              mode="submission"
+              readOnly
+              requestor={requestor}
+              existingAttachments={submission.attachments || []}
+            />
+          </form>
+        </div>
+      </section>
 
-          {/* =====================================================
-              APPROVAL HISTORY
-          ===================================================== */}
+      {/* Approval history */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-5 sm:px-7">
+          <h2 className="text-lg font-bold text-slate-900">Approval History</h2>
+        </div>
 
-          <section className="customer-form__section">
-            <div className="customer-form__section-title">
-              <span>8</span>
-              <h3>Approval History</h3>
+        <div className="p-5 sm:p-7">
+          {visibleHistory.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl ring-1 ring-slate-200">
+                ◷
+              </div>
+              <p className="mt-3 font-medium text-slate-700">
+                Belum ada riwayat approval
+              </p>
             </div>
-
-            <div className="customer-form__section-body">
-              {(() => {
-                const visibleHistory = (
-                  submission.approval_history || []
-                ).filter(
-                  (item) =>
-                    item.step === "DIV_HEAD_APPROVE" ||
-                    item.step === "ACCOUNTING_APPROVE" ||
-                    item.step === "TAX_APPROVE" ||
-                    item.action === "SOLVED" ||
-                    item.action === "REJECTED" ||
-                    item.action === "CANCELLED" ||
-                    item.step === "DIV_HEAD_REVISION",
-                );
-
-                if (!visibleHistory.length) {
-                  return (
-                    <p className="approval-muted">
-                      Belum ada riwayat approval.
-                    </p>
-                  );
-                }
+          ) : (
+            <ol className="space-y-0">
+              {visibleHistory.map((item, index) => {
+                const negative = isNegativeHistoryItem(item);
 
                 return (
-                  <div className="approval-history">
-                    {visibleHistory.map((item) => {
-                      const isRejected = item.action === "REJECTED";
-                      const isCancelled = item.action === "CANCELLED";
-                      const isResolved = item.action === "SOLVED";
+                  <li
+                    key={item.id ?? `${item.step}-${item.created_at}-${index}`}
+                  >
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                            negative
+                              ? "bg-red-100 text-red-700"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}
+                        >
+                          {negative ? "!" : "✓"}
+                        </div>
 
-                      let label = item.step;
+                        {index < visibleHistory.length - 1 && (
+                          <div className="my-1 min-h-8 w-px flex-1 bg-slate-200" />
+                        )}
+                      </div>
 
-                      if (item.step === "DIV_HEAD_APPROVE") {
-                        label = "Approved by Division Head";
-                      } else if (item.step === "ACCOUNTING_APPROVE") {
-                        label = "Approved by Accounting";
-                      } else if (item.step === "TAX_APPROVE") {
-                        label = "Approved by Tax";
-                      } else if (isResolved) {
-                        label = "Ticket Solved";
-                      } else if (isRejected) {
-                        label = "Ticket Rejected";
-                      } else if (isCancelled) {
-                        label = "Ticket Cancelled";
-                      } else if (item.step === "DIV_HEAD_REVISION") {
-                        label = "Requestor Revision";
-                      }
-
-                      const isNegative =
-                        isRejected ||
-                        isCancelled ||
-                        item.step === "DIV_HEAD_REVISION";
-
-                      return (
-                        <div key={item.id} className="approval-history__item">
-                          <div
-                            className={`approval-history__marker ${
-                              isNegative
-                                ? "approval-history__marker--rejected"
-                                : ""
+                      <div className="min-w-0 flex-1 pb-6">
+                        <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-start">
+                          <h3
+                            className={`font-semibold ${
+                              negative ? "text-red-700" : "text-slate-900"
                             }`}
                           >
-                            {isNegative ? "!" : "✓"}
-                          </div>
-
-                          <div className="approval-history__content">
-                            <div className="approval-history__top">
-                              <strong
-                                className={
-                                  isNegative
-                                    ? "approval-history__action--rejected"
-                                    : ""
-                                }
-                              >
-                                {label}
-                              </strong>
-
-                              <span>{formatDate(item.created_at)}</span>
-                            </div>
-
-                            <small>By: {item.actor?.name || "-"}</small>
-
-                            {item.notes && (
-                              <div className="approval-history__notes">
-                                {item.notes}
-                              </div>
-                            )}
-                          </div>
+                            {getHistoryLabel(item)}
+                          </h3>
+                          <time className="shrink-0 text-xs text-slate-500">
+                            {formatDate(item.created_at)}
+                          </time>
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        <p className="mt-1 text-sm text-slate-500">
+                          By: {item.actor?.name || "-"}
+                        </p>
+
+                        {item.notes && (
+                          <div className="mt-3 whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                            {item.notes}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </li>
                 );
-              })()}
-            </div>
-          </section>
-        </form>
-      </div>
-    </div>
+              })}
+            </ol>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

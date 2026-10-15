@@ -1,39 +1,90 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Stepper = ({ currentStep, labels }) => {
-  const progressWidth =
-    labels.length > 1
-      ? `calc(${((currentStep - 1) / (labels.length - 1)) * 100}% - 2rem)`
-      : "0%";
+const TYPE_OPTIONS = [
+  {
+    key: "IT",
+    title: "IT",
+    desc: "Hardware, software, network, access, etc.",
+  },
+  {
+    key: "SAP",
+    title: "SAP",
+    desc: "SAP master data, application support",
+  },
+];
+
+const IT_CATEGORIES = [
+  {
+    key: "Application / System",
+    title: "Application / System",
+    desc: "Issues related to business applications or system.",
+  },
+  {
+    key: "Network",
+    title: "Network",
+    desc: "Connectivity, VPN, internet, or network access issues.",
+  },
+  {
+    key: "Support",
+    title: "Support",
+    desc: "General IT support, troubleshooting, or assistance.",
+  },
+];
+
+const SAP_CATEGORIES = [
+  {
+    key: "Master Data",
+    title: "Master Data",
+    desc: "Request to create, change, extend, or maintain SAP master data.",
+  },
+  {
+    key: "Support",
+    title: "Support",
+    desc: "Report an issue, error, or problem when using SAP.",
+  },
+];
+
+function Stepper({ currentStep, labels }) {
+  const progress =
+    labels.length > 1 ? (currentStep - 1) / (labels.length - 1) : 0;
 
   return (
-    <div className="stepper">
-      <div className="stepper__line"></div>
+    <div className="relative mb-8 flex items-start justify-between overflow-visible px-2 sm:px-4">
+      <div className="absolute top-2.75 right-6 left-6 h-0.5 bg-slate-200" />
 
       <div
-        className="stepper__line--progress"
-        style={{ width: progressWidth }}
-      ></div>
+        className="absolute top-2.75 left-6 h-0.5 origin-left bg-blue-600 transition-transform duration-300"
+        style={{ width: "calc(100% - 3rem)", transform: `scaleX(${progress})` }}
+      />
 
       {labels.map((label, index) => {
-        const stepNumber = index + 1;
-        const isActive = stepNumber === currentStep;
-        const isCompleted = stepNumber < currentStep;
+        const number = index + 1;
+        const active = number === currentStep;
+        const completed = number < currentStep;
 
         return (
-          <div key={index} className="stepper__step">
+          <div
+            key={label}
+            className="relative z-10 flex min-w-0 flex-1 flex-col items-center gap-2 bg-transparent px-1"
+          >
             <div
-              className={`stepper__dot ${
-                isActive ? "stepper__dot--active" : ""
-              } ${isCompleted ? "stepper__dot--completed" : ""}`}
+              className={[
+                "flex h-5.5 w-5.5 items-center justify-center rounded-full border-2",
+                "transition-colors duration-200",
+                active || completed
+                  ? "border-blue-600 bg-blue-600"
+                  : "border-slate-300 bg-white",
+              ].join(" ")}
             >
-              {isCompleted && (
+              {completed ? (
                 <svg
-                  fill="none"
                   viewBox="0 0 24 24"
-                  stroke="currentColor"
+                  fill="none"
+                  stroke="white"
                   strokeWidth={3}
+                  className="h-3 w-3"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -41,25 +92,76 @@ const Stepper = ({ currentStep, labels }) => {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-              )}
+              ) : null}
             </div>
 
             <span
-              className={`stepper__label ${
-                isActive || isCompleted ? "stepper__label--active" : ""
-              }`}
+              className={[
+                "text-center text-[11px] font-medium sm:text-[13px]",
+                active || completed ? "text-blue-600" : "text-slate-400",
+              ].join(" ")}
             >
-              {stepNumber}. {label}
+              {number}. {label}
             </span>
           </div>
         );
       })}
     </div>
   );
-};
+}
 
-// ── Main Page ──
-const CreateTicketPage = () => {
+function OptionCard({ selected, title, description, onClick }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={[
+        "flex w-full items-start gap-4 rounded-xl border p-4 text-left",
+        "transition-colors duration-200",
+        "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none",
+        selected
+          ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+          : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50",
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
+          selected ? "border-blue-600" : "border-slate-300",
+        ].join(" ")}
+      >
+        {selected && <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
+      </span>
+
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-slate-800">
+          {title}
+        </span>
+
+        {description && (
+          <span className="mt-1 block text-sm leading-6 text-slate-500">
+            {description}
+          </span>
+        )}
+      </span>
+    </button>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-2">
+      <label className="text-sm font-semibold text-slate-700">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputClass =
+  "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+
+export default function CreateTicketPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
@@ -72,50 +174,6 @@ const CreateTicketPage = () => {
     attachment: null,
   });
 
-  const TYPE_OPTIONS = [
-    {
-      key: "IT",
-      title: "IT",
-      desc: "Hardware, softare, network, access, etc.",
-    },
-    {
-      key: "SAP",
-      title: "SAP",
-      desc: "SAP master data, application support",
-    },
-  ];
-
-  const IT_CATEGORIES = [
-    {
-      key: "Application / System",
-      title: "Application / System",
-      desc: "Issues related to business applications or system.",
-    },
-    {
-      key: "Network",
-      title: "Network",
-      desc: "Connectivity, VPN, internet, or network access issues.",
-    },
-    {
-      key: "Support",
-      title: "Support",
-      desc: "General IT support, troubleshooting, or assistance.",
-    },
-  ];
-
-  const SAP_CATEGORIES = [
-    {
-      key: "Master Data",
-      title: "Master Data",
-      desc: "Request to create, change, extend, or maintain SAP master data.",
-    },
-    {
-      key: "Support",
-      title: "Support",
-      desc: "Report an issue, error, or problem when using SAP.",
-    },
-  ];
-
   const getStepLabels = () => {
     if (selection.type === "SAP" && selection.category === "Master Data") {
       return ["Ticket Type", "Category", "Sub Category"];
@@ -123,8 +181,9 @@ const CreateTicketPage = () => {
 
     return ["Ticket Type", "Category", "Details"];
   };
+
   const handleBack = () => {
-    if (step > 1) setStep(step - 1);
+    if (step > 1) setStep((current) => current - 1);
   };
 
   const handleNext = () => {
@@ -140,27 +199,21 @@ const CreateTicketPage = () => {
       return;
     }
 
-    // Step 3
     if (step === 3) {
-      // SAP Master Data
       if (selection.type === "SAP" && selection.category === "Master Data") {
         if (!selection.subCategory) return;
 
-        // Customer → halaman form Customer
         if (selection.subCategory === "Customer") {
           navigate("/create-ticket/sap-masterdata/customer-form");
           return;
         }
 
-        // Customer → halaman form Customer
         if (selection.subCategory === "Vendor") {
           navigate("/create-ticket/sap-masterdata/vendor-form");
           return;
         }
 
-        // Form lainnya dibuat setelah Customer selesai
         console.log("Form belum dibuat:", selection.subCategory);
-
         return;
       }
 
@@ -168,11 +221,9 @@ const CreateTicketPage = () => {
     }
   };
 
-  // ─────────────────────────────────────
-  // SUBMIT
-  // ─────────────────────────────────────
   const handleSubmit = () => {
     console.log("Submitting:", selection);
+
     alert(
       `Tiket Berhasil Dibuat!\n\n` +
         `Tipe: ${selection.type}\n` +
@@ -183,12 +234,9 @@ const CreateTicketPage = () => {
     );
   };
 
-  // ─────────────────────────────────────
-  // SELECT TYPE
-  // ─────────────────────────────────────
   const selectType = (type) => {
-    setSelection((prev) => ({
-      ...prev,
+    setSelection((previous) => ({
+      ...previous,
       type,
       category: "",
       subCategory: "",
@@ -198,12 +246,9 @@ const CreateTicketPage = () => {
     }));
   };
 
-  // ─────────────────────────────────────
-  // SELECT CATEGORY
-  // ─────────────────────────────────────
   const selectCategory = (category) => {
-    setSelection((prev) => ({
-      ...prev,
+    setSelection((previous) => ({
+      ...previous,
       category,
       subCategory: "",
       module: "",
@@ -212,38 +257,23 @@ const CreateTicketPage = () => {
     }));
   };
 
-  // ─────────────────────────────────────
-  // INPUT
-  // ─────────────────────────────────────
-  const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    setSelection((prev) => ({
-      ...prev,
+  const handleInputChange = (event) => {
+    const { name, value, files } = event.target;
+
+    setSelection((previous) => ({
+      ...previous,
       [name]: files ? files[0] : value,
     }));
   };
 
-  // ─────────────────────────────────────
-  // SELECT SUB CATEGORY
-  // ─────────────────────────────────────
   const selectSubCategory = (subCategory) => {
-    setSelection((prev) => ({
-      ...prev,
-      subCategory,
-    }));
+    setSelection((previous) => ({ ...previous, subCategory }));
   };
 
-  // ─────────────────────────────────────
-  // VALIDASI NEXT
-  // ─────────────────────────────────────
   const isNextDisabled = () => {
-    // Step 1
     if (step === 1 && !selection.type) return true;
-
-    // Step 2
     if (step === 2 && !selection.category) return true;
 
-    // Step 3 - SAP Master Data
     if (
       step === 3 &&
       selection.type === "SAP" &&
@@ -253,12 +283,11 @@ const CreateTicketPage = () => {
       return true;
     }
 
-    // Step 3 - SAP Support
     if (
       step === 3 &&
       selection.type === "SAP" &&
       selection.category === "Support" &&
-      !selection.description
+      !selection.description.trim()
     ) {
       return true;
     }
@@ -266,143 +295,74 @@ const CreateTicketPage = () => {
     return false;
   };
 
-  // ─────────────────────────────────────
-  // BUTTON LABEL
-  // ─────────────────────────────────────
   const getNextButtonLabel = () => {
-    if (step === 1) return "Next";
-    if (step === 2) return "Next";
+    if (step < 3) return "Next";
 
-    // Step 3
-    if (step === 3) {
-      // Khusus SAP Master Data → Next
-      if (selection.type === "SAP" && selection.category === "Master Data") {
-        return "Next";
-      }
-
-      return "Submit";
+    if (selection.type === "SAP" && selection.category === "Master Data") {
+      return "Next";
     }
 
-    return "Next";
+    return "Submit";
   };
+
   const renderStepContent = () => {
-    // ═══════════════════════════════════
-    // STEP 1
-    // ═══════════════════════════════════
     if (step === 1) {
       return (
-        <div className="step-content">
-          <h3 className="step-content__title">
+        <div className="min-h-65 flex-1 animate-[fadeUp_0.3s_ease-out] py-2">
+          <h3 className="text-lg font-semibold text-slate-900">
             What type of issue do you need help with?
           </h3>
 
-          <p className="step-content__subtitle">
+          <p className="mt-1 mb-5 text-sm text-slate-500">
             Select the category that best matches your request.
           </p>
 
-          <div className="radio-list">
+          <div className="flex flex-col gap-3">
             {TYPE_OPTIONS.map((item) => (
-              <div
+              <OptionCard
                 key={item.key}
-                className={`radio-card ${
-                  selection.type === item.key ? "radio-card--selected" : ""
-                }`}
+                title={item.title}
+                description={item.desc}
+                selected={selection.type === item.key}
                 onClick={() => selectType(item.key)}
-              >
-                <div className="radio-card__circle">
-                  {selection.type === item.key && (
-                    <div className="radio-card__circle-inner" />
-                  )}
-                </div>
-
-                <div>
-                  <h4 className="radio-card__title">{item.title}</h4>
-                  <p className="radio-card__desc">{item.desc}</p>
-                </div>
-              </div>
+              />
             ))}
           </div>
         </div>
       );
     }
 
-    // ═══════════════════════════════════
-    // STEP 2 - IT CATEGORY
-    // ═══════════════════════════════════
-    if (step === 2 && selection.type === "IT") {
+    if (step === 2) {
+      const categories =
+        selection.type === "IT" ? IT_CATEGORIES : SAP_CATEGORIES;
+
       return (
-        <div className="step-content">
-          <h3 className="step-content__title">IT Request Type</h3>
-          <p className="step-content__subtitle">
-            What kind of IT assistance do you need?
+        <div className="min-h-65 flex-1 py-2">
+          <h3 className="text-lg font-semibold text-slate-900">
+            {selection.type} Request Type
+          </h3>
+
+          <p className="mt-1 mb-5 text-sm text-slate-500">
+            {selection.type === "IT"
+              ? "What kind of IT assistance do you need?"
+              : "What kind of SAP assistance do you need?"}
           </p>
 
-          <div className="radio-list">
-            {IT_CATEGORIES.map((item) => (
-              <div
+          <div className="flex flex-col gap-3">
+            {categories.map((item) => (
+              <OptionCard
                 key={item.key}
-                className={`radio-card ${
-                  selection.category === item.key ? "radio-card--selected" : ""
-                }`}
+                title={item.title}
+                description={item.desc}
+                selected={selection.category === item.key}
                 onClick={() => selectCategory(item.key)}
-              >
-                <div className="radio-card__circle">
-                  {selection.category === item.key && (
-                    <div className="radio-card__circle-inner" />
-                  )}
-                </div>
-
-                <div>
-                  <h4 className="radio-card__title">{item.title}</h4>
-                  <p className="radio-card__desc">{item.desc}</p>
-                </div>
-              </div>
+              />
             ))}
           </div>
         </div>
       );
     }
 
-    // ═══════════════════════════════════
-    // STEP 2 - SAP CATEGORY
-    // ═══════════════════════════════════
-    if (step === 2 && selection.type === "SAP") {
-      return (
-        <div className="step-content">
-          <h3 className="step-content__title">SAP Request Type</h3>
-          <p className="step-content__subtitle">
-            What kind of SAP assistance do you need?
-          </p>
-
-          <div className="radio-list">
-            {SAP_CATEGORIES.map((item) => (
-              <div
-                key={item.key}
-                className={`radio-card ${
-                  selection.category === item.key ? "radio-card--selected" : ""
-                }`}
-                onClick={() => selectCategory(item.key)}
-              >
-                <div className="radio-card__circle">
-                  {selection.category === item.key && (
-                    <div className="radio-card__circle-inner" />
-                  )}
-                </div>
-
-                <div>
-                  <h4 className="radio-card__title">{item.title}</h4>
-                  <p className="radio-card__desc">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // ═══════════════════════════════════
-    // STEP 3 - SAP MASTER DATA
-    // ═══════════════════════════════════
     if (
       step === 3 &&
       selection.type === "SAP" &&
@@ -419,55 +379,49 @@ const CreateTicketPage = () => {
       ];
 
       return (
-        <div className="step-content">
-          <h3 className="step-content__title">SAP Master Data</h3>
-          <p className="step-content__subtitle">What form do you need?</p>
+        <div className="min-h-65 flex-1 py-2">
+          <h3 className="text-lg font-semibold text-slate-900">
+            SAP Master Data
+          </h3>
 
-          <div className="radio-list radio-list--compact">
+          <p className="mt-1 mb-5 text-sm text-slate-500">
+            What form do you need?
+          </p>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {subCategories.map((item) => (
-              <div
+              <OptionCard
                 key={item}
-                className={`radio-card ${
-                  selection.subCategory === item ? "radio-card--selected" : ""
-                }`}
+                title={item}
+                selected={selection.subCategory === item}
                 onClick={() => selectSubCategory(item)}
-              >
-                <div className="radio-card__circle">
-                  {selection.subCategory === item && (
-                    <div className="radio-card__circle-inner" />
-                  )}
-                </div>
-
-                <h4 className="radio-card__title">{item}</h4>
-              </div>
+              />
             ))}
           </div>
         </div>
       );
     }
 
-    // ═══════════════════════════════════
-    // STEP 3 - SAP SUPPORT
-    // ═══════════════════════════════════
     if (
       step === 3 &&
       selection.type === "SAP" &&
       selection.category === "Support"
     ) {
       return (
-        <div className="step-content">
-          <h3 className="step-content__title">SAP Support</h3>
-          <p className="step-content__subtitle">What issue do you have?</p>
+        <div className="min-h-65 flex-1 py-2">
+          <h3 className="text-lg font-semibold text-slate-900">SAP Support</h3>
 
-          <div className="support-form">
-            {/* MODULE */}
-            <div className="support-form__row">
-              <label className="support-form__label">Module</label>
+          <p className="mt-1 mb-5 text-sm text-slate-500">
+            What issue do you have?
+          </p>
+
+          <div className="flex flex-col gap-5">
+            <Field label="Module">
               <select
                 name="module"
-                value={selection.module ?? ""}
+                value={selection.module}
                 onChange={handleInputChange}
-                className="support-form__input"
+                className={inputClass}
               >
                 <option value="">Select module</option>
                 <option value="SD">SD</option>
@@ -477,85 +431,83 @@ const CreateTicketPage = () => {
                 <option value="FI">FI</option>
                 <option value="CO">CO</option>
               </select>
-            </div>
+            </Field>
 
-            {/* DESCRIPTION */}
-            <div className="support-form__row support-form__row--top">
-              <label className="support-form__label">Description</label>
+            <Field label="Description">
               <textarea
                 name="description"
                 value={selection.description}
                 onChange={handleInputChange}
-                className="support-form__textarea"
+                className={`${inputClass} min-h-28 resize-y`}
                 placeholder="Describe your issue in detail..."
+                rows={4}
               />
-            </div>
+            </Field>
 
-            {/* ATTACHMENT */}
-            <div className="support-form__row">
-              <label className="support-form__label">Attachment</label>
+            <Field label="Attachment">
               <input
                 type="file"
                 name="attachment"
                 onChange={handleInputChange}
-                className="support-form__file"
+                className="w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:border-blue-400"
               />
-            </div>
+            </Field>
           </div>
         </div>
       );
     }
 
-    // ═══════════════════════════════════
-    // STEP 3 - IT (KOSONG / PLACEHOLDER)
-    // ═══════════════════════════════════
     if (step === 3 && selection.type === "IT") {
-      return <div className="step-content">{/* Kosong */}</div>;
+      return (
+        <div className="min-h-65 flex-1 py-2">
+          <h3 className="text-lg font-semibold text-slate-900">
+            IT Request Details
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            IT ticket details are not configured yet.
+          </p>
+        </div>
+      );
     }
 
     return null;
   };
 
   return (
-    <div className="ticket-page">
-      <div className="ticket-card">
-        {/* HEADER */}
-        <div className="ticket-card__header">
-          <h2 className="ticket-card__title">Create Trouble Ticket</h2>
-        </div>
+    <div className="mx-auto w-full max-w-5xl pb-4">
+      <section className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <header className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-[22px]">
+            Create Trouble Ticket
+          </h1>
+        </header>
 
-        {/* BODY */}
-        <div className="ticket-card__body">
+        <div className="flex min-h-105 flex-col p-5 sm:p-8">
           <Stepper currentStep={step} labels={getStepLabels()} />
 
           {renderStepContent()}
 
-          {/* FOOTER */}
-          <div className="ticket-footer">
+          <footer className="mt-auto flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
             <button
               type="button"
-              className="btn-ticket"
               onClick={handleBack}
               disabled={step === 1}
+              className="inline-flex min-w-24 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-30"
             >
               Back
             </button>
 
             <button
               type="button"
-              className={`btn-ticket ${
-                !isNextDisabled() ? "btn-ticket--primary" : ""
-              }`}
               onClick={handleNext}
               disabled={isNextDisabled()}
+              className="inline-flex min-w-24 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-30"
             >
               {getNextButtonLabel()}
             </button>
-          </div>
+          </footer>
         </div>
-      </div>
+      </section>
     </div>
   );
-};
-
-export default CreateTicketPage;
+}

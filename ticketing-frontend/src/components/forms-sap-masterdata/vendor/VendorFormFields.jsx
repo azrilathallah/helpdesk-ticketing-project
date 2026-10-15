@@ -1,4 +1,8 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, Upload, Paperclip, FileText } from "lucide-react";
+
+/* =========================================================
+   OPTIONS
+========================================================= */
 
 export const REQUEST_TYPES = [
   ["New"],
@@ -58,7 +62,6 @@ export const CURRENCIES = [["IDR"], ["USD"]];
 export const DEFAULT_VENDOR_FORM = {
   requestType: "New",
   vendorCode: "",
-
   name: "",
   searchTerm: "",
   streetAddress: "",
@@ -71,18 +74,14 @@ export const DEFAULT_VENDOR_FORM = {
   npwp: "",
   email: "",
   businessType: "",
-
   accountGroup: "",
   recontAccount: "",
   paymentMethod: [],
   witholdingTax: [],
-
   companyCode: "1200",
   dueDatePayment: "AP01",
-
   currency: "IDR",
   salesperson: "",
-
   paymentTransactions: [
     {
       bankName: "",
@@ -95,39 +94,31 @@ export const DEFAULT_VENDOR_FORM = {
 };
 
 export const validateAttachments = (files) => {
-  if (!files || files.length === 0) {
-    return "";
-  }
+  if (!files || files.length === 0) return "";
 
   const maxSize = 10 * 1024 * 1024;
 
   if (files.length === 1) {
-    if (files[0].size > maxSize) {
-      return "Ukuran file maksimal 10 MB.";
-    }
-
-    return "";
+    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
   }
 
   return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
 };
 
+/* =========================================================
+   STYLE HELPERS
+========================================================= */
+
+const inputClass =
+  "w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+
+const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
+
 function isEditable({ mode, readOnly, approvalRole, field }) {
-  if (readOnly) {
-    return false;
-  }
-
-  if (mode === "create") {
-    return true;
-  }
-
-  if (mode === "submission") {
-    return false;
-  }
-
-  if (mode !== "approval") {
-    return false;
-  }
+  if (readOnly) return false;
+  if (mode === "create") return true;
+  if (mode === "submission") return false;
+  if (mode !== "approval") return false;
 
   if (approvalRole === "accounting") {
     return ["accountGroup", "recontAccount", "paymentMethod"].includes(field);
@@ -145,62 +136,60 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 }
 
 /* =========================================================
-   PRESENTATIONAL COMPONENTS
+   SHARED PRESENTATIONAL COMPONENTS
 ========================================================= */
 
 export function Section({ number, title, children }) {
   return (
-    <section className="customer-form__section">
-      <div className="customer-form__section-title">
-        <span>{number}</span>
-        <h3>{title}</h3>
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">
+          {number}
+        </span>
+
+        <h3 className="text-base font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="customer-form__section-body">{children}</div>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-4 sm:grid-cols-2 sm:p-6">
+        {children}
+      </div>
     </section>
   );
 }
 
 export function Field({ label, required = false, hint = "", children }) {
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
+    <div className="min-w-0">
+      <label className={labelClass}>
         {label}
-
-        {required && <span className="customer-form__required"> *</span>}
+        {required && <span className="ml-0.5 text-red-600">*</span>}
       </label>
 
       {children}
 
-      {hint && <small className="customer-form__hint">{hint}</small>}
+      {hint && (
+        <small className="mt-1.5 block text-xs leading-5 text-slate-500">
+          {hint}
+        </small>
+      )}
     </div>
   );
 }
 
 export function ReadOnlyField({ label, value, hint = "", lockedBy = "" }) {
+  const displayValue =
+    value !== undefined && value !== null && String(value).trim() !== ""
+      ? value
+      : "-";
+
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
+    <Field label={label} hint={hint}>
+      <input type="text" className={inputClass} value={displayValue} readOnly />
 
-      <div className="customer-form__readonly-wrapper">
-        <input
-          type="text"
-          className="customer-form__input customer-form__input--readonly"
-          value={
-            value !== undefined && value !== null && String(value).trim() !== ""
-              ? value
-              : "-"
-          }
-          readOnly
-        />
-
-        {lockedBy && (
-          <span className="customer-form__locked-label">{lockedBy}</span>
-        )}
-      </div>
-
-      {hint && <small className="customer-form__hint">{hint}</small>}
-    </div>
+      {lockedBy && (
+        <span className="mt-1 block text-xs text-slate-500">{lockedBy}</span>
+      )}
+    </Field>
   );
 }
 
@@ -221,11 +210,13 @@ export function ChoiceGroup({
   return (
     <Field label={label} required={required}>
       <div
-        className={`customer-form__choices ${
-          checkbox ? "customer-form__choices--checkbox" : ""
-        } ${disabled ? "customer-form__choices--disabled" : ""}`}
+        className={`grid grid-cols-1 gap-2 ${
+          options.length > 2 ? "sm:grid-cols-2" : ""
+        }`}
       >
-        {options.map(([code, name], index) => {
+        {options.map((option, index) => {
+          const [code, name] = Array.isArray(option) ? option : [option, ""];
+
           const checked = checkbox
             ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
             : normalizedValue === code;
@@ -237,8 +228,12 @@ export function ChoiceGroup({
           return (
             <label
               key={code}
-              className={`customer-form__choice ${
-                disabled ? "customer-form__choice--disabled" : ""
+              className={`flex min-w-0 items-start gap-2.5 rounded-lg border px-3 py-3 text-sm transition ${
+                disabled
+                  ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-500"
+                  : checked
+                    ? "cursor-pointer border-blue-400 bg-blue-50 text-blue-900"
+                    : "cursor-pointer border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50"
               }`}
             >
               <input
@@ -249,9 +244,7 @@ export function ChoiceGroup({
                 disabled={disabled}
                 required={inputRequired}
                 onChange={(event) => {
-                  if (disabled || !onChange) {
-                    return;
-                  }
+                  if (disabled || !onChange) return;
 
                   if (!checkbox) {
                     onChange(event.target.value);
@@ -270,11 +263,11 @@ export function ChoiceGroup({
                         ),
                   );
                 }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
               />
 
-              <span>
-                <strong>{code}</strong>
-
+              <span className="min-w-0 wrap-break-word">
+                <strong className="font-semibold">{code}</strong>
                 {name && ` ${name}`}
               </span>
             </label>
@@ -285,74 +278,9 @@ export function ChoiceGroup({
   );
 }
 
-export function PairedTextField({
-  label,
-  leftValue,
-  rightValue,
-  onLeftChange,
-  onRightChange,
-  leftPlaceholder = "",
-  rightPlaceholder = "",
-  rightType = "text",
-  separator = "/",
-  requiredLeft = false,
-  requiredRight = false,
-  disabled = false,
-}) {
-  return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
-        {label}
-
-        {(requiredLeft || requiredRight) && (
-          <span className="customer-form__required"> *</span>
-        )}
-      </label>
-
-      <div className="customer-form__two-column">
-        <input
-          type="text"
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
-          value={leftValue || ""}
-          onChange={(event) => onLeftChange?.(event.target.value)}
-          placeholder={leftPlaceholder}
-          required={requiredLeft && !disabled}
-          disabled={disabled}
-        />
-
-        <span className="customer-form__separator">{separator}</span>
-
-        <input
-          type={rightType}
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
-          value={rightValue || ""}
-          onChange={(event) => onRightChange?.(event.target.value)}
-          placeholder={rightPlaceholder}
-          required={requiredRight && !disabled}
-          disabled={disabled}
-        />
-      </div>
-    </div>
-  );
-}
-
-export function LockedBox({ title, note = "", children }) {
-  return (
-    <div className="customer-form__locked-box">
-      <div className="customer-form__locked-header">
-        <strong>{title}</strong>
-
-        {note && <span>{note}</span>}
-      </div>
-
-      {children}
-    </div>
-  );
-}
+/* =========================================================
+   ATTACHMENT
+========================================================= */
 
 export function AttachmentField({
   label = "Attachment",
@@ -363,106 +291,109 @@ export function AttachmentField({
   disabled = false,
 }) {
   const handleFileChange = (event) => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
 
-    const selected = Array.from(event.target.files || []);
-
-    onChange?.(selected);
+    onChange?.(Array.from(event.target.files || []));
+    event.target.value = "";
   };
 
   const handleRemove = (index) => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
 
     onChange?.(files.filter((_, fileIndex) => fileIndex !== index));
   };
 
   const formatSize = (bytes) => {
-    if (!bytes) {
-      return "File";
-    }
-
-    if (bytes < 1024) {
-      return `${bytes} B`;
-    }
-
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
+    if (!bytes) return "File";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
 
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
+    <div className="min-w-0 sm:col-span-2">
+      <label className={labelClass}>{label}</label>
 
       {!disabled && (
-        <div className="customer-form__attachment">
-          <label className="customer-form__attachment-dropzone">
+        <div>
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-blue-400 hover:bg-blue-50">
+            <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+              <Upload size={20} />
+            </span>
+
+            <span className="text-sm font-semibold text-slate-800">
+              Klik untuk unggah file
+            </span>
+
+            <span className="mt-1 text-xs leading-5 text-slate-500">
+              Satu file atau beberapa file dalam satu ZIP. Maksimal 10 MB.
+            </span>
+
             <input
               type="file"
               multiple
               onChange={handleFileChange}
-              className="customer-form__attachment-input"
+              className="sr-only"
             />
-
-            <span className="customer-form__attachment-text">
-              Klik untuk unggah file
-            </span>
-
-            <small className="customer-form__attachment-hint">
-              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file
-              dalam 1 ZIP. Maks. 10 MB.
-            </small>
           </label>
 
           {files.length > 0 && (
-            <ul className="customer-form__attachment-list">
+            <ul className="mt-3 space-y-2">
               {files.map((file, index) => (
                 <li
                   key={`${file.name}-${index}`}
-                  className="customer-form__attachment-item"
+                  className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-white p-3"
                 >
-                  <span className="customer-form__attachment-name">
-                    {file.name}
-                  </span>
+                  <FileText className="h-5 w-5 shrink-0 text-slate-500" />
 
-                  <span className="customer-form__attachment-size">
-                    {formatSize(file.size)}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {formatSize(file.size)}
+                    </p>
+                  </div>
 
                   <button
                     type="button"
-                    className="customer-form__attachment-remove"
+                    aria-label={`Hapus ${file.name}`}
+                    title="Hapus file"
                     onClick={() => handleRemove(index)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
                   >
-                    ✕
+                    <Trash2 size={17} />
                   </button>
                 </li>
               ))}
             </ul>
           )}
 
-          {error && <small className="customer-form__error">{error}</small>}
+          {error && (
+            <p role="alert" className="mt-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
         </div>
       )}
 
       {disabled && existingFiles.length > 0 && (
-        <div className="approval-attachments">
+        <div className="space-y-2">
           {existingFiles.map((file, index) => (
-            <div key={`${file.name}-${index}`} className="approval-attachment">
-              <span>📎</span>
+            <div
+              key={`${file.name}-${index}`}
+              className="flex items-center gap-3 rounded-lg border border-slate-200 p-3"
+            >
+              <Paperclip className="h-5 w-5 shrink-0 text-slate-500" />
 
-              <div>
-                <strong>{file.name}</strong>
-
-                <small>
+              <div className="min-w-0 flex-1">
+                <p className="wrap-break-word text-sm font-medium text-slate-800">
+                  {file.name}
+                </p>
+                <p className="text-xs text-slate-500">
                   {file.size ? formatSize(file.size) : file.type || "File"}
-                </small>
+                </p>
               </div>
             </div>
           ))}
@@ -470,24 +401,25 @@ export function AttachmentField({
       )}
 
       {disabled && existingFiles.length === 0 && (
-        <div className="customer-form__attachment-readonly">
-          <span className="customer-form__attachment-readonly-icon">📎</span>
-
-          <div>
-            <strong>Attachment</strong>
-
-            <p>Tidak ada attachment yang diunggah.</p>
-          </div>
+        <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+          <Paperclip className="h-5 w-5 text-slate-400" />
+          <p className="text-sm text-slate-500">
+            Tidak ada attachment yang diunggah.
+          </p>
         </div>
       )}
     </div>
   );
 }
 
+/* =========================================================
+   PAYMENT TRANSACTIONS TABLE
+========================================================= */
+
 const EMPTY_PAYMENT_TRANSACTION = {
   bankName: "",
   bankAccountNumber: "",
-  beneficiary: "",
+  benificiary: "",
   bankCurrency: "IDR",
   swiftCode: "",
 };
@@ -499,7 +431,6 @@ export function PaymentTransactionsTable({
   disabled = false,
   required = false,
 }) {
-  // Selalu tampilkan minimal satu baris.
   const rows =
     Array.isArray(value) && value.length > 0
       ? value
@@ -523,142 +454,136 @@ export function PaymentTransactionsTable({
     onChange?.(rows.filter((_, rowIndex) => rowIndex !== index));
   };
 
-  const inputClass = "customer-form__input";
-
   return (
-    <div className="w-full min-w-0">
-      {/* Header */}
+    <div className="w-full min-w-0 sm:col-span-2">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="font-semibold text-gray-800">{label}</h4>
+          <label className={labelClass}>{label}</label>
         </div>
 
         {!disabled && (
           <button
             type="button"
             onClick={addRow}
-            className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
-            + Add Bank Account
+            <span className="text-lg leading-none">+</span>
+            Add Bank Account
           </button>
         )}
       </div>
 
-      {/* Table */}
-      <div className="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200">
-        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
-          <colgroup>
-            <col style={{ width: "3%" }} />
-            <col style={{ width: "18%" }} />
-            <col style={{ width: "20%" }} />
-            <col style={{ width: "19%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: disabled ? "30%" : "17%" }} />
-            {!disabled && <col style={{ width: "5%" }} />}
-          </colgroup>
-
-          <thead className="bg-gray-50 text-gray-600">
+      <div className="w-full overflow-x-auto rounded-xl border border-slate-200">
+        <table className="w-full min-w-212.5 border-collapse text-left text-sm">
+          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              {[
-                "No.",
-                "Bank Name",
-                "Account Number",
-                "Beneficiary",
-                "Currency",
-                "Swift Code",
-              ].map((heading) => (
-                <th
-                  key={heading}
-                  className="border-b border-gray-200 px-2 py-3 font-semibold break-words sm:px-3"
-                >
-                  {heading}
-                </th>
-              ))}
-
-              {!disabled && <th />}
+              <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
+                No.
+              </th>
+              <th className="border-b border-slate-200 px-3 py-3">Bank Name</th>
+              <th className="border-b border-slate-200 px-3 py-3">
+                Account Number
+              </th>
+              <th className="border-b border-slate-200 px-3 py-3">
+                Beneficiary
+              </th>
+              <th className="w-28 border-b border-slate-200 px-3 py-3">
+                Currency
+              </th>
+              <th className="border-b border-slate-200 px-3 py-3">
+                Swift Code
+              </th>
+              {!disabled && (
+                <th className="w-14 border-b border-slate-200 px-2 py-3" />
+              )}
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100">
             {rows.map((row, index) => (
-              <tr key={index} className="bg-white hover:bg-gray-50">
-                <td className="px-1 py-3 text-center text-gray-500">
+              <tr key={index} className="bg-white hover:bg-slate-50">
+                <td className="px-3 py-3 text-center text-slate-500">
                   {index + 1}
                 </td>
 
-                <td className="min-w-0 px-1 py-2 sm:px-2">
+                <td className="px-2 py-2">
                   <input
                     type="text"
-                    className={`${inputClass} w-full min-w-0 box-border`}
+                    className={inputClass}
                     value={row.bankName || ""}
                     onChange={(event) =>
                       updateRow(index, "bankName", event.target.value)
                     }
                     required={required && !disabled}
                     disabled={disabled}
+                    aria-label={`Bank Name ${index + 1}`}
                   />
                 </td>
 
-                <td className="min-w-0 px-1 py-2 sm:px-2">
+                <td className="px-2 py-2">
                   <input
                     type="text"
-                    className={`${inputClass} w-full min-w-0 box-border`}
+                    className={inputClass}
                     value={row.bankAccountNumber || ""}
                     onChange={(event) =>
                       updateRow(index, "bankAccountNumber", event.target.value)
                     }
                     required={required && !disabled}
                     disabled={disabled}
+                    aria-label={`Account Number ${index + 1}`}
                   />
                 </td>
 
-                <td className="min-w-0 px-1 py-2 sm:px-2">
+                <td className="px-2 py-2">
                   <input
                     type="text"
-                    className={`${inputClass} w-full min-w-0 box-border`}
+                    className={inputClass}
                     value={row.benificiary || ""}
                     onChange={(event) =>
                       updateRow(index, "benificiary", event.target.value)
                     }
                     required={required && !disabled}
                     disabled={disabled}
+                    aria-label={`Beneficiary ${index + 1}`}
                   />
                 </td>
 
-                <td className="min-w-0 px-1 py-2 sm:px-2">
+                <td className="px-2 py-2">
                   <select
-                    className={`${inputClass} w-full min-w-0 box-border`}
-                    value={row.bankCurrency}
+                    className={inputClass}
+                    value={row.bankCurrency || "IDR"}
                     onChange={(event) =>
                       updateRow(index, "bankCurrency", event.target.value)
                     }
                     required={required && !disabled}
                     disabled={disabled}
+                    aria-label={`Currency ${index + 1}`}
                   >
                     <option value="IDR">IDR</option>
                     <option value="USD">USD</option>
                   </select>
                 </td>
 
-                <td className="min-w-0 px-1 py-2 sm:px-2">
+                <td className="px-2 py-2">
                   <input
                     type="text"
-                    className={`${inputClass} w-full min-w-0 box-border`}
+                    className={inputClass}
                     value={row.swiftCode || ""}
                     onChange={(event) =>
                       updateRow(index, "swiftCode", event.target.value)
                     }
                     disabled={disabled}
+                    aria-label={`Swift Code ${index + 1}`}
                   />
                 </td>
 
                 {!disabled && (
-                  <td className="px-1 py-2 text-center">
+                  <td className="px-2 py-2 text-center">
                     <button
                       type="button"
                       onClick={() => removeRow(index)}
                       disabled={rows.length === 1}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
                       title={
                         rows.length === 1
                           ? "Minimal satu rekening bank"
@@ -675,16 +600,12 @@ export function PaymentTransactionsTable({
           </tbody>
         </table>
       </div>
-
-      <p className="mt-2 text-xs text-gray-500">
-        * Minimal satu rekening bank.
-      </p>
     </div>
   );
 }
 
 /* =========================================================
-   MAIN SHARED FORM
+   MAIN VENDOR FORM
 ========================================================= */
 
 export default function VendorFormFields({
@@ -720,23 +641,15 @@ export default function VendorFormFields({
     });
 
   const isCreateMode = mode === "create";
-
   const isApprovalMode = mode === "approval";
-
   const isPIC = isApprovalMode && approvalRole === "pic";
-
   const isNewRequest = form.requestType === "New";
-
   const isAccounting = isApprovalMode && approvalRole === "accounting";
-
   const isTax = isApprovalMode && approvalRole === "tax";
 
   return (
-    <>
-      {/* =====================================================
-          1. REQUEST TYPE
-      ===================================================== */}
-
+    <div className="space-y-5">
+      {/* 1. REQUEST TYPE */}
       <Section number="1" title="Request Type">
         <ChoiceGroup
           label="Request Type"
@@ -747,51 +660,36 @@ export default function VendorFormFields({
           disabled={!editable("requestType")}
         />
 
-        {isNewRequest ? (
-          isPIC ? (
-            <Field label="Vendor Code" required>
-              <input
-                type="text"
-                className="customer-form__input"
-                value={form.vendorCode || ""}
-                onChange={(event) => {
-                  const value = event.target.value;
-
-                  update("vendorCode", value);
-
-                  onVendorCodeChange?.(value);
-                }}
-                placeholder="Masukkan vendor code"
-                required
-              />
-            </Field>
-          ) : (
-            <ReadOnlyField label="Vendor Code" value={form.vendorCode || "-"} />
-          )
+        {isNewRequest && !isPIC ? (
+          <ReadOnlyField
+            label="Vendor Code"
+            value={form.vendorCode || "-"}
+          />
         ) : (
-          <Field label="Vendor Code" required={isCreateMode}>
+          <Field label="Vendor Code" required={isPIC || isCreateMode}>
             <input
               type="text"
-              className="customer-form__input"
+              className={inputClass}
               value={form.vendorCode || ""}
-              onChange={(event) => update("vendorCode", event.target.value)}
+              onChange={(event) => {
+                const value = event.target.value;
+                update("vendorCode", value);
+                onVendorCodeChange?.(value);
+              }}
               placeholder="Masukkan vendor code"
-              required={isCreateMode}
+              required={isPIC || isCreateMode}
               disabled={!editable("vendorCode")}
             />
           </Field>
         )}
       </Section>
 
-      {/* =====================================================
-          2. GENERAL DATA
-      ===================================================== */}
-
+      {/* 2. GENERAL DATA */}
       <Section number="2" title="General Data">
         <Field label="Name" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.name || ""}
             onChange={(event) => update("name", event.target.value)}
             required={isCreateMode}
@@ -802,7 +700,7 @@ export default function VendorFormFields({
         <Field label="Search Term">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.searchTerm || ""}
             onChange={(event) => update("searchTerm", event.target.value)}
             disabled={!editable("searchTerm")}
@@ -815,7 +713,7 @@ export default function VendorFormFields({
         >
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.streetAddress || ""}
             onChange={(event) => update("streetAddress", event.target.value)}
             required={isCreateMode}
@@ -826,7 +724,7 @@ export default function VendorFormFields({
         <Field label="City" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.city || ""}
             onChange={(event) => update("city", event.target.value)}
             required={isCreateMode}
@@ -837,7 +735,7 @@ export default function VendorFormFields({
         <Field label="Postal Code" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.postalCode || ""}
             onChange={(event) => update("postalCode", event.target.value)}
             required={isCreateMode}
@@ -848,7 +746,7 @@ export default function VendorFormFields({
         <Field label="Country" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.country || ""}
             onChange={(event) => update("country", event.target.value)}
             required={isCreateMode}
@@ -859,7 +757,7 @@ export default function VendorFormFields({
         <Field label="Telephone">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.telephone || ""}
             onChange={(event) => update("telephone", event.target.value)}
             disabled={!editable("telephone")}
@@ -869,7 +767,7 @@ export default function VendorFormFields({
         <Field label="Fax">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.fax || ""}
             onChange={(event) => update("fax", event.target.value)}
             disabled={!editable("fax")}
@@ -879,7 +777,7 @@ export default function VendorFormFields({
         <Field label="Contact Person">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.contactPerson || ""}
             onChange={(event) => update("contactPerson", event.target.value)}
             disabled={!editable("contactPerson")}
@@ -889,7 +787,7 @@ export default function VendorFormFields({
         <Field label="NPWP">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.npwp || ""}
             onChange={(event) => update("npwp", event.target.value)}
             disabled={!editable("npwp")}
@@ -898,8 +796,8 @@ export default function VendorFormFields({
 
         <Field label="Email" required={isCreateMode}>
           <input
-            type="text"
-            className="customer-form__input"
+            type="email"
+            className={inputClass}
             value={form.email || ""}
             onChange={(event) => update("email", event.target.value)}
             required={isCreateMode}
@@ -910,7 +808,7 @@ export default function VendorFormFields({
         <Field label="Business Type">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.businessType || ""}
             onChange={(event) => update("businessType", event.target.value)}
             disabled={!editable("businessType")}
@@ -918,88 +816,48 @@ export default function VendorFormFields({
         </Field>
       </Section>
 
-      {/* =====================================================
-          3. COMPANY CODE DATA (ACCOUNTING DEPT)
-      ===================================================== */}
-
+      {/* 3. COMPANY CODE DATA — ACCOUNTING */}
       <Section number="3" title="Company Code Data (Accounting Dept)">
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Account Group"
-            options={ACCOUNT_GROUPS}
-            value={form.accountGroup}
-            onChange={(value) => update("accountGroup", value)}
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Account Group"
-            options={ACCOUNT_GROUPS}
-            value={form.accountGroup}
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Account Group"
+          options={ACCOUNT_GROUPS}
+          value={form.accountGroup}
+          onChange={(value) => update("accountGroup", value)}
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Recon Account"
-            options={RECON_ACCOUNTS}
-            value={form.recontAccount}
-            onChange={(value) => update("recontAccount", value)}
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Recon Account"
-            options={RECON_ACCOUNTS}
-            value={form.recontAccount}
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Recon Account"
+          options={RECON_ACCOUNTS}
+          value={form.recontAccount}
+          onChange={(value) => update("recontAccount", value)}
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Payment Method"
-            options={PAYMENT_METHODS}
-            value={form.paymentMethod}
-            onChange={(value) => update("paymentMethod", value)}
-            checkbox
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Payment Method"
-            options={PAYMENT_METHODS}
-            value={form.paymentMethod}
-            checkbox
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Payment Method"
+          options={PAYMENT_METHODS}
+          value={form.paymentMethod}
+          onChange={(value) => update("paymentMethod", value)}
+          checkbox
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
-        {isTax ? (
-          <ChoiceGroup
-            label="Witholding Tax Type & Code"
-            options={WITHOLDING_TAX}
-            value={form.witholdingTax}
-            onChange={(value) => update("witholdingTax", value)}
-            checkbox
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Witholding Tax Type & Code"
-            options={WITHOLDING_TAX}
-            value={form.witholdingTax}
-            checkbox
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Witholding Tax Type & Code"
+          options={WITHOLDING_TAX}
+          value={form.witholdingTax}
+          onChange={(value) => update("witholdingTax", value)}
+          checkbox
+          required={isTax}
+          disabled={!isTax}
+        />
       </Section>
 
-      {/* =====================================================
-          4. COMPANY CODE DATA (PURCH DEPT)
-      ===================================================== */}
-
+      {/* 4. COMPANY CODE DATA — PURCHASING */}
       <Section number="4" title="Company Code Data (Purch Dept)">
         <ChoiceGroup
           label="Company Code"
@@ -1020,10 +878,7 @@ export default function VendorFormFields({
         />
       </Section>
 
-      {/* =====================================================
-          5. Purchasing Organization Data
-      ===================================================== */}
-
+      {/* 5. PURCHASING ORGANIZATION DATA */}
       <Section number="5" title="Purchasing Organization Data">
         <ChoiceGroup
           label="Order Currency"
@@ -1037,7 +892,7 @@ export default function VendorFormFields({
         <Field label="Salesperson">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.salesperson || ""}
             onChange={(event) => update("salesperson", event.target.value)}
             disabled={!editable("salesperson")}
@@ -1045,10 +900,7 @@ export default function VendorFormFields({
         </Field>
       </Section>
 
-      {/* =====================================================
-          6. PAYMENT TRANSACTIONS
-      ===================================================== */}
-
+      {/* 6. PAYMENT TRANSACTIONS */}
       <Section number="6" title="Payment Transactions">
         <PaymentTransactionsTable
           label="Bank Account Details"
@@ -1059,10 +911,7 @@ export default function VendorFormFields({
         />
       </Section>
 
-      {/* =====================================================
-          7. ATTACHMENT
-      ===================================================== */}
-
+      {/* 7. ATTACHMENT */}
       <Section number="7" title="Attachment">
         <AttachmentField
           files={attachments}
@@ -1072,6 +921,6 @@ export default function VendorFormFields({
           error={form.attachmentError}
         />
       </Section>
-    </>
+    </div>
   );
 }

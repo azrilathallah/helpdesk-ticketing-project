@@ -1,3 +1,5 @@
+import { Trash2, Upload, Paperclip, FileText } from "lucide-react";
+
 export const REQUEST_TYPES = [
   ["New"],
   ["Change"],
@@ -115,39 +117,35 @@ export const getUserValue = (user, keys) => {
 };
 
 export const validateAttachments = (files) => {
-  if (!files || files.length === 0) {
-    return "";
-  }
+  if (!files || files.length === 0) return "";
 
   const maxSize = 10 * 1024 * 1024;
 
   if (files.length === 1) {
-    if (files[0].size > maxSize) {
-      return "Ukuran file maksimal 10 MB.";
-    }
-
-    return "";
+    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
   }
 
   return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
 };
 
+/* =========================================================
+   TAILWIND STYLE HELPERS
+========================================================= */
+
+const inputClass =
+  "w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+
+const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
+
+const requiredClass = "ml-0.5 text-red-600";
+
+const hintClass = "mt-1.5 block text-xs leading-5 text-slate-500";
+
 function isEditable({ mode, readOnly, approvalRole, field }) {
-  if (readOnly) {
-    return false;
-  }
-
-  if (mode === "create") {
-    return true;
-  }
-
-  if (mode === "submission") {
-    return false;
-  }
-
-  if (mode !== "approval") {
-    return false;
-  }
+  if (readOnly) return false;
+  if (mode === "create") return true;
+  if (mode === "submission") return false;
+  if (mode !== "approval") return false;
 
   if (approvalRole === "accounting") {
     return [
@@ -170,62 +168,65 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 }
 
 /* =========================================================
-   PRESENTATIONAL COMPONENTS
+   SHARED PRESENTATIONAL COMPONENTS
 ========================================================= */
 
 export function Section({ number, title, children }) {
   return (
-    <section className="customer-form__section">
-      <div className="customer-form__section-title">
-        <span>{number}</span>
-        <h3>{title}</h3>
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">
+          {number}
+        </span>
+
+        <h3 className="text-base font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="customer-form__section-body">{children}</div>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 p-4 sm:grid-cols-2 sm:p-6">
+        {children}
+      </div>
     </section>
   );
 }
 
 export function Field({ label, required = false, hint = "", children }) {
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
+    <div className="min-w-0">
+      <label className={labelClass}>
         {label}
-
-        {required && <span className="customer-form__required"> *</span>}
+        {required && <span className={requiredClass}>*</span>}
       </label>
 
       {children}
 
-      {hint && <small className="customer-form__hint">{hint}</small>}
+      {hint && <small className={hintClass}>{hint}</small>}
     </div>
   );
 }
 
 export function ReadOnlyField({ label, value, hint = "", lockedBy = "" }) {
-  return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
+  const displayValue =
+    value !== undefined && value !== null && String(value).trim() !== ""
+      ? value
+      : "-";
 
-      <div className="customer-form__readonly-wrapper">
+  return (
+    <Field label={label} hint={hint}>
+      <div className="relative">
         <input
           type="text"
-          className="customer-form__input customer-form__input--readonly"
-          value={
-            value !== undefined && value !== null && String(value).trim() !== ""
-              ? value
-              : "-"
-          }
+          className={inputClass}
+          value={displayValue}
           readOnly
         />
 
         {lockedBy && (
-          <span className="customer-form__locked-label">{lockedBy}</span>
+          <span className="mt-1 block text-xs font-medium text-slate-500">
+            {lockedBy}
+          </span>
         )}
       </div>
-
-      {hint && <small className="customer-form__hint">{hint}</small>}
-    </div>
+    </Field>
   );
 }
 
@@ -246,11 +247,13 @@ export function ChoiceGroup({
   return (
     <Field label={label} required={required}>
       <div
-        className={`customer-form__choices ${
-          checkbox ? "customer-form__choices--checkbox" : ""
-        } ${disabled ? "customer-form__choices--disabled" : ""}`}
+        className={`grid grid-cols-1 gap-2 ${
+          options.length > 2 ? "sm:grid-cols-2" : ""
+        }`}
       >
-        {options.map(([code, name], index) => {
+        {options.map((option, index) => {
+          const [code, name] = Array.isArray(option) ? option : [option, ""];
+
           const checked = checkbox
             ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
             : normalizedValue === code;
@@ -262,8 +265,12 @@ export function ChoiceGroup({
           return (
             <label
               key={code}
-              className={`customer-form__choice ${
-                disabled ? "customer-form__choice--disabled" : ""
+              className={`flex min-w-0 items-start gap-2.5 rounded-lg border px-3 py-3 text-sm transition ${
+                disabled
+                  ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-500"
+                  : checked
+                    ? "cursor-pointer border-blue-400 bg-blue-50 text-blue-900"
+                    : "cursor-pointer border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50"
               }`}
             >
               <input
@@ -274,9 +281,7 @@ export function ChoiceGroup({
                 disabled={disabled}
                 required={inputRequired}
                 onChange={(event) => {
-                  if (disabled || !onChange) {
-                    return;
-                  }
+                  if (disabled || !onChange) return;
 
                   if (!checkbox) {
                     onChange(event.target.value);
@@ -295,12 +300,12 @@ export function ChoiceGroup({
                         ),
                   );
                 }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
               />
 
-              <span>
-                <strong>{code}</strong>
-
-                {name && ` ${name}`}
+              <span className="min-w-0 wrap-break-word">
+                <strong className="font-semibold">{code}</strong>
+                {name && <span> {name}</span>}
               </span>
             </label>
           );
@@ -325,21 +330,18 @@ export function PairedTextField({
   disabled = false,
 }) {
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">
+    <div className="min-w-0">
+      <label className={labelClass}>
         {label}
-
         {(requiredLeft || requiredRight) && (
-          <span className="customer-form__required"> *</span>
+          <span className={requiredClass}>*</span>
         )}
       </label>
 
-      <div className="customer-form__two-column">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
         <input
           type="text"
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
+          className={inputClass}
           value={leftValue || ""}
           onChange={(event) => onLeftChange?.(event.target.value)}
           placeholder={leftPlaceholder}
@@ -347,13 +349,11 @@ export function PairedTextField({
           disabled={disabled}
         />
 
-        <span className="customer-form__separator">{separator}</span>
+        <span className="text-sm text-slate-400">{separator}</span>
 
         <input
           type={rightType}
-          className={`customer-form__input ${
-            disabled ? "customer-form__input--readonly" : ""
-          }`}
+          className={inputClass}
           value={rightValue || ""}
           onChange={(event) => onRightChange?.(event.target.value)}
           placeholder={rightPlaceholder}
@@ -361,20 +361,6 @@ export function PairedTextField({
           disabled={disabled}
         />
       </div>
-    </div>
-  );
-}
-
-export function LockedBox({ title, note = "", children }) {
-  return (
-    <div className="customer-form__locked-box">
-      <div className="customer-form__locked-header">
-        <strong>{title}</strong>
-
-        {note && <span>{note}</span>}
-      </div>
-
-      {children}
     </div>
   );
 }
@@ -388,106 +374,108 @@ export function AttachmentField({
   disabled = false,
 }) {
   const handleFileChange = (event) => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
 
-    const selected = Array.from(event.target.files || []);
-
-    onChange?.(selected);
+    onChange?.(Array.from(event.target.files || []));
+    event.target.value = "";
   };
 
   const handleRemove = (index) => {
-    if (disabled) {
-      return;
-    }
-
+    if (disabled) return;
     onChange?.(files.filter((_, fileIndex) => fileIndex !== index));
   };
 
   const formatSize = (bytes) => {
-    if (!bytes) {
-      return "File";
-    }
-
-    if (bytes < 1024) {
-      return `${bytes} B`;
-    }
-
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
+    if (!bytes) return "File";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
 
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
-    <div className="customer-form__field">
-      <label className="customer-form__label">{label}</label>
+    <div className="min-w-0 sm:col-span-2">
+      <label className={labelClass}>{label}</label>
 
       {!disabled && (
-        <div className="customer-form__attachment">
-          <label className="customer-form__attachment-dropzone">
+        <div>
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-blue-400 hover:bg-blue-50">
+            <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+              <Upload size={20} />
+            </span>
+
+            <span className="text-sm font-semibold text-slate-800">
+              Klik untuk unggah file
+            </span>
+
+            <span className="mt-1 text-xs leading-5 text-slate-500">
+              Satu file atau beberapa file dalam satu ZIP. Maksimal 10 MB.
+            </span>
+
             <input
               type="file"
               multiple
               onChange={handleFileChange}
-              className="customer-form__attachment-input"
+              className="sr-only"
             />
-
-            <span className="customer-form__attachment-text">
-              Klik untuk unggah file
-            </span>
-
-            <small className="customer-form__attachment-hint">
-              Upload 1 file (PDF, Excel, Word, Gambar) - atau beberapa file
-              dalam 1 ZIP. Maks. 10 MB.
-            </small>
           </label>
 
           {files.length > 0 && (
-            <ul className="customer-form__attachment-list">
+            <ul className="mt-3 space-y-2">
               {files.map((file, index) => (
                 <li
                   key={`${file.name}-${index}`}
-                  className="customer-form__attachment-item"
+                  className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-white p-3"
                 >
-                  <span className="customer-form__attachment-name">
-                    {file.name}
-                  </span>
+                  <FileText className="h-5 w-5 shrink-0 text-slate-500" />
 
-                  <span className="customer-form__attachment-size">
-                    {formatSize(file.size)}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {formatSize(file.size)}
+                    </p>
+                  </div>
 
                   <button
                     type="button"
-                    className="customer-form__attachment-remove"
+                    aria-label={`Hapus ${file.name}`}
+                    title="Hapus file"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
                     onClick={() => handleRemove(index)}
                   >
-                    ✕
+                    <Trash2 size={17} />
                   </button>
                 </li>
               ))}
             </ul>
           )}
 
-          {error && <small className="customer-form__error">{error}</small>}
+          {error && (
+            <p role="alert" className="mt-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
         </div>
       )}
 
       {disabled && existingFiles.length > 0 && (
-        <div className="approval-attachments">
+        <div className="space-y-2">
           {existingFiles.map((file, index) => (
-            <div key={`${file.name}-${index}`} className="approval-attachment">
-              <span>📎</span>
+            <div
+              key={`${file.name}-${index}`}
+              className="flex items-center gap-3 rounded-lg border border-slate-200 p-3"
+            >
+              <Paperclip className="h-5 w-5 shrink-0 text-slate-500" />
 
-              <div>
-                <strong>{file.name}</strong>
-
-                <small>
+              <div className="min-w-0 flex-1">
+                <p className="wrap-break-word text-sm font-medium text-slate-800">
+                  {file.name}
+                </p>
+                <p className="text-xs text-slate-500">
                   {file.size ? formatSize(file.size) : file.type || "File"}
-                </small>
+                </p>
               </div>
             </div>
           ))}
@@ -495,13 +483,12 @@ export function AttachmentField({
       )}
 
       {disabled && existingFiles.length === 0 && (
-        <div className="customer-form__attachment-readonly">
-          <span className="customer-form__attachment-readonly-icon">📎</span>
-
+        <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+          <Paperclip className="h-5 w-5 text-slate-400" />
           <div>
-            <strong>Attachment</strong>
-
-            <p>Tidak ada attachment yang diunggah.</p>
+            <p className="text-xs text-slate-500">
+              Tidak ada attachment yang diunggah.
+            </p>
           </div>
         </div>
       )}
@@ -510,7 +497,7 @@ export function AttachmentField({
 }
 
 /* =========================================================
-   MAIN SHARED FORM
+   CUSTOMER FORM
 ========================================================= */
 
 export default function CustomerFormFields({
@@ -538,31 +525,18 @@ export default function CustomerFormFields({
   };
 
   const editable = (field) =>
-    isEditable({
-      mode,
-      readOnly,
-      approvalRole,
-      field,
-    });
+    isEditable({ mode, readOnly, approvalRole, field });
 
   const isCreateMode = mode === "create";
-
   const isApprovalMode = mode === "approval";
-
   const isPIC = isApprovalMode && approvalRole === "pic";
-
   const isNewRequest = form.requestType === "New";
-
   const isAccounting = isApprovalMode && approvalRole === "accounting";
-
   const isTax = isApprovalMode && approvalRole === "tax";
 
   return (
-    <>
-      {/* =====================================================
-          1. REQUEST TYPE
-      ===================================================== */}
-
+    <div className="space-y-5">
+      {/* 1. REQUEST TYPE */}
       <Section number="1" title="Request Type">
         <ChoiceGroup
           label="Request Type"
@@ -578,13 +552,11 @@ export default function CustomerFormFields({
             <Field label="Customer Code" required>
               <input
                 type="text"
-                className="customer-form__input"
+                className={inputClass}
                 value={form.customerCode || ""}
                 onChange={(event) => {
                   const value = event.target.value;
-
                   update("customerCode", value);
-
                   onCustomerCodeChange?.(value);
                 }}
                 placeholder="Masukkan customer code"
@@ -601,7 +573,7 @@ export default function CustomerFormFields({
           <Field label="Customer Code" required={isCreateMode}>
             <input
               type="text"
-              className="customer-form__input"
+              className={inputClass}
               value={form.customerCode || ""}
               onChange={(event) => update("customerCode", event.target.value)}
               placeholder="Masukkan customer code"
@@ -612,31 +584,24 @@ export default function CustomerFormFields({
         )}
       </Section>
 
-      {/* =====================================================
-          2. REQUESTOR
-      ===================================================== */}
-
+      {/* 2. REQUESTOR */}
       <Section number="2" title="Requestor">
         <ReadOnlyField label="Name" value={requestor.name} />
-
         <ReadOnlyField label="Position (Jabatan)" value={requestor.position} />
 
-        <div className="customer-form__field">
-          <label className="customer-form__label">Division / Department</label>
-
-          <div className="customer-form__two-column">
+        <div className="min-w-0">
+          <label className={labelClass}>Division / Department</label>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
             <input
               type="text"
-              className="customer-form__input customer-form__input--readonly"
+              className={inputClass}
               value={requestor.division || "-"}
               readOnly
             />
-
-            <span className="customer-form__separator">/</span>
-
+            <span className="text-sm text-slate-400">/</span>
             <input
               type="text"
-              className="customer-form__input customer-form__input--readonly"
+              className={inputClass}
               value={requestor.department || "-"}
               readOnly
             />
@@ -644,31 +609,19 @@ export default function CustomerFormFields({
         </div>
 
         <ReadOnlyField label="Telephone" value={requestor.telephone} />
-
         <ReadOnlyField label="Email" value={requestor.email} />
       </Section>
 
-      {/* =====================================================
-          3. INITIAL SCREEN
-      ===================================================== */}
-
+      {/* 3. INITIAL SCREEN */}
       <Section number="3" title="Initial Screen">
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Account Group"
-            options={ACCOUNT_GROUPS}
-            value={form.accountGroup}
-            onChange={(value) => update("accountGroup", value)}
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Account Group"
-            options={ACCOUNT_GROUPS}
-            value={form.accountGroup}
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Account Group"
+          options={ACCOUNT_GROUPS}
+          value={form.accountGroup}
+          onChange={(value) => update("accountGroup", value)}
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
         <ChoiceGroup
           label="Company Code"
@@ -709,15 +662,12 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* =====================================================
-          4. GENERAL DATA
-      ===================================================== */}
-
+      {/* 4. GENERAL DATA */}
       <Section number="4" title="General Data">
         <Field label="Judul (Title)" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.title || ""}
             onChange={(event) => update("title", event.target.value)}
             required={isCreateMode}
@@ -728,7 +678,7 @@ export default function CustomerFormFields({
         <Field label="Nama Pelanggan (Name)" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.customerName || ""}
             onChange={(event) => update("customerName", event.target.value)}
             required={isCreateMode}
@@ -739,7 +689,7 @@ export default function CustomerFormFields({
         <Field label="Search Term">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.searchTerm || ""}
             onChange={(event) => update("searchTerm", event.target.value)}
             disabled={!editable("searchTerm")}
@@ -752,7 +702,7 @@ export default function CustomerFormFields({
         >
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.invoiceStreet || ""}
             onChange={(event) => update("invoiceStreet", event.target.value)}
             required={isCreateMode}
@@ -763,7 +713,7 @@ export default function CustomerFormFields({
         <Field label="Alamat Pajak" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.taxStreet || ""}
             onChange={(event) => update("taxStreet", event.target.value)}
             required={isCreateMode}
@@ -787,7 +737,7 @@ export default function CustomerFormFields({
         <Field label="Country" required={isCreateMode}>
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.country || ""}
             onChange={(event) => update("country", event.target.value)}
             required={isCreateMode}
@@ -798,7 +748,7 @@ export default function CustomerFormFields({
         <Field label="Region">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.region || ""}
             onChange={(event) => update("region", event.target.value)}
             disabled={!editable("region")}
@@ -808,7 +758,7 @@ export default function CustomerFormFields({
         <Field label="Telephone">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.telephone || ""}
             onChange={(event) => update("telephone", event.target.value)}
             disabled={!editable("telephone")}
@@ -818,7 +768,7 @@ export default function CustomerFormFields({
         <Field label="Fax">
           <input
             type="text"
-            className="customer-form__input"
+            className={inputClass}
             value={form.fax || ""}
             onChange={(event) => update("fax", event.target.value)}
             disabled={!editable("fax")}
@@ -848,16 +798,13 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* =====================================================
-          5. COMPANY CODE DATA
-      ===================================================== */}
-
+      {/* 5. COMPANY CODE DATA */}
       <Section number="5" title="Company Code Data">
         {isAccounting ? (
           <Field label="Recon Account" required>
             <input
               type="text"
-              className="customer-form__input"
+              className={inputClass}
               value={form.recontAccount || ""}
               onChange={(event) => update("recontAccount", event.target.value)}
               placeholder="Masukkan Recon Account"
@@ -868,22 +815,14 @@ export default function CustomerFormFields({
           <ReadOnlyField label="Recon Account" value={form.recontAccount} />
         )}
 
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Sort Key"
-            options={SORT_KEYS}
-            value={form.sortKey}
-            onChange={(value) => update("sortKey", value)}
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Sort Key"
-            options={SORT_KEYS}
-            value={form.sortKey}
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Sort Key"
+          options={SORT_KEYS}
+          value={form.sortKey}
+          onChange={(value) => update("sortKey", value)}
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
         <ChoiceGroup
           label="Terms of Payment"
@@ -894,47 +833,27 @@ export default function CustomerFormFields({
           disabled={!editable("paymentTerms")}
         />
 
-        {isAccounting ? (
-          <ChoiceGroup
-            label="Tolerance Group"
-            options={TOLERANCE_GROUPS}
-            value={form.toleranceGroup}
-            onChange={(value) => update("toleranceGroup", value)}
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Tolerance Group"
-            options={TOLERANCE_GROUPS}
-            value={form.toleranceGroup}
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Tolerance Group"
+          options={TOLERANCE_GROUPS}
+          value={form.toleranceGroup}
+          onChange={(value) => update("toleranceGroup", value)}
+          required={isAccounting}
+          disabled={!isAccounting}
+        />
 
-        {isTax ? (
-          <ChoiceGroup
-            label="Witholding Tax"
-            options={WITHOLDING_TAX}
-            value={form.witholdingTax}
-            onChange={(value) => update("witholdingTax", value)}
-            checkbox
-            required
-          />
-        ) : (
-          <ChoiceGroup
-            label="Witholding Tax"
-            options={WITHOLDING_TAX}
-            value={form.witholdingTax}
-            checkbox
-            disabled
-          />
-        )}
+        <ChoiceGroup
+          label="Witholding Tax"
+          options={WITHOLDING_TAX}
+          value={form.witholdingTax}
+          onChange={(value) => update("witholdingTax", value)}
+          checkbox
+          required={isTax}
+          disabled={!isTax}
+        />
       </Section>
 
-      {/* =====================================================
-          6. SALES AREA DATA
-      ===================================================== */}
-
+      {/* 6. SALES AREA DATA */}
       <Section number="6" title="Sales Area Data">
         <ChoiceGroup
           label="Currency"
@@ -975,10 +894,7 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* =====================================================
-          7. ATTACHMENT
-      ===================================================== */}
-
+      {/* 7. ATTACHMENT */}
       <Section number="7" title="Attachment">
         <AttachmentField
           files={attachments}
@@ -988,6 +904,6 @@ export default function CustomerFormFields({
           error={form.attachmentError}
         />
       </Section>
-    </>
+    </div>
   );
 }

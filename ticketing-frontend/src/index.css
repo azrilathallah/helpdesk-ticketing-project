@@ -4,74 +4,92 @@
    Design System — Helpdesk System IBSW
    ═══════════════════════════════════════════════════════════════════ */
 
-:root {
-  /* ── Brand Colors ─── */
+@theme {
   --color-primary: #2563eb;
-  --color-primary-h: #1d4ed8;
-  --color-primary-l: #dbeafe;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #dbeafe;
 
-  /* ── Neutrals ─── */
-  --color-bg: #f1f5f9;
+  --color-page: #f1f5f9;
   --color-surface: #ffffff;
   --color-border: #e2e8f0;
   --color-text: #334155;
   --color-text-muted: #94a3b8;
-  --color-text-heading: #0f172a;
+  --color-heading: #0f172a;
 
-  /* ── Status Colors ─── */
-  --stat-total: #3b82f6;
-  --stat-open: #ef4444;
-  --stat-progress: #eab308;
-  --stat-closed: #22c55e;
-  --stat-rejected: #6b7280;
+  --radius-card: 12px;
+  --radius-control: 8px;
 
-  /* ── Misc ─── */
-  --sidebar-w: 260px;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
-  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  color-scheme: light;
+  --font-sans:
+    Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* ── Reset ─────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: var(--color-text);
+  background: var(--color-page);
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-width: 320px;
+  min-height: 100%;
 }
 
 body {
+  min-width: 320px;
   min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
 #root {
   width: 100%;
-  max-width: 100%;
   min-height: 100vh;
-  margin: 0;
-  text-align: left;
-  border: none;
-  display: flex;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

@@ -15,7 +15,7 @@ export default function FormRenderer({
   setAttachments,
   existingAttachments = [],
   onCustomerCodeChange,
-  onVendorCodeChange
+  onVendorCodeChange,
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -29,6 +29,18 @@ export default function FormRenderer({
     .trim()
     .toLowerCase();
 
+  const commonProps = {
+    formData,
+    setFormData,
+    mode,
+    readOnly,
+    approvalRole,
+    requestor,
+    attachments,
+    setAttachments,
+    existingAttachments,
+  };
+
   if (
     normalizedType === "sap" &&
     normalizedCategory === "master data" &&
@@ -36,15 +48,7 @@ export default function FormRenderer({
   ) {
     return (
       <CustomerFormFields
-        formData={formData}
-        setFormData={setFormData}
-        mode={mode}
-        readOnly={readOnly}
-        approvalRole={approvalRole}
-        requestor={requestor}
-        attachments={attachments}
-        setAttachments={setAttachments}
-        existingAttachments={existingAttachments}
+        {...commonProps}
         onCustomerCodeChange={onCustomerCodeChange}
       />
     );
@@ -57,15 +61,7 @@ export default function FormRenderer({
   ) {
     return (
       <VendorFormFields
-        formData={formData}
-        setFormData={setFormData}
-        mode={mode}
-        readOnly={readOnly}
-        approvalRole={approvalRole}
-        requestor={requestor}
-        attachments={attachments}
-        setAttachments={setAttachments}
-        existingAttachments={existingAttachments}
+        {...commonProps}
         onVendorCodeChange={onVendorCodeChange}
       />
     );
