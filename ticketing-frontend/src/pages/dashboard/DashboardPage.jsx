@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl">
-      <section className="mb-8">
+      <section className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
           {getGreeting()},{" "}
           <span className="text-red-600">{user?.name || "User"}</span>
@@ -131,19 +131,19 @@ export default function DashboardPage() {
 
       <section
         aria-label="Ticket statistics"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5"
+        className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
       >
         {TICKET_STATS.map(({ key, label, accent, count }) => (
           <article
             key={key}
-            className={`min-w-0 rounded-xl border border-slate-200 border-l-4 ${accent} bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6`}
+            className={`min-w-0 rounded-xl border border-slate-200 border-l-4 ${accent} bg-white px-3 py-2 shadow-sm transition-shadow hover:shadow-md`}
           >
-            <div className="flex min-h-20 flex-col justify-between gap-3">
-              <span className={`text-3xl font-bold tracking-tight ${count}`}>
+            <div className="flex min-h-10 sm:min-h-20 flex-col justify-between gap-2">
+              <span className={`text-xl sm:text-2xl font-bold tracking-tight ${count}`}>
                 {loading ? "—" : stats[key]}
               </span>
 
-              <span className={`text-lg font-medium ${count}`}>
+              <span className={`text-sm sm:text-lg font-medium ${count}`}>
                 {label}
               </span>
             </div>

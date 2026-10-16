@@ -54,7 +54,7 @@ export default function Sidebar() {
             className="h-8 w-8 shrink-0 object-contain"
           />
 
-          <span className="text-[15px] font-bold tracking-tight text-slate-900">
+          <span className="font-bold tracking-tight text-slate-900">
             Helpdesk System IBS
           </span>
         </div>
@@ -70,10 +70,10 @@ export default function Sidebar() {
             to={to}
             className={({ isActive }) =>
               [
-                "relative flex items-center gap-3 rounded-lg px-3.5 py-2.5",
+                "relative flex items-center gap-3 rounded-lg px-3 py-2",
                 "text-sm font-medium no-underline transition-colors",
                 isActive
-                  ? "bg-blue-100 font-semibold text-blue-700"
+                  ? "bg-red-100 font-semibold text-red-700"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
               ].join(" ")
             }
@@ -83,7 +83,7 @@ export default function Sidebar() {
                 <Icon
                   className={
                     isActive
-                      ? "h-5 w-5 shrink-0 text-blue-600"
+                      ? "h-5 w-5 shrink-0 text-red-600"
                       : "h-5 w-5 shrink-0 text-slate-400"
                   }
                 />
@@ -91,7 +91,7 @@ export default function Sidebar() {
                 <span className="min-w-0 flex-1">{label}</span>
 
                 {to === "/approval" && approvalCount > 0 && (
-                  <span className="ml-auto inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-red-700 px-1.5 text-[11px] leading-none font-bold text-white shadow-sm">
+                  <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-1.5 text-[11px] leading-none font-bold text-white shadow-sm">
                     {approvalCount > 99 ? "99+" : approvalCount}
                   </span>
                 )}
@@ -105,10 +105,10 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-red-600 transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
         >
           <LogoutIcon className="h-5 w-5 shrink-0" />
-          <span>Logout</span>
+          <span className="text-sm font-medium">Logout</span>
         </button>
       </div>
     </aside>

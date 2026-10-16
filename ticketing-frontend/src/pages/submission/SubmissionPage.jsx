@@ -109,7 +109,7 @@ function formatDate(date) {
 
 function PageLoading({ message = "Loading..." }) {
   return (
-    <div className="flex min-h-64 items-center justify-center rounded-2xl border border-slate-200 bg-white p-8">
+    <div className="flex min-h-64 items-center justify-center bg-white p-8">
       <div className="text-center">
         <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
         <p className="text-sm text-slate-500">{message}</p>
@@ -535,11 +535,11 @@ function SubmissionList() {
               </div>
 
               {/* Mobile cards */}
-              <div className="grid grid-cols-1 gap-3 md:hidden">
+              <div className="grid grid-cols-1 md:hidden">
                 {filteredSubmissions.map((submission) => (
                   <article
                     key={submission.id}
-                    className="rounded-xl border border-slate-200 p-4"
+                    className="border border-slate-300 p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -726,7 +726,7 @@ function SubmissionDetailPage({ id }) {
           <button
             type="button"
             onClick={() => navigate("/submission")}
-            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -747,7 +747,7 @@ function SubmissionDetailPage({ id }) {
               
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 ">
+            <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={submission.status} />
             </div>
           </div>
@@ -774,7 +774,17 @@ function SubmissionDetailPage({ id }) {
       {/* Approval history */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-5 py-5 sm:px-7">
-          <h2 className="text-lg font-bold text-slate-900">Approval History</h2>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
+              ◷
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Approval History
+              </h2>
+            </div>
+          </div>
         </div>
 
         <div className="p-5 sm:p-7">
@@ -822,7 +832,7 @@ function SubmissionDetailPage({ id }) {
                           >
                             {getHistoryLabel(item)}
                           </h3>
-                          <time className="shrink-0 text-xs text-slate-500">
+                          <time className="shrink-0 text-sm text-slate-500">
                             {formatDate(item.created_at)}
                           </time>
                         </div>

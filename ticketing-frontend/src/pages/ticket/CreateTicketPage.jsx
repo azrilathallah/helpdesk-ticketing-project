@@ -50,7 +50,7 @@ function Stepper({ currentStep, labels }) {
     labels.length > 1 ? (currentStep - 1) / (labels.length - 1) : 0;
 
   return (
-    <div className="relative mb-8 flex items-start justify-between overflow-visible px-2 sm:px-4">
+    <div className="relative mb-4 flex items-start justify-between overflow-visible px-2 sm:px-4">
       <div className="absolute top-2.75 right-6 left-6 h-0.5 bg-slate-200" />
 
       <div
@@ -117,7 +117,7 @@ function OptionCard({ selected, title, description, onClick }) {
       aria-pressed={selected}
       onClick={onClick}
       className={[
-        "flex w-full items-start gap-4 rounded-xl border p-4 text-left",
+        "flex w-full items-start gap-4 rounded-xl border-2 p-2 text-left",
         "transition-colors duration-200",
         "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none",
         selected
@@ -151,7 +151,7 @@ function OptionCard({ selected, title, description, onClick }) {
 
 function Field({ label, children }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-1">
       <label className="text-sm font-semibold text-slate-700">{label}</label>
       {children}
     </div>
@@ -159,7 +159,7 @@ function Field({ label, children }) {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm! text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
 
 export default function CreateTicketPage() {
   const navigate = useNavigate();
@@ -388,7 +388,7 @@ export default function CreateTicketPage() {
             What form do you need?
           </p>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {subCategories.map((item) => (
               <OptionCard
                 key={item}
@@ -411,11 +411,11 @@ export default function CreateTicketPage() {
         <div className="min-h-65 flex-1 py-2">
           <h3 className="text-lg font-semibold text-slate-900">SAP Support</h3>
 
-          <p className="mt-1 mb-5 text-sm text-slate-500">
+          <p className="mt-1 mb-4 text-sm text-slate-500">
             What issue do you have?
           </p>
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2.5">
             <Field label="Module">
               <select
                 name="module"
@@ -438,7 +438,7 @@ export default function CreateTicketPage() {
                 name="description"
                 value={selection.description}
                 onChange={handleInputChange}
-                className={`${inputClass} min-h-28 resize-y`}
+                className={`${inputClass} h-20 resize-y`}
                 placeholder="Describe your issue in detail..."
                 rows={4}
               />
@@ -449,7 +449,7 @@ export default function CreateTicketPage() {
                 type="file"
                 name="attachment"
                 onChange={handleInputChange}
-                className="w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:border-blue-400"
+                className="w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-sm! text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-blue-700 hover:border-blue-400"
               />
             </Field>
           </div>
@@ -474,11 +474,11 @@ export default function CreateTicketPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl pb-4">
+    <div className="mx-auto w-full max-w-5xl">
       <section className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <header className="border-b border-slate-200 px-5 py-4 sm:px-6">
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-[22px]">
-            Create Trouble Ticket
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            Create Request Ticket
           </h1>
         </header>
 

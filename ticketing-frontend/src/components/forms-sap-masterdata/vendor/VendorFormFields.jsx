@@ -114,6 +114,8 @@ const inputClass =
 
 const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
 
+const requiredClass = "ml-0.5 text-red-600";
+
 function isEditable({ mode, readOnly, approvalRole, field }) {
   if (readOnly) return false;
   if (mode === "create") return true;
@@ -157,33 +159,27 @@ export function Section({ number, title, children }) {
   );
 }
 
-export function Field({ label, required = false, hint = "", children }) {
+export function Field({ label, required = false, children }) {
   return (
     <div className="min-w-0">
       <label className={labelClass}>
         {label}
-        {required && <span className="ml-0.5 text-red-600">*</span>}
+        {required && <span className={requiredClass}>*</span>}
       </label>
 
       {children}
-
-      {hint && (
-        <small className="mt-1.5 block text-xs leading-5 text-slate-500">
-          {hint}
-        </small>
-      )}
     </div>
   );
 }
 
-export function ReadOnlyField({ label, value, hint = "", lockedBy = "" }) {
+export function ReadOnlyField({ label, value, lockedBy = "" }) {
   const displayValue =
     value !== undefined && value !== null && String(value).trim() !== ""
       ? value
       : "-";
 
   return (
-    <Field label={label} hint={hint}>
+    <Field label={label} >
       <input type="text" className={inputClass} value={displayValue} readOnly />
 
       {lockedBy && (
@@ -457,15 +453,13 @@ export function PaymentTransactionsTable({
   return (
     <div className="w-full min-w-0 sm:col-span-2">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <label className={labelClass}>{label}</label>
-        </div>
+        <label className={labelClass}>{label} <span className={requiredClass}>*</span></label>
 
         {!disabled && (
           <button
             type="button"
             onClick={addRow}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-3xl font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             <span className="text-lg leading-none">+</span>
             Add Bank Account

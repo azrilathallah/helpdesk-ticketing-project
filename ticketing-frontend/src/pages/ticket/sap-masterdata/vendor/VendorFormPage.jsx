@@ -169,90 +169,80 @@ export default function VendorFormPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="customer-form-page">
-        <div className="customer-form-card">
-          <div className="approval-empty">
-            <strong>Loading form...</strong>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="customer-form-page">
-      <div className="customer-form-card">
-        {/* HEADER */}
-
-        <header className="customer-form__header">
+    <main className="mx-auto w-full space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <header className="border-b border-slate-200 p-5 sm:p-7">
           <button
             type="button"
-            className="customer-form__back"
             onClick={() => navigate(-1)}
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
-            ← Back
+            <span aria-hidden="true">←</span>
+            Back
           </button>
 
-          <div className="customer-form__header-content">
-            <div>
-              <p className="customer-form__eyebrow">
+          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
                 SAP · Master Data · Vendor
               </p>
 
-              <h1>Master Data Vendor Request</h1>
+              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                Master Data Vendor Request
+              </h1>
             </div>
           </div>
         </header>
 
-        <form className="customer-form" onSubmit={handleSubmit("submit")}>
-          <FormRenderer
-            type="SAP"
-            category="Master Data"
-            subCategory="Vendor"
-            formData={formData}
-            setFormData={setFormData}
-            mode="create"
-            readOnly={readOnly}
-            attachments={attachments}
-            setAttachments={setAttachments}
-          />
+        <div className="p-4 sm:p-6 lg:p-7">
+          <form onSubmit={handleSubmit("submit")}>
+            <FormRenderer
+              type="SAP"
+              category="Master Data"
+              subCategory="Vendor"
+              formData={formData}
+              setFormData={setFormData}
+              mode="create"
+              readOnly={readOnly}
+              attachments={attachments}
+              setAttachments={setAttachments}
+            />
 
-          {/* ACTIONS */}
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-end">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                disabled={Boolean(submitMode)}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {readOnly ? "Back" : "Cancel"}
+              </button>
 
-          <div className="customer-form__actions">
-            <button
-              type="button"
-              className="customer-form__button customer-form__button--secondary"
-              onClick={() => navigate(-1)}
-            >
-              {readOnly ? "Back" : "Cancel"}
-            </button>
+              {!readOnly && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSubmit("draft")}
+                    disabled={Boolean(submitMode)}
+                    className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-800 shadow-sm transition hover:border-amber-400 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {submitMode === "draft" ? "Saving..." : "Save as Draft"}
+                  </button>
 
-            {!readOnly && (
-              <>
-                <button
-                  type="button"
-                  className="customer-form__button customer-form__button--draft"
-                  onClick={handleSubmit("draft")}
-                  disabled={Boolean(submitMode)}
-                >
-                  {submitMode === "draft" ? "Saving..." : "Save as Draft"}
-                </button>
-
-                <button
-                  type="submit"
-                  className="customer-form__button customer-form__button--primary"
-                  disabled={Boolean(submitMode)}
-                >
-                  {submitMode === "submit" ? "Submitting..." : "Submit"}
-                </button>
-              </>
-            )}
-          </div>
-        </form>
-      </div>
-    </div>
+                  <button
+                    type="submit"
+                    disabled={Boolean(submitMode)}
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {submitMode === "submit" ? "Submitting..." : "Submit"}
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
   );
 }

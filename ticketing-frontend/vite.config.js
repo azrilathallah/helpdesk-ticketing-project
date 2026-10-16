@@ -7,4 +7,9 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/ticketing/',
+  server: {
+    watch: process.env.CHOKIDAR_USEPOLLING === 'true'
+      ? { usePolling: true, interval: 500 }
+      : undefined,
+  },
 })
