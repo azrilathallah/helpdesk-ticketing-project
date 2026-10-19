@@ -22,6 +22,8 @@ services:
     volumes:
       - ./ticketing-frontend:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     expose:
       - "5173"
     networks:
