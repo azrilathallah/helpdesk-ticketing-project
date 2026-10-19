@@ -173,7 +173,8 @@ function TextareaField({
   return (
     <div>
       <label className="mb-1 block text-sm font-semibold text-slate-700">
-        {label}<span className="text-red-500">*</span>
+        {label}
+        <span className="text-red-500">*</span>
       </label>
 
       <textarea
@@ -955,7 +956,7 @@ function ApprovalDetailPage({ id }) {
 
     if (currentStatus === "REVIEW_DIV_HEAD") {
       return (
-        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 flex-row justify-end">
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
             type="button"
             className={rejectButton}
@@ -994,7 +995,7 @@ function ApprovalDetailPage({ id }) {
       ].includes(currentStatus)
     ) {
       return (
-        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           {["APPROVED_DIV_HEAD", "REVISION_ACCOUNTING"].includes(
             currentStatus,
           ) && (
@@ -1048,10 +1049,10 @@ function ApprovalDetailPage({ id }) {
       )
     ) {
       return (
-        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           {["APPROVED_ACCOUNTING", "REVISION_TAX"].includes(currentStatus) && (
             <button
-              type="submit"
+              type="button"
               className={primaryButton}
               onClick={() => handleAction("fill-tax")}
               disabled={processing}
@@ -1096,9 +1097,9 @@ function ApprovalDetailPage({ id }) {
 
     if (["APPROVED_TAX", "WAITING_PIC"].includes(currentStatus)) {
       return (
-        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
-            type="submit"
+            type="button"
             className={primaryButton}
             onClick={() => handleAction("resolve")}
             disabled={processing}
@@ -1269,11 +1270,11 @@ function ApprovalDetailPage({ id }) {
               existingAttachments={submission.attachments || []}
               processing={processing}
             />
+
+            {/* Approval Actions */}
+            {renderActionButtons()}
           </form>
         </div>
-
-        {/* Approval Actions */}
-        {renderActionButtons()}
       </section>
 
       {/* Approval History */}
