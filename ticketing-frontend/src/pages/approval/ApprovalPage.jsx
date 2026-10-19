@@ -84,7 +84,7 @@ function StatusBadge({ status }) {
 
   return (
     <span
-      className={`inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${config.style}`}
+      className={`inline-flex max-w-full items-center rounded-lg px-2 py-1 text-xs font-semibold ring-1 ring-inset ${config.style}`}
     >
       {config.label}
     </span>
@@ -172,24 +172,24 @@ function TextareaField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-700">
-        {label} <span className="text-red-500">*</span>
+      <label className="mb-1 block text-sm font-semibold text-slate-700">
+        {label}<span className="text-red-500">*</span>
       </label>
 
       <textarea
-        rows={4}
+        rows={3}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         disabled={disabled}
-        className={`w-full resize-y rounded-lg border bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-50 ${
+        className={`w-full resize-y rounded-lg border bg-white p-3 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-50 ${
           error
             ? "border-red-300 focus:border-red-500 focus:ring-red-100"
             : "border-slate-300 focus:border-blue-500 focus:ring-blue-100"
         }`}
       />
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 }
@@ -267,27 +267,27 @@ function ApprovalList() {
   };
 
   const inputClass =
-    "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    "min-h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   return (
-    <main className="mx-auto w-full space-y-5">
+    <main className="mx-auto w-full space-y-3">
       {/* Header */}
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             Approval List
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
             View and process requests that require your approval.
           </p>
         </div>
       </header>
 
       {/* Summary */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-xl text-blue-700">
+      <section className="grid grid-cols-2 gap-2 sm:gap-4">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
             ✎
           </div>
 
@@ -296,7 +296,7 @@ function ApprovalList() {
               Pending Approval
             </p>
 
-            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+            <p className="text-lg font-bold tabular-nums text-slate-900">
               {submissions.length}
             </p>
           </div>
@@ -304,21 +304,21 @@ function ApprovalList() {
       </section>
 
       {/* Approval List */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 p-4">
           <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900">
                 Approval List
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="text-xs text-slate-500">
                 {filteredSubmissions.length} request
                 {filteredSubmissions.length !== 1 ? "s" : ""} found
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:w-130 xl:grid-cols-[minmax(220px,1fr)_210px]">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-110 xl:grid-cols-[minmax(220px,1fr)_210px]">
               {/* Search */}
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
@@ -339,7 +339,7 @@ function ApprovalList() {
                     type="button"
                     aria-label="Clear search"
                     onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded px-1 text-slate-400 hover:text-slate-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-slate-400 hover:text-slate-700"
                   >
                     ×
                   </button>
@@ -418,7 +418,7 @@ function ApprovalList() {
                       ].map((heading) => (
                         <th
                           key={heading}
-                          className="border-b border-slate-200 px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
+                          className="border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
                         >
                           {heading}
                         </th>
@@ -433,41 +433,41 @@ function ApprovalList() {
                         onClick={() => handleOpen(submission)}
                         className="cursor-pointer transition hover:bg-blue-50/40"
                       >
-                        <td className="border-b border-slate-100 px-4 py-4">
-                          <span className="text-sm font-semibold text-blue-700">
+                        <td className="border-b border-slate-100 p-3">
+                          <span className="text-xs font-semibold text-blue-700">
                             {submission.number || "-"}
                           </span>
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
-                          <p className="text-sm font-medium text-slate-800">
+                        <td className="border-b border-slate-100 p-3">
+                          <p className="text-xs font-medium text-slate-800">
                             {submission.form_type ||
                               `${submission.category || ""} ${submission.sub_category || ""}`}
                           </p>
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4 text-sm text-slate-600">
+                        <td className="border-b border-slate-100 p-3 text-xs text-slate-600">
                           {submission.requestor?.name || "-"}
                         </td>
 
-                        <td className="whitespace-nowrap border-b border-slate-100 px-4 py-4 text-sm text-slate-600">
+                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
                           {formatDate(
                             submission.submitted_at || submission.created_at,
                           )}
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
+                        <td className="border-b border-slate-100 p-3">
                           <StatusBadge status={submission.status} />
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
+                        <td className="border-b border-slate-100 p-3">
                           <button
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation();
                               handleOpen(submission);
                             }}
-                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                            className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                           >
                             Review
                             <span aria-hidden="true">→</span>
@@ -488,11 +488,11 @@ function ApprovalList() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="wrap-break-word font-semibold text-blue-700">
+                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
                           {submission.number || "-"}
                         </p>
 
-                        <h3 className="mt-1 wrap-break-word font-semibold text-slate-900">
+                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
                           {submission.form_type ||
                             `${submission.category || ""} ${submission.sub_category || ""}`}
                         </h3>
@@ -501,7 +501,7 @@ function ApprovalList() {
                       <StatusBadge status={submission.status} />
                     </div>
 
-                    <div className="mt-3 space-y-1 text-sm text-slate-500">
+                    <div className="mt-1 space-y-1 text-xs text-slate-500">
                       <p>Requestor: {submission.requestor?.name || "-"}</p>
 
                       <p>
@@ -512,14 +512,13 @@ function ApprovalList() {
                       </p>
                     </div>
 
-                    <div className="mt-4 border-t border-slate-100 pt-3">
+                    <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-300 pt-3 items-center justify-end">
                       <button
                         type="button"
                         onClick={() => handleOpen(submission)}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
                       >
-                        Review Request
-                        <span aria-hidden="true">→</span>
+                        Review
                       </button>
                     </div>
                   </article>
@@ -938,16 +937,16 @@ function ApprovalDetailPage({ id }) {
   ========================================================= */
 
   const primaryButton =
-    "inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
+    "inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
 
   const secondaryButton =
-    "inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50";
+    "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50";
 
-  const dangerButton =
-    "inline-flex min-h-10 items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50";
+  const rejectButton =
+    "inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50";
 
   const revisionButton =
-    "inline-flex min-h-10 items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50";
+    "inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50";
 
   const renderActionButtons = () => {
     if (!submission) return null;
@@ -956,10 +955,10 @@ function ApprovalDetailPage({ id }) {
 
     if (currentStatus === "REVIEW_DIV_HEAD") {
       return (
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-5 sm:flex-row sm:justify-end sm:px-7">
+        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 flex-row justify-end">
           <button
             type="button"
-            className={dangerButton}
+            className={rejectButton}
             onClick={openRejectModal}
             disabled={processing}
           >
@@ -995,12 +994,12 @@ function ApprovalDetailPage({ id }) {
       ].includes(currentStatus)
     ) {
       return (
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-5 sm:flex-row sm:justify-end sm:px-7">
+        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
           {["APPROVED_DIV_HEAD", "REVISION_ACCOUNTING"].includes(
             currentStatus,
           ) && (
             <button
-              type="button"
+              type="submit"
               className={primaryButton}
               onClick={() => handleAction("fill-accounting")}
               disabled={processing}
@@ -1013,7 +1012,7 @@ function ApprovalDetailPage({ id }) {
             <>
               <button
                 type="button"
-                className={dangerButton}
+                className={rejectButton}
                 onClick={openRejectModal}
                 disabled={processing}
               >
@@ -1049,10 +1048,10 @@ function ApprovalDetailPage({ id }) {
       )
     ) {
       return (
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-5 sm:flex-row sm:justify-end sm:px-7">
+        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
           {["APPROVED_ACCOUNTING", "REVISION_TAX"].includes(currentStatus) && (
             <button
-              type="button"
+              type="submit"
               className={primaryButton}
               onClick={() => handleAction("fill-tax")}
               disabled={processing}
@@ -1065,7 +1064,7 @@ function ApprovalDetailPage({ id }) {
             <>
               <button
                 type="button"
-                className={dangerButton}
+                className={rejectButton}
                 onClick={openRejectModal}
                 disabled={processing}
               >
@@ -1097,9 +1096,9 @@ function ApprovalDetailPage({ id }) {
 
     if (["APPROVED_TAX", "WAITING_PIC"].includes(currentStatus)) {
       return (
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-5 sm:flex-row sm:justify-end sm:px-7">
+        <div className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-6 py-4 flex-row justify-end">
           <button
-            type="button"
+            type="submit"
             className={primaryButton}
             onClick={() => handleAction("resolve")}
             disabled={processing}
@@ -1202,13 +1201,12 @@ function ApprovalDetailPage({ id }) {
     <main className="mx-auto w-full space-y-5">
       {/* Detail Card */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {/* Header */}
-        <header className="border-b border-slate-200 p-5 sm:p-7">
+        <header className="border-b border-slate-200 p-4 sm:p-6">
           <button
             type="button"
             onClick={() => navigate("/approval")}
             disabled={processing}
-            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -1221,11 +1219,11 @@ function ApprovalDetailPage({ id }) {
                 {submission.sub_category}
               </p>
 
-              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 {submission.category} {submission.sub_category} Request
               </h1>
 
-              <p className="mt-3 font-semibold text-slate-800">
+              <p className="mt-2 text-sm font-semibold text-slate-800">
                 Request Number: {submission.number || "-"}
               </p>
             </div>
@@ -1257,7 +1255,7 @@ function ApprovalDetailPage({ id }) {
         )}
 
         {/* Form */}
-        <div className="p-4 sm:p-6 lg:p-7">
+        <div className="p-4 sm:p-6">
           <form onSubmit={(event) => event.preventDefault()}>
             <FormRenderer
               type={submission.type}
@@ -1280,27 +1278,27 @@ function ApprovalDetailPage({ id }) {
 
       {/* Approval History */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-5 py-5 sm:px-7">
+        <div className="border-b border-slate-200 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
               ◷
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900">
                 Approval History
               </h2>
             </div>
           </div>
         </div>
 
-        <div className="p-5 sm:p-7">
+        <div className="p-4 sm:px-6">
           {visibleHistory.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl ring-1 ring-slate-200">
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center">
+              <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg ring-1 ring-slate-200">
                 ◷
               </div>
-              <p className="mt-3 font-medium text-slate-700">
+              <p className="mt-2 text-xs font-medium text-slate-700">
                 Belum ada riwayat approval
               </p>
             </div>
@@ -1313,10 +1311,10 @@ function ApprovalDetailPage({ id }) {
                   <li
                     key={item.id ?? `${item.step}-${item.created_at}-${index}`}
                   >
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                             negative
                               ? "bg-red-100 text-red-700"
                               : "bg-emerald-100 text-emerald-700"
@@ -1330,27 +1328,27 @@ function ApprovalDetailPage({ id }) {
                         )}
                       </div>
 
-                      <div className="min-w-0 flex-1 pb-6">
+                      <div className="min-w-0 flex-1 pb-3">
                         <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-start">
                           <h3
-                            className={`font-semibold ${
+                            className={`text-xs font-semibold ${
                               negative ? "text-red-700" : "text-slate-900"
                             }`}
                           >
                             {getHistoryLabel(item)}
                           </h3>
 
-                          <time className="shrink-0 text-sm text-slate-500">
+                          <time className="shrink-0 text-xs text-slate-500">
                             {formatDate(item.created_at)}
                           </time>
                         </div>
 
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-xs text-slate-500">
                           By: {item.actor?.name || "-"}
                         </p>
 
                         {item.notes && (
-                          <div className="mt-3 wrap-break-word whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                          <div className="mt-1 wrap-break-word whitespace-pre-wrap rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-700">
                             {item.notes}
                           </div>
                         )}
@@ -1381,13 +1379,13 @@ function ApprovalDetailPage({ id }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="reject-modal-title"
-            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl"
           >
-            <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+            <header className="flex items-center justify-between px-4 py-3 sm:px-6 bg-red-500">
               <div>
                 <h2
                   id="reject-modal-title"
-                  className="text-lg font-bold text-slate-900"
+                  className="text-sm font-semibold text-white"
                 >
                   Reject Request
                 </h2>
@@ -1398,14 +1396,14 @@ function ApprovalDetailPage({ id }) {
                 aria-label="Close modal"
                 onClick={() => setRejectModalOpen(false)}
                 disabled={processing}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-xl text-white transition hover:bg-red-300 hover:text-slate-700 disabled:opacity-50"
               >
                 ×
               </button>
             </header>
 
-            <div className="space-y-4 p-5 sm:p-6">
-              <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-700">
+            <div className="space-y-4 p-4 sm:p-6">
+              <div className="rounded-sm border border-red-100 bg-red-50 p-2 text-xs text-red-700">
                 Anda akan menolak ticket <strong>{submission.number}</strong>.
               </div>
 
@@ -1419,7 +1417,7 @@ function ApprovalDetailPage({ id }) {
               />
             </div>
 
-            <footer className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            <footer className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-4 py-4 flex-row justify-end sm:px-6">
               <button
                 type="button"
                 className={secondaryButton}
@@ -1431,7 +1429,7 @@ function ApprovalDetailPage({ id }) {
 
               <button
                 type="button"
-                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className={rejectButton}
                 onClick={handleConfirmReject}
                 disabled={processing || !rejectNotes.trim()}
               >
@@ -1459,13 +1457,13 @@ function ApprovalDetailPage({ id }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="revision-modal-title"
-            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl"
           >
-            <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+            <header className="flex items-center justify-between px-4 py-3 sm:px-6 bg-orange-500">
               <div>
                 <h2
                   id="revision-modal-title"
-                  className="text-lg font-bold text-slate-900"
+                  className="text-sm font-semibold text-white"
                 >
                   Revision
                 </h2>
@@ -1476,14 +1474,14 @@ function ApprovalDetailPage({ id }) {
                 aria-label="Close modal"
                 onClick={() => setRevisionModalOpen(false)}
                 disabled={processing}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-xl text-white transition hover:bg-orange-300 hover:text-slate-700 disabled:opacity-50"
               >
                 ×
               </button>
             </header>
 
-            <div className="space-y-4 p-5 sm:p-6">
-              <div className="rounded-lg border border-orange-100 bg-orange-50 p-3 text-sm text-orange-800">
+            <div className="space-y-4 p-4 sm:p-6">
+              <div className="rounded-lg border border-orange-100 bg-orange-50 p-2 text-xs text-orange-700">
                 Catatan revisi akan membantu pihak terkait memperbaiki data
                 sebelum proses approval dilanjutkan.
               </div>
@@ -1498,7 +1496,7 @@ function ApprovalDetailPage({ id }) {
               />
             </div>
 
-            <footer className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            <footer className="flex gap-1.5 border-t border-slate-200 bg-slate-50 px-4 py-4 flex-row justify-end sm:px-6">
               <button
                 type="button"
                 className={secondaryButton}
@@ -1510,7 +1508,7 @@ function ApprovalDetailPage({ id }) {
 
               <button
                 type="button"
-                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className={revisionButton}
                 onClick={handleConfirmRevision}
                 disabled={processing || !revisionNotes.trim()}
               >

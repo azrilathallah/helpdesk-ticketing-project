@@ -50,7 +50,7 @@ function Stepper({ currentStep, labels }) {
     labels.length > 1 ? (currentStep - 1) / (labels.length - 1) : 0;
 
   return (
-    <div className="relative mb-4 flex items-start justify-between overflow-visible px-2 sm:px-4">
+    <div className="relative mb-5 flex items-start justify-between overflow-visible">
       <div className="absolute top-2.75 right-6 left-6 h-0.5 bg-slate-200" />
 
       <div
@@ -97,7 +97,7 @@ function Stepper({ currentStep, labels }) {
 
             <span
               className={[
-                "text-center text-[11px] font-medium sm:text-[13px]",
+                "text-center text-xs font-medium",
                 active || completed ? "text-blue-600" : "text-slate-400",
               ].join(" ")}
             >
@@ -127,7 +127,7 @@ function OptionCard({ selected, title, description, onClick }) {
     >
       <span
         className={[
-          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
+          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
           selected ? "border-blue-600" : "border-slate-300",
         ].join(" ")}
       >
@@ -140,7 +140,7 @@ function OptionCard({ selected, title, description, onClick }) {
         </span>
 
         {description && (
-          <span className="mt-1 block text-sm leading-6 text-slate-500">
+          <span className="mt-1 block text-xs text-slate-500">
             {description}
           </span>
         )}
@@ -159,7 +159,7 @@ function Field({ label, children }) {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm! text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
 
 export default function CreateTicketPage() {
   const navigate = useNavigate();
@@ -308,16 +308,16 @@ export default function CreateTicketPage() {
   const renderStepContent = () => {
     if (step === 1) {
       return (
-        <div className="min-h-65 flex-1 animate-[fadeUp_0.3s_ease-out] py-2">
+        <div className="flex-1 py-4">
           <h3 className="text-lg font-semibold text-slate-900">
             What type of issue do you need help with?
           </h3>
 
-          <p className="mt-1 mb-5 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-slate-500">
             Select the category that best matches your request.
           </p>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {TYPE_OPTIONS.map((item) => (
               <OptionCard
                 key={item.key}
@@ -337,18 +337,18 @@ export default function CreateTicketPage() {
         selection.type === "IT" ? IT_CATEGORIES : SAP_CATEGORIES;
 
       return (
-        <div className="min-h-65 flex-1 py-2">
+        <div className="flex-1 py-4">
           <h3 className="text-lg font-semibold text-slate-900">
             {selection.type} Request Type
           </h3>
 
-          <p className="mt-1 mb-5 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-slate-500">
             {selection.type === "IT"
               ? "What kind of IT assistance do you need?"
               : "What kind of SAP assistance do you need?"}
           </p>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {categories.map((item) => (
               <OptionCard
                 key={item.key}
@@ -379,16 +379,16 @@ export default function CreateTicketPage() {
       ];
 
       return (
-        <div className="min-h-65 flex-1 py-2">
+        <div className="flex-1 py-4">
           <h3 className="text-lg font-semibold text-slate-900">
             SAP Master Data
           </h3>
 
-          <p className="mt-1 mb-5 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-slate-500">
             What form do you need?
           </p>
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
             {subCategories.map((item) => (
               <OptionCard
                 key={item}
@@ -408,10 +408,10 @@ export default function CreateTicketPage() {
       selection.category === "Support"
     ) {
       return (
-        <div className="min-h-65 flex-1 py-2">
+        <div className="flex-1 py-4">
           <h3 className="text-lg font-semibold text-slate-900">SAP Support</h3>
 
-          <p className="mt-1 mb-4 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-slate-500">
             What issue do you have?
           </p>
 
@@ -476,13 +476,13 @@ export default function CreateTicketPage() {
   return (
     <div className="mx-auto w-full max-w-5xl">
       <section className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <header className="border-b border-slate-200 px-5 py-4 sm:px-6">
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+        <header className="border-b border-slate-200 px-6 py-4">
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
             Create Request Ticket
           </h1>
         </header>
 
-        <div className="flex min-h-105 flex-col p-5 sm:p-8">
+        <div className="flex flex-col px-8 py-4">
           <Stepper currentStep={step} labels={getStepLabels()} />
 
           {renderStepContent()}

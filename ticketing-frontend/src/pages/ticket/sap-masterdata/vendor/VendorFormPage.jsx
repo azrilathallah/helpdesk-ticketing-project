@@ -172,11 +172,11 @@ export default function VendorFormPage() {
   return (
     <main className="mx-auto w-full space-y-5">
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <header className="border-b border-slate-200 p-5 sm:p-7">
+        <header className="border-b border-slate-200 p-4 sm:p-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -188,14 +188,14 @@ export default function VendorFormPage() {
                 SAP · Master Data · Vendor
               </p>
 
-              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 Master Data Vendor Request
               </h1>
             </div>
           </div>
         </header>
 
-        <div className="p-4 sm:p-6 lg:p-7">
+        <div className="p-4 sm:p-6">
           <form onSubmit={handleSubmit("submit")}>
             <FormRenderer
               type="SAP"
@@ -209,12 +209,12 @@ export default function VendorFormPage() {
               setAttachments={setAttachments}
             />
 
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-end">
+            <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
                 disabled={Boolean(submitMode)}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {readOnly ? "Back" : "Cancel"}
               </button>
@@ -225,7 +225,7 @@ export default function VendorFormPage() {
                     type="button"
                     onClick={handleSubmit("draft")}
                     disabled={Boolean(submitMode)}
-                    className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-800 shadow-sm transition hover:border-amber-400 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 shadow-sm transition hover:border-amber-400 hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {submitMode === "draft" ? "Saving..." : "Save as Draft"}
                   </button>
@@ -233,7 +233,7 @@ export default function VendorFormPage() {
                   <button
                     type="submit"
                     disabled={Boolean(submitMode)}
-                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {submitMode === "submit" ? "Submitting..." : "Submit"}
                   </button>

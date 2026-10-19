@@ -187,11 +187,11 @@ export default function CustomerFormPage() {
   return (
     <main className="mx-auto w-full space-y-5">
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <header className="border-b border-slate-200 p-5 sm:p-7">
+        <header className="border-b border-slate-200 p-4 sm:p-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -203,14 +203,14 @@ export default function CustomerFormPage() {
                 SAP · Master Data · Customer
               </p>
 
-              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 Master Data Customer Request
               </h1>
             </div>
           </div>
         </header>
 
-        <div className="p-4 sm:p-6 lg:p-7">
+        <div className="p-4 sm:p-6">
           <form onSubmit={handleSubmit("submit")}>
             <FormRenderer
               type="SAP"
@@ -225,7 +225,7 @@ export default function CustomerFormPage() {
               setAttachments={setAttachments}
             />
 
-            <div className="mt-8 flex flex-col-reverse gap-1.5 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-end">
+            <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
               <button
                 type="button"
                 onClick={() => navigate(-1)}

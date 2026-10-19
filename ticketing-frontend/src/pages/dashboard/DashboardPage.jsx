@@ -102,12 +102,12 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-screen-2xl">
       <section className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
           {getGreeting()},{" "}
           <span className="text-red-600">{user?.name || "User"}</span>
         </h1>
 
-        <p className="mt-2 text-sm text-slate-500 sm:text-base">
+        <p className="mt-1 text-xs sm:text-sm text-slate-500">
           Welcome to Helpdesk System IBS
         </p>
       </section>

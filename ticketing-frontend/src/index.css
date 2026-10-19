@@ -58,12 +58,12 @@ body {
   margin: 0;
 }
 
-button,
+/* button,
 input,
 select,
 textarea {
   font: inherit;
-}
+} */
 
 button {
   cursor: pointer;

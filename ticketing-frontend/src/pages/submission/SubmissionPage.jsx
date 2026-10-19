@@ -84,7 +84,7 @@ function StatusBadge({ status }) {
 
   return (
     <span
-      className={`inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${config.style}`}
+      className={`inline-flex max-w-full items-center rounded-lg px-2 py-1 text-xs font-semibold ring-1 ring-inset ${config.style}`}
     >
       {config.label}
     </span>
@@ -289,68 +289,65 @@ function SubmissionList() {
     }
   };
 
-  const selectClass =
-    "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
   const inputClass =
-    "min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    "min-h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   return (
-    <main className="mx-auto w-full space-y-5">
+    <main className="mx-auto w-full space-y-3">
       {/* Header */}
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             My Submission
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-1 text-xs sm:text-sm text-slate-500">
             View and manage all requests that you have created.
           </p>
         </div>
       </header>
 
       {/* Summary */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-xl text-amber-700">
+      <section className="grid grid-cols-2 gap-2 sm:gap-4">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-lg text-amber-700">
             ✎
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Draft</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+            <p className="text-lg font-bold tabular-nums text-slate-900">
               {totalDraft}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-xl text-emerald-700">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-700">
             ✓
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Submitted</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-900">
+            <p className="text-lg font-bold tabular-nums text-slate-900">
               {totalSubmitted}
             </p>
           </div>
         </div>
       </section>
 
-      {/* List */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* Submission List */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 p-4">
           <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900">
                 Submission List
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="text-xs text-slate-500">
                 {filteredSubmissions.length} request
                 {filteredSubmissions.length !== 1 ? "s" : ""} found
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:w-170 xl:grid-cols-[minmax(220px,1fr)_140px_210px]">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-150 xl:grid-cols-[minmax(220px,1fr)_140px_210px]">
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
                   ⌕
@@ -370,16 +367,17 @@ function SubmissionList() {
                     type="button"
                     aria-label="Clear search"
                     onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded px-1 text-slate-400 hover:text-slate-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-slate-400 hover:text-slate-700"
                   >
                     ×
                   </button>
                 )}
               </div>
 
+              {/* Status Filter */}
               <select
                 aria-label="Filter by type"
-                className={selectClass}
+                className={inputClass}
                 value={typeFilter}
                 onChange={(event) => setTypeFilter(event.target.value)}
               >
@@ -390,7 +388,7 @@ function SubmissionList() {
 
               <select
                 aria-label="Filter by status"
-                className={selectClass}
+                className={inputClass}
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
               >
@@ -406,13 +404,13 @@ function SubmissionList() {
                 </option>
                 <option value="REVIEW_TAX">Review by Tax</option>
                 <option value="APPROVED_TAX">Approved by Tax</option>
-                <option value="WAITING_PIC">Waiting PIC</option>
+                {/* <option value="WAITING_PIC">Waiting PIC</option> */}
                 <option value="TICKET_SOLVED">Solved</option>
                 <option value="TICKET_CANCELLED">Cancelled</option>
                 <option value="TICKET_REJECTED">Rejected</option>
                 <option value="REVISION_REQUESTOR">Requestor Revision</option>
-                <option value="REVISION_ACCOUNTING">Accounting Revision</option>
-                <option value="REVISION_TAX">Tax Revision</option>
+                {/* <option value="REVISION_ACCOUNTING">Accounting Revision</option>
+                <option value="REVISION_TAX">Tax Revision</option> */}
               </select>
             </div>
           </div>
@@ -459,7 +457,7 @@ function SubmissionList() {
                       ].map((heading) => (
                         <th
                           key={heading}
-                          className="border-b border-slate-200 px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
+                          className="border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
                         >
                           {heading}
                         </th>
@@ -474,30 +472,30 @@ function SubmissionList() {
                         onClick={() => handleOpen(submission)}
                         className="cursor-pointer transition hover:bg-blue-50/40"
                       >
-                        <td className="border-b border-slate-100 px-4 py-4">
-                          <span className="text-sm font-semibold text-blue-700">
+                        <td className="border-b border-slate-100 p-3">
+                          <span className="text-xs font-semibold text-blue-700">
                             {submission.number || "-"}
                           </span>
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
-                          <p className="text-sm font-medium text-slate-800">
+                        <td className="border-b border-slate-100 p-3">
+                          <p className="text-xs font-medium text-slate-800">
                             {submission.form_type ||
                               `${submission.category || ""} ${submission.sub_category || ""}`}
                           </p>
                         </td>
 
-                        <td className="whitespace-nowrap border-b border-slate-100 px-4 py-4 text-sm text-slate-600">
+                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
                           {formatDate(
                             submission.submitted_at || submission.created_at,
                           )}
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
+                        <td className="border-b border-slate-100 p-3">
                           <StatusBadge status={submission.status} />
                         </td>
 
-                        <td className="border-b border-slate-100 px-4 py-4">
+                        <td className="border-b border-slate-100 p-3">
                           <div className="flex flex-wrap items-center gap-2">
                             <button
                               type="button"
@@ -505,7 +503,7 @@ function SubmissionList() {
                                 event.stopPropagation();
                                 handleOpen(submission);
                               }}
-                              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                             >
                               {["DRAFT", "REVISION_REQUESTOR"].includes(
                                 submission.status,
@@ -521,7 +519,7 @@ function SubmissionList() {
                                 onClick={(event) =>
                                   handleCancelSubmission(submission, event)
                                 }
-                                className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                                className="rounded-sm border border-red-200 bg-white px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                               >
                                 Cancel
                               </button>
@@ -543,10 +541,10 @@ function SubmissionList() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="wrap-break-word font-semibold text-blue-700">
+                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
                           {submission.number || "-"}
                         </p>
-                        <h3 className="mt-1 wrap-break-word font-semibold text-slate-900">
+                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
                           {submission.form_type ||
                             `${submission.category || ""} ${submission.sub_category || ""}`}
                         </h3>
@@ -554,7 +552,7 @@ function SubmissionList() {
                       <StatusBadge status={submission.status} />
                     </div>
 
-                    <div className="mt-3 space-y-1 text-sm text-slate-500">
+                    <div className="mt-1 space-y-1 text-xs text-slate-500">
                       <p>
                         Created:{" "}
                         {formatDate(
@@ -563,11 +561,11 @@ function SubmissionList() {
                       </p>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+                    <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-300 pt-3 items-center justify-end">
                       <button
                         type="button"
                         onClick={() => handleOpen(submission)}
-                        className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
                       >
                         {["DRAFT", "REVISION_REQUESTOR"].includes(
                           submission.status,
@@ -582,7 +580,7 @@ function SubmissionList() {
                           onClick={(event) =>
                             handleCancelSubmission(submission, event)
                           }
-                          className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                          className="rounded-lg border border-red-200 px-2.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                         >
                           Cancel
                         </button>
@@ -722,11 +720,11 @@ function SubmissionDetailPage({ id }) {
     <main className="mx-auto w-full space-y-5">
       {/* Detail header */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <header className="border-b border-slate-200 p-5 sm:p-7">
+        <header className="border-b border-slate-200 p-4 sm:p-6">
           <button
             type="button"
             onClick={() => navigate("/submission")}
-            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+            className="mb-2 inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -739,12 +737,13 @@ function SubmissionDetailPage({ id }) {
                 {submission.sub_category}
               </p>
 
-              <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 {submission.category} {submission.sub_category} Request
               </h1>
 
-              <p className="mt-3 font-semibold text-slate-800">Request Number: {submission.number || "-"}</p>
-              
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                Request Number: {submission.number || "-"}
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -753,8 +752,8 @@ function SubmissionDetailPage({ id }) {
           </div>
         </header>
 
-        {/* Read-only request form */}
-        <div className="p-4 sm:p-6 lg:p-7">
+        {/* Form */}
+        <div className="p-4 sm:p-6">
           <form onSubmit={(event) => event.preventDefault()}>
             <FormRenderer
               type={submission.type}
@@ -773,27 +772,27 @@ function SubmissionDetailPage({ id }) {
 
       {/* Approval history */}
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-5 py-5 sm:px-7">
+        <div className="border-b border-slate-200 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
               ◷
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900">
                 Approval History
               </h2>
             </div>
           </div>
         </div>
 
-        <div className="p-5 sm:p-7">
+        <div className="p-4 sm:px-6">
           {visibleHistory.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl ring-1 ring-slate-200">
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center">
+              <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-white text-lg ring-1 ring-slate-200">
                 ◷
               </div>
-              <p className="mt-3 font-medium text-slate-700">
+              <p className="mt-2 text-xs font-medium text-slate-700">
                 Belum ada riwayat approval
               </p>
             </div>
@@ -806,10 +805,10 @@ function SubmissionDetailPage({ id }) {
                   <li
                     key={item.id ?? `${item.step}-${item.created_at}-${index}`}
                   >
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                             negative
                               ? "bg-red-100 text-red-700"
                               : "bg-emerald-100 text-emerald-700"
@@ -823,26 +822,26 @@ function SubmissionDetailPage({ id }) {
                         )}
                       </div>
 
-                      <div className="min-w-0 flex-1 pb-6">
+                      <div className="min-w-0 flex-1 pb-3">
                         <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-start">
                           <h3
-                            className={`font-semibold ${
+                            className={`text-xs font-semibold ${
                               negative ? "text-red-700" : "text-slate-900"
                             }`}
                           >
                             {getHistoryLabel(item)}
                           </h3>
-                          <time className="shrink-0 text-sm text-slate-500">
+                          <time className="shrink-0 text-xs text-slate-500">
                             {formatDate(item.created_at)}
                           </time>
                         </div>
 
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-xs text-slate-500">
                           By: {item.actor?.name || "-"}
                         </p>
 
                         {item.notes && (
-                          <div className="mt-3 whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                          <div className="mt-1 whitespace-pre-wrap wrap-break-word rounded-sm border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-700">
                             {item.notes}
                           </div>
                         )}
