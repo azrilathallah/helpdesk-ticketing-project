@@ -23,6 +23,8 @@ export default function VendorFormPage() {
 
   const [formData, setFormData] = useState(DEFAULT_VENDOR_FORM);
 
+  const [revisionNotes, setRevisionNotes] = useState([]);
+
   const [attachments, setAttachments] = useState([]);
 
   const [submitMode, setSubmitMode] = useState("");
@@ -39,6 +41,15 @@ export default function VendorFormPage() {
         const response = await submissionApi.getById(submissionId);
 
         const submission = response.data?.data;
+
+        setRevisionNotes(
+          (submission?.approval_history || []).filter(
+            (item) =>
+              item.step === "DIV_HEAD_REVISION" &&
+              item.action === "REVISION_REQUESTED" &&
+              item.notes?.trim(),
+          ),
+        );
 
         if (!submission) {
           throw new Error("Submission tidak ditemukan.");
@@ -196,6 +207,39 @@ export default function VendorFormPage() {
         </header>
 
         <div className="p-4 sm:p-6">
+          {submissionId && revisionNotes.length > 0 && (
+            <section className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 ">
+              <h2 className="text-sm font-semibold text-orange-800">
+                Catatan Revisi
+              </h2>
+
+              <div className="mt-1 space-y-3">
+                {revisionNotes.map((item, index) => (
+                  <div key={`${item.id ?? item.step}-${index}`}>
+                    <div className="rounded-sm border border-orange-300 bg-white p-2">
+                      <p className="whitespace-pre-wrap wrap-break-word text-xs text-slate-700">
+                        {item.notes}
+                      </p>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-1 px-1">
+                      {item.actor?.name && (
+                        <p className="text-xs text-slate-500">
+                          By: {item.actor.name}
+                        </p>
+                      )}
+
+                      {item.created_at && (
+                        <p className="text-xs text-slate-500">
+                          {new Date(item.created_at).toLocaleString("id-ID")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <form onSubmit={handleSubmit("submit")}>
             <FormRenderer
               type="SAP"

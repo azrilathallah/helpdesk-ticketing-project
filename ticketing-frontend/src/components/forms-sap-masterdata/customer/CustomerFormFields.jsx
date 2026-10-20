@@ -133,7 +133,10 @@ export const validateAttachments = (files) => {
 ========================================================= */
 
 const inputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+
+const readOnlyInputClass =
+  "w-full min-w-0 rounded-md border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
 
 const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
@@ -211,7 +214,7 @@ export function ReadOnlyField({ label, value, lockedBy = "" }) {
       <div className="relative">
         <input
           type="text"
-          className={inputClass}
+          className={readOnlyInputClass}
           value={displayValue}
           readOnly
         />
@@ -590,14 +593,14 @@ export default function CustomerFormFields({
           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
             <input
               type="text"
-              className={inputClass}
+              className={readOnlyInputClass}
               value={requestor.division || "-"}
               readOnly
             />
             <span className="text-sm text-slate-400">/</span>
             <input
               type="text"
-              className={inputClass}
+              className={readOnlyInputClass}
               value={requestor.department || "-"}
               readOnly
             />

@@ -1052,7 +1052,7 @@ function ApprovalDetailPage({ id }) {
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           {["APPROVED_ACCOUNTING", "REVISION_TAX"].includes(currentStatus) && (
             <button
-              type="button"
+              type="submit"
               className={primaryButton}
               onClick={() => handleAction("fill-tax")}
               disabled={processing}
@@ -1099,12 +1099,12 @@ function ApprovalDetailPage({ id }) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
-            type="button"
+            type="submit"
             className={primaryButton}
             onClick={() => handleAction("resolve")}
             disabled={processing}
           >
-            {processing ? "Processing..." : "Resolve Ticket"}
+            {processing ? "Processing..." : "Resolve"}
           </button>
         </div>
       );

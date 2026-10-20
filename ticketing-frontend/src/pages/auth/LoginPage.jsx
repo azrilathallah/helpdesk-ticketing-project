@@ -45,7 +45,7 @@ export default function LoginPage() {
         className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-white-400/20 blur-3xl"
       />
 
-      <section className="relative z-10 w-full max-w-md rounded-2xl border border-white/30 bg-white p-7 shadow-2xl sm:p-10">
+      <section className="relative z-10 w-full max-w-md rounded-xl border border-white/30 bg-white p-7 shadow-2xl sm:p-10">
         <header className="mb-8 text-center">
           <div className="mb-5 flex justify-center">
             <img

@@ -88,7 +88,7 @@ export function Input({ label, id, error, className = "", ...props }) {
       {label && (
         <label
           htmlFor={inputId}
-          className="text-[13px] font-semibold text-slate-700"
+          className="text-sm font-semibold text-slate-700"
         >
           {label}
         </label>
@@ -100,7 +100,7 @@ export function Input({ label, id, error, className = "", ...props }) {
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={[
           "w-full rounded-lg border bg-white px-3.5 py-2.5",
-          "text-[15px] text-slate-700 outline-none",
+          "text-sm text-slate-700 outline-none",
           "placeholder:text-slate-400",
           "transition-shadow focus:ring-4",
           error

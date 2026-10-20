@@ -110,7 +110,10 @@ export const validateAttachments = (files) => {
 ========================================================= */
 
 const inputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+
+const readOnlyInputClass =
+  "w-full min-w-0 rounded-md border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
 
 const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
@@ -178,7 +181,7 @@ export function ReadOnlyField({ label, value, lockedBy = "" }) {
 
   return (
     <Field label={label}>
-      <input type="text" className={inputClass} value={displayValue} readOnly />
+      <input type="text" className={readOnlyInputClass} value={displayValue} readOnly />
 
       {lockedBy && (
         <span className="mt-1 block text-xs font-medium text-slate-500">
@@ -456,7 +459,8 @@ export function PaymentTransactionsTable({
     <div className="w-full min-w-0 sm:col-span-2">
       <div className="mb-2.5 flex flex-wrap items-center justify-between">
         <label className={labelClass}>
-          {label}<span className={requiredClass}>*</span>
+          {label}
+          <span className={requiredClass}>*</span>
         </label>
 
         {!disabled && (

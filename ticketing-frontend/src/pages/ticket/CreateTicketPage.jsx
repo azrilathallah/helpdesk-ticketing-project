@@ -46,66 +46,88 @@ const SAP_CATEGORIES = [
 ];
 
 function Stepper({ currentStep, labels }) {
-  const progress =
-    labels.length > 1 ? (currentStep - 1) / (labels.length - 1) : 0;
+  const stepCount = labels.length;
+  const progress = stepCount > 1 ? (currentStep - 1) / (stepCount - 1) : 0;
+  const lineStart = stepCount > 0 ? 50 / stepCount : 0;
+  const lineWidth = stepCount > 1 ? ((stepCount - 1) / stepCount) * 100 : 0;
 
   return (
-    <div className="relative mb-5 flex items-start justify-between overflow-visible">
-      <div className="absolute top-2.75 right-6 left-6 h-0.5 bg-slate-200" />
-
-      <div
-        className="absolute top-2.75 left-6 h-0.5 origin-left bg-blue-600 transition-transform duration-300"
-        style={{ width: "calc(100% - 3rem)", transform: `scaleX(${progress})` }}
-      />
-
-      {labels.map((label, index) => {
-        const number = index + 1;
-        const active = number === currentStep;
-        const completed = number < currentStep;
-
-        return (
+    <div className="relative my-5 w-full">
+      {stepCount > 1 && (
+        <>
           <div
-            key={label}
-            className="relative z-10 flex min-w-0 flex-1 flex-col items-center gap-2 bg-transparent px-1"
-          >
-            <div
-              className={[
-                "flex h-5.5 w-5.5 items-center justify-center rounded-full border-2",
-                "transition-colors duration-200",
-                active || completed
-                  ? "border-blue-600 bg-blue-600"
-                  : "border-slate-300 bg-white",
-              ].join(" ")}
-            >
-              {completed ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth={3}
-                  className="h-3 w-3"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              ) : null}
-            </div>
+            className="absolute top-2.5 h-0.5 -translate-y-1/2 rounded-full bg-slate-200"
+            style={{
+              left: `${lineStart}%`,
+              width: `${lineWidth}%`,
+            }}
+            aria-hidden="true"
+          />
+          <div
+            className="absolute top-2.5 h-0.5 -translate-y-1/2 origin-left rounded-full bg-blue-600 transition-transform duration-300"
+            style={{
+              left: `${lineStart}%`,
+              width: `${lineWidth}%`,
+              transform: `scaleX(${progress})`,
+            }}
+            aria-hidden="true"
+          />
+        </>
+      )}
 
-            <span
-              className={[
-                "text-center text-xs font-medium",
-                active || completed ? "text-blue-600" : "text-slate-400",
-              ].join(" ")}
+      <ol className="relative flex w-full items-start">
+        {labels.map((label, index) => {
+          const number = index + 1;
+          const active = number === currentStep;
+          const completed = number < currentStep;
+
+          return (
+            <li
+              key={`${number}-${label}`}
+              className="flex min-w-0 flex-1 flex-col items-center text-center"
+              aria-current={active ? "step" : undefined}
             >
-              {number}. {label}
-            </span>
-          </div>
-        );
-      })}
+              <div
+                className={[
+                  "relative z-10 flex h-5 w-5 shrink-0 items-center justify-center",
+                  "rounded-full border-2 transition-colors duration-200",
+                  active || completed
+                    ? "border-blue-600 bg-blue-600"
+                    : "border-slate-300 bg-white",
+                ].join(" ")}
+              >
+                {completed && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth={3}
+                    className="h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              <span
+                className={[
+                  "mt-2 max-w-full px-1 text-xs leading-4",
+                  active || completed
+                    ? "font-semibold text-blue-600"
+                    : "font-medium text-slate-400",
+                ].join(" ")}
+              >
+                {number}. {label}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
@@ -492,7 +514,7 @@ export default function CreateTicketPage() {
               type="button"
               onClick={handleBack}
               disabled={step === 1}
-              className="inline-flex min-w-24 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40 sm:min-w-30"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
             >
               Back
             </button>
@@ -501,7 +523,7 @@ export default function CreateTicketPage() {
               type="button"
               onClick={handleNext}
               disabled={isNextDisabled()}
-              className="inline-flex min-w-24 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-30"
+              className="inline-flex items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
             >
               {getNextButtonLabel()}
             </button>
