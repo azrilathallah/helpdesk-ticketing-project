@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SubmissionController;
 use App\Http\Controllers\Api\ApprovalController;
+use App\Http\Controllers\Api\ChoiceOptionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -104,5 +105,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/approvals/{submission}/revise', [
         ApprovalController::class,
         'revise',
+    ]);
+
+    // Database-driven options for select/radio/checkbox fields
+    Route::get('/choice-options/{key}', [
+        ChoiceOptionController::class,
+        'index',
     ]);
 });

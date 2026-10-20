@@ -1,63 +1,5 @@
 import { Trash2, Upload, Paperclip, FileText } from "lucide-react";
-
-/* =========================================================
-   OPTIONS
-========================================================= */
-
-export const REQUEST_TYPES = [
-  ["New"],
-  ["Change"],
-  ["Delete / Inactive"],
-  ["Block"],
-];
-
-export const ACCOUNT_GROUPS = [
-  ["Z080", "Employee-Internal"],
-  ["Z090", "Employee-Outsources"],
-  ["Z100", "Employee-Elabram"],
-  ["Z110", "Employee-CA"],
-  ["Z120", "Employee-IBS"],
-];
-
-export const RECON_ACCOUNTS = [
-  ["31000310", "Trade A/P-3rd Party"],
-  ["31000320", "Trade A/P-Affiliated"],
-  ["32000210", "Non Trade A/P-3rd Party"],
-  ["32000220", "Non Trade A/P-Affiliated"],
-  ["34000510", "Employee Payable"],
-];
-
-export const PAYMENT_METHODS = [
-  ["Transfer"],
-  ["Giro"],
-  ["Cash/Kontan"],
-  ["Cheque"],
-  ["C/L"],
-];
-
-export const WITHOLDING_TAX = [
-  ["I1", "PPH4(2) - Invoice Deduction"],
-  ["I2", "PPH21 - Invoice Deduction"],
-  ["I3", "PPH23 - Invoice Deduction"],
-  ["I4", "PPH26 - Invoice Deduction"],
-];
-
-export const COMPANY_CODES = [["1200"], ["1300"]];
-
-export const DUE_DATE_PAYMENTS = [
-  ["AP00", "AP-Due Net Immediately"],
-  ["AP01", "AP-Due Net 7 days"],
-  ["AP02", "AP-Due Net 14 days"],
-  ["AP03", "AP-Due Net 21 days"],
-  ["AP04", "AP-Due Net 30 days"],
-  ["AP05", "AP-Due Net 60 days"],
-];
-
-export const CURRENCIES = [["IDR"], ["USD"]];
-
-/* =========================================================
-   DEFAULT FORM
-========================================================= */
+import ChoiceGroup from "../ChoiceGroup";
 
 export const DEFAULT_VENDOR_FORM = {
   requestType: "New",
@@ -188,91 +130,6 @@ export function ReadOnlyField({ label, value, lockedBy = "" }) {
           {lockedBy}
         </span>
       )}
-    </Field>
-  );
-}
-
-export function ChoiceGroup({
-  label,
-  options,
-  value,
-  onChange,
-  checkbox = false,
-  disabled = false,
-  required = false,
-}) {
-  const normalizedValue = value || (checkbox ? [] : "");
-
-  const checkboxGroupEmpty =
-    checkbox && Array.isArray(normalizedValue) && normalizedValue.length === 0;
-
-  return (
-    <Field label={label} required={required}>
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 gap-1.5 ${
-          options.length > 1 ? "grid-cols-2" : ""
-        }`}
-      >
-        {options.map((option, index) => {
-          const [code, name] = Array.isArray(option) ? option : [option, ""];
-
-          const checked = checkbox
-            ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
-            : normalizedValue === code;
-
-          const inputRequired = checkbox
-            ? required && !disabled && checkboxGroupEmpty && index === 0
-            : required && !disabled;
-
-          return (
-            <label
-              key={code}
-              className={`flex min-w-0 items-start gap-2 rounded-md border px-2.5 py-2 text-xs transition ${
-                disabled
-                  ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-500"
-                  : checked
-                    ? "cursor-pointer border-blue-400 bg-blue-50 text-blue-900"
-                    : "cursor-pointer border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50"
-              }`}
-            >
-              <input
-                type={checkbox ? "checkbox" : "radio"}
-                name={checkbox ? undefined : label}
-                value={code}
-                checked={checked}
-                disabled={disabled}
-                required={inputRequired}
-                onChange={(event) => {
-                  if (disabled || !onChange) return;
-
-                  if (!checkbox) {
-                    onChange(event.target.value);
-                    return;
-                  }
-
-                  const currentList = Array.isArray(normalizedValue)
-                    ? normalizedValue
-                    : [];
-
-                  onChange(
-                    event.target.checked
-                      ? [...currentList, event.target.value]
-                      : currentList.filter(
-                          (item) => item !== event.target.value,
-                        ),
-                  );
-                }}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-blue-600"
-              />
-
-              <span className="min-w-0 wrap-break-word">
-                <strong className="font-semibold">{code}</strong>
-                {name && <span> {name}</span>}
-              </span>
-            </label>
-          );
-        })}
-      </div>
     </Field>
   );
 }
@@ -616,7 +473,6 @@ export default function VendorFormFields({
   mode = "submission",
   readOnly = false,
   approvalRole = null,
-  requestor = {},
   attachments = [],
   setAttachments,
   existingAttachments = [],
@@ -655,7 +511,7 @@ export default function VendorFormFields({
       <Section number="1" title="Request Type">
         <ChoiceGroup
           label="Request Type"
-          options={REQUEST_TYPES}
+          groupKey="vendor_request_type"
           value={form.requestType}
           onChange={(value) => update("requestType", value)}
           required={isCreateMode}
@@ -819,7 +675,7 @@ export default function VendorFormFields({
       <Section number="3" title="Company Code Data (Accounting Dept)">
         <ChoiceGroup
           label="Account Group"
-          options={ACCOUNT_GROUPS}
+          groupKey="vendor_account_group"
           value={form.accountGroup}
           onChange={(value) => update("accountGroup", value)}
           required={isAccounting}
@@ -828,7 +684,7 @@ export default function VendorFormFields({
 
         <ChoiceGroup
           label="Recon Account"
-          options={RECON_ACCOUNTS}
+          groupKey="vendor_recon_account"
           value={form.recontAccount}
           onChange={(value) => update("recontAccount", value)}
           required={isAccounting}
@@ -837,7 +693,7 @@ export default function VendorFormFields({
 
         <ChoiceGroup
           label="Payment Method"
-          options={PAYMENT_METHODS}
+          groupKey="vendor_payment_method"
           value={form.paymentMethod}
           onChange={(value) => update("paymentMethod", value)}
           checkbox
@@ -847,7 +703,7 @@ export default function VendorFormFields({
 
         <ChoiceGroup
           label="Witholding Tax Type & Code"
-          options={WITHOLDING_TAX}
+          groupKey="vendor_witholding_tax"
           value={form.witholdingTax}
           onChange={(value) => update("witholdingTax", value)}
           checkbox
@@ -860,7 +716,7 @@ export default function VendorFormFields({
       <Section number="4" title="Company Code Data (Purch Dept)">
         <ChoiceGroup
           label="Company Code"
-          options={COMPANY_CODES}
+          groupKey="vendor_company_code"
           value={form.companyCode}
           onChange={(value) => update("companyCode", value)}
           required={isCreateMode}
@@ -869,7 +725,7 @@ export default function VendorFormFields({
 
         <ChoiceGroup
           label="Due Date Payment"
-          options={DUE_DATE_PAYMENTS}
+          groupKey="vendor_due_date_payment"
           value={form.dueDatePayment}
           onChange={(value) => update("dueDatePayment", value)}
           required={isCreateMode}
@@ -881,7 +737,7 @@ export default function VendorFormFields({
       <Section number="5" title="Purchasing Organization Data">
         <ChoiceGroup
           label="Order Currency"
-          options={CURRENCIES}
+          groupKey="vendor_currency"
           value={form.currency}
           onChange={(value) => update("currency", value)}
           required={isCreateMode}

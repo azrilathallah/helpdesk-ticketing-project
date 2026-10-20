@@ -1,71 +1,5 @@
 import { Trash2, Upload, Paperclip, FileText } from "lucide-react";
-
-export const REQUEST_TYPES = [
-  ["New"],
-  ["Change"],
-  ["Extend"],
-  ["Block / Unblock"],
-];
-
-export const ACCOUNT_GROUPS = [
-  ["Z010", "Customer-Tenant"],
-  ["Z020", "Customer-Non Tenant"],
-  ["Z030", "Customer-Advertising Agency"],
-  ["Z040", "Customer-Affiliated"],
-  ["Z050", "Customer-Shareholder"],
-  ["Z060", "Customer-Building Owner"],
-  ["Z070", "Customer-OneTime"],
-];
-
-export const COMPANY_CODES = [["1200", "IBSW"]];
-
-export const SALES_ORGANIZATION = [["1200", "IBSW"]];
-
-export const DISTRIBUTION_CHANNELS = [["00", "Common"]];
-
-export const DIVISIONS = [["00", "Common"]];
-
-export const CUSTOMER_CLASSES = [
-  ["01", "Standard"],
-  ["03", "Government (WAPU)"],
-];
-
-export const SORT_KEYS = [
-  ["002", "Document No., Fiscal Year"],
-  ["022", "One Time Name/City"],
-];
-
-export const TERMS_OF_PAYMENT = [
-  ["AR00", "Payable immediately Due net"],
-  ["AR01", "Due in 14 days"],
-  ["AR02", "Due in 30 days"],
-  ["AR03", "Due in 60 days"],
-  ["AR04", "Due in 365 days"],
-  ["AR05", "Due in 2 years"],
-];
-
-export const TOLERANCE_GROUPS = [["1200", "Cust/Vend Tolerance"]];
-
-export const WITHOLDING_TAX = [
-  ["P4", "PPH4(2) - Customer Payment Deduction"],
-  ["P5", "PPH23 - Customer Payment Deduction"],
-];
-
-export const CURRENCIES = ["IDR", "USD"];
-
-export const CUSTOMER_PRICING_PROCEDURES = [["1", "Standard"]];
-
-export const CUSTOMER_STATISTIC_GROUPS = [["1", "Standard"]];
-
-export const TAX_CLASSIFICATIONS = [
-  ["0", "No Tax"],
-  ["1", "Tax"],
-  ["2", "WAPU"],
-];
-
-/* =========================================================
-   DEFAULT FORM
-========================================================= */
+import ChoiceGroup from "../ChoiceGroup";
 
 export const DEFAULT_CUSTOMER_FORM = {
   requestType: "New",
@@ -224,91 +158,6 @@ export function ReadOnlyField({ label, value, lockedBy = "" }) {
             {lockedBy}
           </span>
         )}
-      </div>
-    </Field>
-  );
-}
-
-export function ChoiceGroup({
-  label,
-  options,
-  value,
-  onChange,
-  checkbox = false,
-  disabled = false,
-  required = false,
-}) {
-  const normalizedValue = value || (checkbox ? [] : "");
-
-  const checkboxGroupEmpty =
-    checkbox && Array.isArray(normalizedValue) && normalizedValue.length === 0;
-
-  return (
-    <Field label={label} required={required}>
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 gap-1.5 ${
-          options.length > 1 ? "grid-cols-2" : ""
-        }`}
-      >
-        {options.map((option, index) => {
-          const [code, name] = Array.isArray(option) ? option : [option, ""];
-
-          const checked = checkbox
-            ? Array.isArray(normalizedValue) && normalizedValue.includes(code)
-            : normalizedValue === code;
-
-          const inputRequired = checkbox
-            ? required && !disabled && checkboxGroupEmpty && index === 0
-            : required && !disabled;
-
-          return (
-            <label
-              key={code}
-              className={`flex min-w-0 items-start gap-2 rounded-md border px-2.5 py-2 text-xs transition ${
-                disabled
-                  ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-500"
-                  : checked
-                    ? "cursor-pointer border-blue-400 bg-blue-50 text-blue-900"
-                    : "cursor-pointer border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50"
-              }`}
-            >
-              <input
-                type={checkbox ? "checkbox" : "radio"}
-                name={checkbox ? undefined : label}
-                value={code}
-                checked={checked}
-                disabled={disabled}
-                required={inputRequired}
-                onChange={(event) => {
-                  if (disabled || !onChange) return;
-
-                  if (!checkbox) {
-                    onChange(event.target.value);
-                    return;
-                  }
-
-                  const currentList = Array.isArray(normalizedValue)
-                    ? normalizedValue
-                    : [];
-
-                  onChange(
-                    event.target.checked
-                      ? [...currentList, event.target.value]
-                      : currentList.filter(
-                          (item) => item !== event.target.value,
-                        ),
-                  );
-                }}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-blue-600"
-              />
-
-              <span className="min-w-0 wrap-break-word">
-                <strong className="font-semibold">{code}</strong>
-                {name && <span> {name}</span>}
-              </span>
-            </label>
-          );
-        })}
       </div>
     </Field>
   );
@@ -539,7 +388,7 @@ export default function CustomerFormFields({
       <Section number="1" title="Request Type">
         <ChoiceGroup
           label="Request Type"
-          options={REQUEST_TYPES}
+          groupKey="customer_request_type"
           value={form.requestType}
           onChange={(value) => update("requestType", value)}
           required={isCreateMode}
@@ -615,7 +464,7 @@ export default function CustomerFormFields({
       <Section number="3" title="Initial Screen">
         <ChoiceGroup
           label="Account Group"
-          options={ACCOUNT_GROUPS}
+          groupKey="customer_account_group"
           value={form.accountGroup}
           onChange={(value) => update("accountGroup", value)}
           required={isAccounting}
@@ -624,7 +473,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Company Code"
-          options={COMPANY_CODES}
+          groupKey="customer_company_code"
           value={form.companyCode}
           onChange={(value) => update("companyCode", value)}
           required={isCreateMode}
@@ -633,7 +482,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Sales Organization"
-          options={SALES_ORGANIZATION}
+          groupKey="customer_sales_organization"
           value={form.salesOrganization}
           onChange={(value) => update("salesOrganization", value)}
           required={isCreateMode}
@@ -642,7 +491,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Distribution Channel"
-          options={DISTRIBUTION_CHANNELS}
+          groupKey="customer_distribution_channel"
           value={form.distributionChannel}
           onChange={(value) => update("distributionChannel", value)}
           checkbox
@@ -652,7 +501,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Division"
-          options={DIVISIONS}
+          groupKey="customer_division"
           value={form.division}
           onChange={(value) => update("division", value)}
           checkbox
@@ -789,7 +638,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Customer Class"
-          options={CUSTOMER_CLASSES}
+          groupKey="customer_class"
           value={form.customerClass}
           onChange={(value) => update("customerClass", value)}
           required={isCreateMode}
@@ -816,7 +665,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Sort Key"
-          options={SORT_KEYS}
+          groupKey="customer_sort_key"
           value={form.sortKey}
           onChange={(value) => update("sortKey", value)}
           required={isAccounting}
@@ -825,7 +674,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Terms of Payment"
-          options={TERMS_OF_PAYMENT}
+          groupKey="customer_payment_terms"
           value={form.paymentTerms}
           onChange={(value) => update("paymentTerms", value)}
           required={isCreateMode}
@@ -834,7 +683,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Tolerance Group"
-          options={TOLERANCE_GROUPS}
+          groupKey="customer_tolerance_group"
           value={form.toleranceGroup}
           onChange={(value) => update("toleranceGroup", value)}
           required={isAccounting}
@@ -843,7 +692,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Witholding Tax"
-          options={WITHOLDING_TAX}
+          groupKey="customer_witholding_tax"
           value={form.witholdingTax}
           onChange={(value) => update("witholdingTax", value)}
           checkbox
@@ -856,7 +705,7 @@ export default function CustomerFormFields({
       <Section number="6" title="Sales Area Data">
         <ChoiceGroup
           label="Currency"
-          options={CURRENCIES}
+          groupKey="customer_currency"
           value={form.currency}
           onChange={(value) => update("currency", value)}
           required={isCreateMode}
@@ -865,7 +714,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Customer Pricing Procedure"
-          options={CUSTOMER_PRICING_PROCEDURES}
+          groupKey="customer_pricing_procedure"
           value={form.customerPricingProcedure}
           onChange={(value) => update("customerPricingProcedure", value)}
           checkbox
@@ -875,7 +724,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Customer Statistic Group"
-          options={CUSTOMER_STATISTIC_GROUPS}
+          groupKey="customer_statistic_group"
           value={form.customerStatisticGroup}
           onChange={(value) => update("customerStatisticGroup", value)}
           checkbox
@@ -885,7 +734,7 @@ export default function CustomerFormFields({
 
         <ChoiceGroup
           label="Tax Classification"
-          options={TAX_CLASSIFICATIONS}
+          groupKey="customer_tax_classification"
           value={form.taxClassification}
           onChange={(value) => update("taxClassification", value)}
           required={isCreateMode}
