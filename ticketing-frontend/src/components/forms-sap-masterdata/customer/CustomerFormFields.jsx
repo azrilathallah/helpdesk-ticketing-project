@@ -717,7 +717,6 @@ export default function CustomerFormFields({
           groupKey="customer_pricing_procedure"
           value={form.customerPricingProcedure}
           onChange={(value) => update("customerPricingProcedure", value)}
-          checkbox
           required={isCreateMode}
           disabled={!editable("customerPricingProcedure")}
         />
@@ -727,7 +726,6 @@ export default function CustomerFormFields({
           groupKey="customer_statistic_group"
           value={form.customerStatisticGroup}
           onChange={(value) => update("customerStatisticGroup", value)}
-          checkbox
           required={isCreateMode}
           disabled={!editable("customerStatisticGroup")}
         />
