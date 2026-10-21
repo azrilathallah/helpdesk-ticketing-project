@@ -659,7 +659,7 @@ function ApprovalDetailPage({ id }) {
         Array.isArray(data.paymentMethod) && data.paymentMethod.length > 0;
 
       return (
-        (Boolean(data.accountGroup && data.recontAccount) &&
+        (Boolean(data.accountGroup && data.reconAccount) &&
           hasPaymentMethod) ||
         Boolean(hasHistory)
       );
@@ -668,7 +668,7 @@ function ApprovalDetailPage({ id }) {
     return (
       Boolean(
         data.accountGroup &&
-        data.recontAccount &&
+        data.reconAccount &&
         data.sortKey &&
         data.toleranceGroup,
       ) || Boolean(hasHistory)
@@ -803,24 +803,24 @@ function ApprovalDetailPage({ id }) {
           const accountingData = isVendor
             ? {
                 accountGroup: formData.accountGroup || "",
-                recontAccount: formData.recontAccount || "",
+                reconAccount: formData.reconAccount || "",
                 paymentMethod: Array.isArray(formData.paymentMethod)
                   ? formData.paymentMethod
                   : [],
               }
             : {
                 accountGroup: formData.accountGroup || "",
-                recontAccount: formData.recontAccount || "",
+                reconAccount: formData.reconAccount || "",
                 sortKey: formData.sortKey || "",
                 toleranceGroup: formData.toleranceGroup || "",
               };
 
           const isInvalid = isVendor
             ? !accountingData.accountGroup ||
-              !accountingData.recontAccount ||
+              !accountingData.reconAccount ||
               accountingData.paymentMethod.length === 0
             : !accountingData.accountGroup ||
-              !accountingData.recontAccount ||
+              !accountingData.reconAccount ||
               !accountingData.sortKey ||
               !accountingData.toleranceGroup;
 

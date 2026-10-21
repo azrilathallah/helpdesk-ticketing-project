@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChoiceOption extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'choice_group_id',
         'value',

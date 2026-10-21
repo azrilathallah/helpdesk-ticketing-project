@@ -235,6 +235,11 @@ export default function CreateTicketPage() {
           return;
         }
 
+        if (selection.subCategory === "Material") {
+          navigate("/create-ticket/sap-masterdata/material-form");
+          return;
+        }
+
         console.log("Form belum dibuat:", selection.subCategory);
         return;
       }

@@ -1,5 +1,6 @@
 import CustomerFormFields from "./customer/CustomerFormFields";
 import VendorFormFields from "./vendor/VendorFormFields";
+import MaterialFormFields from "./material/MaterialFormFields";
 
 export default function FormRenderer({
   type,
@@ -16,6 +17,7 @@ export default function FormRenderer({
   existingAttachments = [],
   onCustomerCodeChange,
   onVendorCodeChange,
+  onMaterialCodeChange,
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -63,6 +65,19 @@ export default function FormRenderer({
       <VendorFormFields
         {...commonProps}
         onVendorCodeChange={onVendorCodeChange}
+      />
+    );
+  }
+
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "material"
+  ) {
+    return (
+      <MaterialFormFields
+        {...commonProps}
+        onMaterialCodeChange={onMaterialCodeChange}
       />
     );
   }

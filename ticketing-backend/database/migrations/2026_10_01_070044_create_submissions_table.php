@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('prefix', 20);
             $table->unsignedSmallInteger('year');
             $table->unsignedInteger('last_number')->default(0);
-            $table->timestamps();
 
             $table->unique(['prefix', 'year']);
         });

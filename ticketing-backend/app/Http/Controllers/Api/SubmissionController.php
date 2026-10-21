@@ -141,8 +141,6 @@ class SubmissionController extends Controller
                     'prefix' => $prefix,
                     'year' => $year,
                     'last_number' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ]);
 
                 $sequence = DB::table('form_sequences')
@@ -158,7 +156,6 @@ class SubmissionController extends Controller
                 ->where('id', $sequence->id)
                 ->update([
                     'last_number' => $nextNumber,
-                    'updated_at' => now(),
                 ]);
 
             $number =

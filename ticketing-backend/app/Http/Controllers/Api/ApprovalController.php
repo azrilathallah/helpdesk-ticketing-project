@@ -118,7 +118,7 @@ class ApprovalController extends Controller
         $rules = [
             'accounting_data' => 'required|array',
             'accounting_data.accountGroup' => 'required|string',
-            'accounting_data.recontAccount' => 'required|string',
+            'accounting_data.reconAccount' => 'required|string',
             'notes' => 'nullable|string|max:1000',
         ];
 
