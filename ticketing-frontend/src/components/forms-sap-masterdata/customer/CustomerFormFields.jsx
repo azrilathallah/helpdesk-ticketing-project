@@ -161,10 +161,17 @@ export default function CustomerFormFields({
   const isAccounting = isApprovalMode && approvalRole === "accounting";
   const isTax = isApprovalMode && approvalRole === "tax";
 
+  let sectionNumber = 0;
+
+  const nextSection = () => {
+    sectionNumber += 1;
+    return sectionNumber;
+  };
+
   return (
     <div className="space-y-5">
       {/* 1. REQUEST TYPE */}
-      <Section number="1" title="Request Type">
+      <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
           groupKey="customer_request_type"
@@ -212,7 +219,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 2. REQUESTOR */}
-      <Section number="2" title="Requestor">
+      <Section number={nextSection()} title="Requestor">
         <ReadOnlyField label="Name" value={requestor.name} />
         <ReadOnlyField label="Position (Jabatan)" value={requestor.position} />
 
@@ -240,7 +247,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 3. INITIAL SCREEN */}
-      <Section number="3" title="Initial Screen">
+      <Section number={nextSection()} title="Initial Screen">
         <ChoiceGroup
           label="Account Group"
           groupKey="customer_account_group"
@@ -288,7 +295,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 4. GENERAL DATA */}
-      <Section number="4" title="General Data">
+      <Section number={nextSection()} title="General Data">
         <Field label="Judul (Title)" required={isCreateMode}>
           <input
             type="text"
@@ -424,7 +431,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 5. COMPANY CODE DATA */}
-      <Section number="5" title="Company Code Data">
+      <Section number={nextSection()} title="Company Code Data">
         {isAccounting ? (
           <Field label="Recon Account" required>
             <input
@@ -479,7 +486,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 6. SALES AREA DATA */}
-      <Section number="6" title="Sales Area Data">
+      <Section number={nextSection()} title="Sales Area Data">
         <ChoiceGroup
           label="Currency"
           groupKey="customer_currency"
@@ -518,7 +525,7 @@ export default function CustomerFormFields({
       </Section>
 
       {/* 7. ATTACHMENT */}
-      <Section number="7" title="Attachment">
+      <Section number={nextSection()} title="Attachment">
         <AttachmentField
           files={attachments}
           existingFiles={existingAttachments}

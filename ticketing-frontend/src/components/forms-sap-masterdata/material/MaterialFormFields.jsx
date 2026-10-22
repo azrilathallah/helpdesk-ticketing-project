@@ -6,11 +6,11 @@ export const DEFAULT_MATERIAL_FORM = {
   requestType: "New",
   materialCode: "",
 
-  industrySector: "",
+  industrySector: "I",
   materialType: "",
   plant: "",
   salesOrganization: "",
-  distributionChannel: "",
+  distributionChannel: "00",
   storageLocation: "",
 
   description: "",
@@ -20,7 +20,7 @@ export const DEFAULT_MATERIAL_FORM = {
   division: "",
   genItemCatGroup: "",
   tax: "",
-  matlStatisGroup: "",
+  matlStatisGroup: "1",
   AccAssignementGroup: "",
   reconAccount: "",
 
@@ -124,10 +124,22 @@ export default function MaterialFormFields({
   const isNewRequest = form.requestType === "New";
   const isAccounting = isApprovalMode && approvalRole === "accounting";
 
+  // Kondisi berdasarkan Material Type
+  const isZCOM = form.materialType === "ZCOM";
+  const isZINV = form.materialType === "ZINV";
+  const isYPRO = form.materialType === "YPRO";
+
+  let sectionNumber = 0;
+
+  const nextSection = () => {
+    sectionNumber += 1;
+    return sectionNumber;
+  };
+
   return (
     <div className="space-y-5">
       {/* 1. REQUEST TYPE */}
-      <Section number="1" title="Request Type">
+      <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
           groupKey="material_request_type"
@@ -153,7 +165,7 @@ export default function MaterialFormFields({
                 update("materialCode", value);
                 onMaterialCodeChange?.(value);
               }}
-              placeholder="Masukkan Material code"
+              placeholder="Masukkan material code"
               required={isPIC || isCreateMode}
               disabled={!editable("materialCode")}
             />
@@ -162,7 +174,7 @@ export default function MaterialFormFields({
       </Section>
 
       {/* 2. INITIAL SCREEN */}
-      <Section number="2" title="Initial Screen">
+      <Section number={nextSection()} title="Initial Screen">
         <ChoiceGroup
           label="Industry Sector"
           groupKey="material_industry_sector"
@@ -176,7 +188,13 @@ export default function MaterialFormFields({
           label="Material Type"
           groupKey="material_type"
           value={form.materialType}
-          onChange={(value) => update("materialType", value)}
+          onChange={(value) => {
+            setFormData?.((previous) => ({
+              ...previous,
+              materialType: value,
+              storageLocation: value === "ZINV" ? "GDST" : "",
+            }));
+          }}
           required={isCreateMode}
           disabled={!editable("materialType")}
         />
@@ -190,36 +208,42 @@ export default function MaterialFormFields({
           disabled={!editable("plant")}
         />
 
-        <ChoiceGroup
-          label="Sales Organization"
-          groupKey="material_sales_organization"
-          value={form.salesOrganization}
-          onChange={(value) => update("salesOrganization", value)}
-          required={isCreateMode}
-          disabled={!editable("salesOrganization")}
-        />
+        {isZCOM && (
+          <ChoiceGroup
+            label="Sales Organization"
+            groupKey="material_sales_organization"
+            value={form.salesOrganization}
+            onChange={(value) => update("salesOrganization", value)}
+            required={isCreateMode}
+            disabled={!editable("salesOrganization")}
+          />
+        )}
 
-        <ChoiceGroup
-          label="Distribution Channel"
-          groupKey="material_distribution_channel"
-          value={form.distributionChannel}
-          onChange={(value) => update("distributionChannel", value)}
-          required={isCreateMode}
-          disabled={!editable("distributionChannel")}
-        />
+        {isZCOM && (
+          <ChoiceGroup
+            label="Distribution Channel"
+            groupKey="material_distribution_channel"
+            value={form.distributionChannel}
+            onChange={(value) => update("distributionChannel", value)}
+            required={isCreateMode}
+            disabled={!editable("distributionChannel")}
+          />
+        )}
 
-        <ChoiceGroup
-          label="Storage Location"
-          groupKey="material_storage_location"
-          value={form.storageLocation}
-          onChange={(value) => update("storageLocation", value)}
-          required={isCreateMode}
-          disabled={!editable("storageLocation")}
-        />
+        <Field label="Storage Location" required={isCreateMode && isZINV}>
+          <input
+            type="text"
+            className={inputClass}
+            value={form.storageLocation || ""}
+            onChange={(event) => update("storageLocation", event.target.value)}
+            required={isCreateMode && isZINV}
+            disabled={!editable("storageLocation")}
+          />
+        </Field>
       </Section>
 
       {/* 3. BASIC DATA */}
-      <Section number="3" title="Basic Data">
+      <Section number={nextSection()} title="Basic Data">
         <Field label="Description" required={isCreateMode}>
           <input
             type="text"
@@ -255,80 +279,87 @@ export default function MaterialFormFields({
       </Section>
 
       {/* 4. SALES VIEW */}
-      <Section number="4" title="Sales View">
-        <ChoiceGroup
-          label="Division"
-          groupKey="material_division"
-          value={form.division}
-          onChange={(value) => update("division", value)}
-          required={isCreateMode}
-          disabled={!editable("division")}
-        />
+      {isZCOM && (
+        <Section number={nextSection()} title="Sales View">
+          <ChoiceGroup
+            label="Division"
+            groupKey="material_division"
+            value={form.division}
+            onChange={(value) => update("division", value)}
+            required={isCreateMode}
+            disabled={!editable("division")}
+          />
 
-        <ChoiceGroup
-          label="GenItemCatGroup"
-          groupKey="material_genitemcatgroup"
-          value={form.genItemCatGroup}
-          onChange={(value) => update("genItemCatGroup", value)}
-          required={isCreateMode}
-          disabled={!editable("genItemCatGroup")}
-        />
+          <ChoiceGroup
+            label="GenItemCatGroup"
+            groupKey="material_genitemcatgroup"
+            value={form.genItemCatGroup}
+            onChange={(value) => update("genItemCatGroup", value)}
+            required={isCreateMode}
+            disabled={!editable("genItemCatGroup")}
+          />
 
-        <ChoiceGroup
-          label="Tax"
-          groupKey="material_tax"
-          value={form.tax}
-          onChange={(value) => update("tax", value)}
-          required={isCreateMode}
-          disabled={!editable("tax")}
-        />
+          <ChoiceGroup
+            label="Tax"
+            groupKey="material_tax"
+            value={form.tax}
+            onChange={(value) => update("tax", value)}
+            required={isCreateMode}
+            disabled={!editable("tax")}
+          />
 
-        <ChoiceGroup
-          label="Matl. Statis Group"
-          groupKey="material_matl_statis_group"
-          value={form.matlStatisGroup}
-          onChange={(value) => update("matlStatisGroup", value)}
-          required={isCreateMode}
-          disabled={!editable("matlStatisGroup")}
-        />
+          <ChoiceGroup
+            label="Matl. Statis Group"
+            groupKey="material_matl_statis_group"
+            value={form.matlStatisGroup}
+            onChange={(value) => update("matlStatisGroup", value)}
+            required={isCreateMode}
+            disabled={!editable("matlStatisGroup")}
+          />
 
-        <ChoiceGroup
-          label="Acct. Assignement Group"
-          groupKey="material_acc_assignement_group"
-          value={form.accAssignementGroup}
-          onChange={(value) => update("accAssignementGroup", value)}
-          required={isCreateMode}
-          disabled={!editable("accAssignementGroup")}
-        />
-      </Section>
+          <ChoiceGroup
+            label="Acct. Assignement Group"
+            groupKey="material_acc_assignement_group"
+            value={form.accAssignementGroup}
+            onChange={(value) => update("accAssignementGroup", value)}
+            required={isCreateMode}
+            disabled={!editable("accAssignementGroup")}
+          />
+
+          {isAccounting ? (
+            <Field label="Recon Account" required>
+              <input
+                type="text"
+                className={inputClass}
+                value={form.reconAccount || ""}
+                onChange={(event) => update("reconAccount", event.target.value)}
+                required
+              />
+            </Field>
+          ) : (
+            <ReadOnlyField label="Recon Account" value={form.reconAccount} />
+          )}
+        </Section>
+      )}
 
       {/* 5. Accounting Data 1 */}
-      <Section number="5" title="Accounting Data 1">
-        <Field label="Recon Account" required>
-          <input
-            type="text"
-            className={inputClass}
-            value={form.reconAccount || ""}
-            onChange={(event) => update("reconAccount", event.target.value)}
-            required={isCreateMode}
-            disabled={!editable("reconAccount")}
-          />
-        </Field>
-
-        <Field label="GL Account" required>
-          <input
-            type="text"
-            className={inputClass}
-            value={form.glAccount || ""}
-            onChange={(event) => update("glAccount", event.target.value)}
-            required={isCreateMode}
-            disabled={!editable("glAccount")}
-          />
-        </Field>
-      </Section>
+      {isYPRO && (
+        <Section number={nextSection()} title="Accounting Data 1">
+          <Field label="GL Account" required>
+            <input
+              type="text"
+              className={inputClass}
+              value={form.glAccount || ""}
+              onChange={(event) => update("glAccount", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("glAccount")}
+            />
+          </Field>
+        </Section>
+      )}
 
       {/* 6. ATTACHMENT */}
-      <Section number="6" title="Attachment">
+      <Section number={nextSection()} title="Attachment">
         <AttachmentField
           files={attachments}
           existingFiles={existingAttachments}

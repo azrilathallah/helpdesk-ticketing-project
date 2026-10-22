@@ -10,9 +10,6 @@ class ChoiceOptionController extends Controller
 {
     /**
      * GET /choice-options/{key}
-     *
-     * Hanya menampilkan pilihan yang tanggal hari ini
-     * berada di antara start_date dan end_date.
      */
     public function index(string $key): JsonResponse
     {

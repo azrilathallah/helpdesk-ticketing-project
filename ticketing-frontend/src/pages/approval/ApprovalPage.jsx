@@ -8,8 +8,8 @@ import {
   DEFAULT_CUSTOMER_FORM,
   getUserValue,
 } from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
-
 import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
+import { DEFAULT_MATERIAL_FORM } from "../../components/forms-sap-masterdata/material/MaterialFormFields";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -563,6 +563,10 @@ function ApprovalDetailPage({ id }) {
 
     if (data?.sub_category === "Vendor") {
       return DEFAULT_VENDOR_FORM;
+    }
+
+    if (data?.sub_category === "Material") {
+      return DEFAULT_MATERIAL_FORM;
     }
 
     return {};

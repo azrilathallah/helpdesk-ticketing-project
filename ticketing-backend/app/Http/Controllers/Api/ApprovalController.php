@@ -13,7 +13,7 @@ class ApprovalController extends Controller
     /**
      * GET /approvals
      */
-    public function index(Request $request)
+    public function index()
     {
         $submissions = Submission::query()
             ->with('requestor')
@@ -30,7 +30,7 @@ class ApprovalController extends Controller
     /**
      * GET /approvals/{submission}
      */
-    public function show(Request $request, Submission $submission)
+    public function show(Submission $submission)
     {
         $submission->load([
             'requestor',

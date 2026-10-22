@@ -336,10 +336,17 @@ export default function VendorFormFields({
   const isAccounting = isApprovalMode && approvalRole === "accounting";
   const isTax = isApprovalMode && approvalRole === "tax";
 
+  let sectionNumber = 0;
+
+  const nextSection = () => {
+    sectionNumber += 1;
+    return sectionNumber;
+  };
+
   return (
     <div className="space-y-5">
       {/* 1. REQUEST TYPE */}
-      <Section number="1" title="Request Type">
+      <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
           groupKey="vendor_request_type"
@@ -371,7 +378,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 2. GENERAL DATA */}
-      <Section number="2" title="General Data">
+      <Section number={nextSection()} title="General Data">
         <Field label="Name" required={isCreateMode}>
           <input
             type="text"
@@ -503,7 +510,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 3. COMPANY CODE DATA — ACCOUNTING */}
-      <Section number="3" title="Company Code Data (Accounting Dept)">
+      <Section number={nextSection()} title="Company Code Data (Accounting Dept)">
         <ChoiceGroup
           label="Account Group"
           groupKey="vendor_account_group"
@@ -544,7 +551,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 4. COMPANY CODE DATA — PURCHASING */}
-      <Section number="4" title="Company Code Data (Purch Dept)">
+      <Section number={nextSection()} title="Company Code Data (Purch Dept)">
         <ChoiceGroup
           label="Company Code"
           groupKey="vendor_company_code"
@@ -565,7 +572,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 5. PURCHASING ORGANIZATION DATA */}
-      <Section number="5" title="Purchasing Organization Data">
+      <Section number={nextSection()} title="Purchasing Organization Data">
         <ChoiceGroup
           label="Order Currency"
           groupKey="vendor_currency"
@@ -587,7 +594,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 6. PAYMENT TRANSACTIONS */}
-      <Section number="6" title="Payment Transactions">
+      <Section number={nextSection()} title="Payment Transactions">
         <PaymentTransactionsTable
           label="Bank Account Details"
           value={form.paymentTransactions}
@@ -598,7 +605,7 @@ export default function VendorFormFields({
       </Section>
 
       {/* 7. ATTACHMENT */}
-      <Section number="7" title="Attachment">
+      <Section number={nextSection()} title="Attachment">
         <AttachmentField
           files={attachments}
           existingFiles={existingAttachments}
