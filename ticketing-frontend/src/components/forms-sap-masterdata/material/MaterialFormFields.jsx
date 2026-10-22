@@ -12,6 +12,7 @@ export const DEFAULT_MATERIAL_FORM = {
   salesOrganization: "",
   distributionChannel: "00",
   storageLocation: "",
+  kodeSPMS: "",
 
   description: "",
   baseUnitofMeasure: "",
@@ -58,7 +59,7 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
   if (mode !== "approval") return false;
 
   if (approvalRole === "accounting") {
-    return field === "reconAccount";
+    return ["reconAccount", "glAccount"].includes(field);
   }
 
   if (approvalRole === "pic") {
@@ -128,6 +129,7 @@ export default function MaterialFormFields({
   const isZCOM = form.materialType === "ZCOM";
   const isZINV = form.materialType === "ZINV";
   const isYPRO = form.materialType === "YPRO";
+  const isYOMV = form.materialType === "YOMV";
 
   let sectionNumber = 0;
 
@@ -192,7 +194,6 @@ export default function MaterialFormFields({
             setFormData?.((previous) => ({
               ...previous,
               materialType: value,
-              storageLocation: value === "ZINV" ? "GDST" : "",
             }));
           }}
           required={isCreateMode}
@@ -238,6 +239,17 @@ export default function MaterialFormFields({
             onChange={(event) => update("storageLocation", event.target.value)}
             required={isCreateMode && isZINV}
             disabled={!editable("storageLocation")}
+          />
+        </Field>
+
+        <Field label="Kode SPMS" required={isCreateMode && isYOMV}>
+          <input
+            type="text"
+            className={inputClass}
+            value={form.kodeSPMS || ""}
+            onChange={(event) => update("kodeSPMS", event.target.value)}
+            required={isCreateMode && isYOMV}
+            disabled={!editable("kodeSPMS")}
           />
         </Field>
       </Section>
@@ -345,16 +357,19 @@ export default function MaterialFormFields({
       {/* 5. Accounting Data 1 */}
       {isYPRO && (
         <Section number={nextSection()} title="Accounting Data 1">
-          <Field label="GL Account" required>
-            <input
-              type="text"
-              className={inputClass}
-              value={form.glAccount || ""}
-              onChange={(event) => update("glAccount", event.target.value)}
-              required={isCreateMode}
-              disabled={!editable("glAccount")}
-            />
-          </Field>
+          {isAccounting ? (
+            <Field label="GL Account" required>
+              <input
+                type="text"
+                className={inputClass}
+                value={form.glAccount || ""}
+                onChange={(event) => update("glAccount", event.target.value)}
+                required
+              />
+            </Field>
+          ) : (
+            <ReadOnlyField label="GL Account" value={form.glAccount} />
+          )}
         </Section>
       )}
 

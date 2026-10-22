@@ -607,6 +607,13 @@ function ApprovalDetailPage({ id }) {
     loadDetail();
   }, [id]);
 
+  const isMaterialSubmission =
+    String(submission?.sub_category || "").toLowerCase() === "material";
+
+  const materialType = String(submission?.form_data?.materialType || "")
+    .trim()
+    .toUpperCase();
+
   const requestor = useMemo(
     () => ({
       name: getUserValue(submission?.requestor, ["name"]),
@@ -620,6 +627,24 @@ function ApprovalDetailPage({ id }) {
   );
 
   const approvalRole = useMemo(() => {
+    if (isMaterialSubmission) {
+      switch (submission?.status) {
+        case "REVIEW_DIV_HEAD":
+          return "division_head";
+
+        case "APPROVED_DIV_HEAD":
+        case "REVISION_ACCOUNTING":
+          return ["YPRO", "ZCOM"].includes(materialType) ? "accounting" : "pic";
+
+        case "APPROVED_ACCOUNTING":
+        case "WAITING_PIC":
+          return "pic";
+
+        default:
+          return null;
+      }
+    }
+
     switch (submission?.status) {
       case "REVIEW_DIV_HEAD":
         return "division_head";
@@ -639,7 +664,7 @@ function ApprovalDetailPage({ id }) {
       default:
         return null;
     }
-  }, [submission]);
+  }, [submission, isMaterialSubmission, materialType]);
 
   /* =========================================================
      ACCOUNTING / TAX SAVED
@@ -648,13 +673,26 @@ function ApprovalDetailPage({ id }) {
   const hasAccountingSaved = useMemo(() => {
     if (!submission) return false;
 
+    const data = submission.form_data || {};
+
     const hasHistory = submission.approval_history?.some(
       (item) =>
         ["ACCOUNTING_FILL", "ACCOUNTING_REFILLED"].includes(item.step) &&
         ["FILLED", "REFILLED"].includes(item.action),
     );
 
-    const data = submission.form_data || {};
+    if (isMaterialSubmission && materialType === "YPRO") {
+      return (
+        Boolean(String(data.glAccount || "").trim()) && Boolean(hasHistory)
+      );
+    }
+
+    if (isMaterialSubmission && materialType === "ZCOM") {
+      return (
+        Boolean(String(data.reconAccount || "").trim()) && Boolean(hasHistory)
+      );
+    }
+
     const isVendor =
       String(submission.sub_category || "").toLowerCase() === "vendor";
 
@@ -663,8 +701,7 @@ function ApprovalDetailPage({ id }) {
         Array.isArray(data.paymentMethod) && data.paymentMethod.length > 0;
 
       return (
-        (Boolean(data.accountGroup && data.reconAccount) &&
-          hasPaymentMethod) ||
+        (Boolean(data.accountGroup && data.reconAccount) && hasPaymentMethod) ||
         Boolean(hasHistory)
       );
     }
@@ -677,7 +714,7 @@ function ApprovalDetailPage({ id }) {
         data.toleranceGroup,
       ) || Boolean(hasHistory)
     );
-  }, [submission]);
+  }, [submission, isMaterialSubmission, materialType]);
 
   const hasTaxSaved = useMemo(() => {
     if (!submission) return false;
@@ -801,6 +838,43 @@ function ApprovalDetailPage({ id }) {
         }
 
         case "fill-accounting": {
+          if (isMaterialSubmission) {
+            const accountingData = {};
+
+            if (materialType === "YPRO") {
+              const glAccount = String(formData.glAccount || "").trim();
+
+              if (!glAccount) {
+                setActionError("GL Account wajib diisi.");
+                return;
+              }
+
+              accountingData.glAccount = glAccount;
+            } else if (materialType === "ZCOM") {
+              const reconAccount = String(formData.reconAccount || "").trim();
+
+              if (!reconAccount) {
+                setActionError("Recon Account wajib diisi.");
+                return;
+              }
+
+              accountingData.reconAccount = reconAccount;
+            } else {
+              setActionError(
+                "Pengisian Accounting Staff hanya diperlukan untuk Material YPRO dan ZCOM.",
+              );
+              return;
+            }
+
+            response = await approvalApi.fillAccounting(
+              submission.id,
+              accountingData,
+              "",
+            );
+
+            break;
+          }
+
           const isVendor =
             String(submission.sub_category || "").toLowerCase() === "vendor";
 
@@ -842,6 +916,7 @@ function ApprovalDetailPage({ id }) {
             accountingData,
             "",
           );
+
           break;
         }
 
@@ -888,20 +963,26 @@ function ApprovalDetailPage({ id }) {
           const isVendor =
             String(submission.sub_category || "").toLowerCase() === "vendor";
 
+          const isMaterial = isMaterialSubmission;
+
           const requestType =
             submission.form_data?.requestType || formData.requestType;
 
           const isNewRequest = requestType === "New";
 
-          const code = isVendor
-            ? String(formData.vendorCode || "").trim()
-            : String(formData.customerCode || "").trim();
+          const code = isMaterial
+            ? String(formData.materialCode || "").trim()
+            : isVendor
+              ? String(formData.vendorCode || "").trim()
+              : String(formData.customerCode || "").trim();
 
           if (isNewRequest && !code) {
             setActionError(
-              isVendor
-                ? "Vendor code wajib diisi."
-                : "Customer code wajib diisi.",
+              isMaterial
+                ? "Material Code wajib diisi."
+                : isVendor
+                  ? "Vendor Code wajib diisi."
+                  : "Customer Code wajib diisi.",
             );
             return;
           }
@@ -911,6 +992,7 @@ function ApprovalDetailPage({ id }) {
             code,
             "",
             isVendor,
+            isMaterial,
           );
 
           window.alert(
@@ -992,6 +1074,25 @@ function ApprovalDetailPage({ id }) {
     }
 
     if (
+      isMaterialSubmission &&
+      currentStatus === "APPROVED_DIV_HEAD" &&
+      !["YPRO", "ZCOM"].includes(materialType)
+    ) {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="submit"
+            className={primaryButton}
+            onClick={() => handleAction("resolve")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Resolve"}
+          </button>
+        </div>
+      );
+    }
+
+    if (
       [
         "APPROVED_DIV_HEAD",
         "REVISION_ACCOUNTING",
@@ -1043,6 +1144,24 @@ function ApprovalDetailPage({ id }) {
               </button>
             </>
           )}
+        </div>
+      );
+    }
+
+    if (
+      isMaterialSubmission &&
+      ["APPROVED_ACCOUNTING", "WAITING_PIC"].includes(currentStatus)
+    ) {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="submit"
+            className={primaryButton}
+            onClick={() => handleAction("resolve")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Resolve"}
+          </button>
         </div>
       );
     }

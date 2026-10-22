@@ -42,6 +42,18 @@ class ApprovalController extends Controller
         ]);
     }
 
+    private function isMaterial(Submission $submission): bool
+    {
+        return strtolower((string) $submission->sub_category) === 'material';
+    }
+
+    private function getMaterialType(Submission $submission): string
+    {
+        return strtoupper(trim((string) (
+            ($submission->form_data ?? [])['materialType'] ?? ''
+        )));
+    }
+
     /**
      * POST /approvals/{submission}/approve-divhead
      */
@@ -49,13 +61,9 @@ class ApprovalController extends Controller
         Request $request,
         Submission $submission
     ) {
-        if (
-            $submission->status !==
-            Submission::STATUS_REVIEW_DIV_HEAD
-        ) {
+        if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
-                'message' =>
-                'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.',
+                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.',
             ], 422);
         }
 
@@ -67,9 +75,6 @@ class ApprovalController extends Controller
             $request,
             $submission
         ) {
-            /*
-             * Simpan approval ke history.
-             */
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'DIV_HEAD_APPROVE',
@@ -79,16 +84,12 @@ class ApprovalController extends Controller
                 'created_at' => now(),
             ]);
 
-            $submission->status =
-                Submission::STATUS_APPROVED_DIV_HEAD;
-
+            $submission->status = Submission::STATUS_APPROVED_DIV_HEAD;
             $submission->save();
         });
 
         return response()->json([
-            'message' =>
-            'Submission berhasil di-approve oleh Division Head dan diteruskan ke Accounting.',
-
+            'message' => 'Submission berhasil di-approve oleh Division Head.',
             'data' => $this->transform(
                 $submission->fresh([
                     'requestor',
@@ -99,43 +100,69 @@ class ApprovalController extends Controller
         ]);
     }
 
+
     public function fillAccounting(
         Request $request,
         Submission $submission
     ) {
+        $isMaterial = $this->isMaterial($submission);
+        $materialType = $this->getMaterialType($submission);
+
+        if (
+            $isMaterial &&
+            !in_array($materialType, ['YPRO', 'ZCOM'], true)
+        ) {
+            return response()->json([
+                'message' => 'Pengisian Accounting Staff hanya diperlukan untuk Material YPRO dan ZCOM.',
+            ], 422);
+        }
+
         if (!in_array($submission->status, [
             Submission::STATUS_APPROVED_DIV_HEAD,
             Submission::STATUS_REVISION_ACCOUNTING,
         ], true)) {
             return response()->json([
-                'message' =>
-                'Submission tidak berada pada tahap pengisian Accounting.',
+                'message' => 'Submission tidak berada pada tahap pengisian Accounting.',
             ], 422);
         }
 
         $isVendor = strtolower((string) $submission->sub_category) === 'vendor';
 
-        $rules = [
-            'accounting_data' => 'required|array',
-            'accounting_data.accountGroup' => 'required|string',
-            'accounting_data.reconAccount' => 'required|string',
-            'notes' => 'nullable|string|max:1000',
-        ];
-
-        if ($isVendor) {
-            $rules['accounting_data.paymentMethod'] = 'required|array|min:1';
-            $rules['accounting_data.paymentMethod.*'] = 'required|string';
+        if ($isMaterial && $materialType === 'YPRO') {
+            $rules = [
+                'accounting_data' => 'required|array',
+                'accounting_data.glAccount' => 'required|string|max:100',
+                'notes' => 'nullable|string|max:1000',
+            ];
+        } elseif ($isMaterial && $materialType === 'ZCOM') {
+            $rules = [
+                'accounting_data' => 'required|array',
+                'accounting_data.reconAccount' => 'required|string|max:100',
+                'notes' => 'nullable|string|max:1000',
+            ];
         } else {
-            $rules['accounting_data.sortKey'] = 'required|string';
-            $rules['accounting_data.toleranceGroup'] = 'required|string';
+            $rules = [
+                'accounting_data' => 'required|array',
+                'accounting_data.accountGroup' => 'required|string',
+                'accounting_data.reconAccount' => 'required|string',
+                'notes' => 'nullable|string|max:1000',
+            ];
+
+            if ($isVendor) {
+                $rules['accounting_data.paymentMethod'] = 'required|array|min:1';
+                $rules['accounting_data.paymentMethod.*'] = 'required|string';
+            } else {
+                $rules['accounting_data.sortKey'] = 'required|string';
+                $rules['accounting_data.toleranceGroup'] = 'required|string';
+            }
         }
 
         $request->validate($rules);
 
-        $accountingData =
-            $request->input('accounting_data');
+        $accountingData = $request->input('accounting_data');
 
-        $wasRevisionAccounting = $submission->status === Submission::STATUS_REVISION_ACCOUNTING;
+        $wasRevisionAccounting =
+            $submission->status === Submission::STATUS_REVISION_ACCOUNTING;
 
         DB::transaction(function () use (
             $request,
@@ -145,37 +172,28 @@ class ApprovalController extends Controller
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => $wasRevisionAccounting ? 'ACCOUNTING_REFILLED' : 'ACCOUNTING_FILL',
-                'action' => $wasRevisionAccounting ? 'REFILLED' : 'FILLED',
+                'step' => $wasRevisionAccounting
+                    ? 'ACCOUNTING_REFILLED'
+                    : 'ACCOUNTING_FILL',
+                'action' => $wasRevisionAccounting
+                    ? 'REFILLED'
+                    : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'step_data' => $accountingData,
                 'created_at' => now(),
             ]);
 
-            /*
-             * Merge accounting data ke form_data.
-             */
-            $formData =
-                $submission->form_data ?? [];
-
-            $formData = array_merge(
-                $formData,
-                $accountingData
-            );
+            $formData = $submission->form_data ?? [];
+            $formData = array_merge($formData, $accountingData);
 
             $submission->form_data = $formData;
-
-            $submission->status =
-                Submission::STATUS_REVIEW_ACCOUNTING;
-
+            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING;
             $submission->save();
         });
 
         return response()->json([
-            'message' =>
-            'Data accounting berhasil disimpan. Menunggu approval Accounting Head.',
-
+            'message' => 'Data accounting berhasil disimpan.',
             'data' => $this->transform(
                 $submission->fresh([
                     'requestor',
@@ -185,45 +203,74 @@ class ApprovalController extends Controller
             ),
         ]);
     }
+
+
     public function approveAccounting(
         Request $request,
         Submission $submission
     ) {
-        if (
-            $submission->status !==
-            Submission::STATUS_REVIEW_ACCOUNTING
-        ) {
+        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING) {
             return response()->json([
-                'message' =>
-                'Submission tidak dalam status Review by Accounting.',
+                'message' => 'Submission tidak dalam status Review by Accounting.',
             ], 422);
         }
 
-        $hasAccountingFill =
-            $submission->approvals()
-            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILLED'])
-            ->whereIn('action', ['FILLED', 'REFILLED'])
+        $isMaterial = $this->isMaterial($submission);
+        $materialType = $this->getMaterialType($submission);
+
+        if (
+            $isMaterial &&
+            !in_array($materialType, ['YPRO', 'ZCOM'], true)
+        ) {
+            return response()->json([
+                'message' => 'Material ini tidak memerlukan approval Accounting Head.',
+            ], 422);
+        }
+
+        $hasAccountingFill = $submission->approvals()
+            ->whereIn('step', [
+                'ACCOUNTING_FILL',
+                'ACCOUNTING_REFILLED',
+            ])
+            ->whereIn('action', [
+                'FILLED',
+                'REFILLED',
+            ])
             ->exists();
 
         if (!$hasAccountingFill) {
             return response()->json([
-                'message' =>
-                'Accounting Staff belum mengisi data. Tidak dapat di-approve.',
+                'message' => 'Accounting Staff belum mengisi data. Tidak dapat di-approve.',
             ], 422);
         }
 
+        $formData = $submission->form_data ?? [];
+
+        if ($isMaterial && $materialType === 'YPRO') {
+            $glAccount = trim((string) ($formData['glAccount'] ?? ''));
+
+            if ($glAccount === '') {
+                return response()->json([
+                    'message' => 'GL Account wajib diisi oleh Accounting Staff.',
+                ], 422);
+            }
+        }
+
+        if ($isMaterial && $materialType === 'ZCOM') {
+            $reconAccount = trim((string) ($formData['reconAccount'] ?? ''));
+
+            if ($reconAccount === '') {
+                return response()->json([
+                    'message' => 'Recon Account wajib diisi oleh Accounting Staff.',
+                ], 422);
+            }
+        }
+
         $request->validate([
-            'notes' =>
-            'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        DB::transaction(function () use (
-            $request,
-            $submission
-        ) {
-            /*
-             * Simpan approval Accounting Head ke approval history.
-             */
+        DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'ACCOUNTING_APPROVE',
@@ -233,19 +280,12 @@ class ApprovalController extends Controller
                 'created_at' => now(),
             ]);
 
-            /*
-             * Setelah Accounting Head approve, langsung masuk tahap Tax.
-             */
-            $submission->status =
-                Submission::STATUS_APPROVED_ACCOUNTING;
-
+            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING;
             $submission->save();
         });
 
         return response()->json([
-            'message' =>
-            'Submission berhasil di-approve oleh Accounting Head dan diteruskan ke Tax.',
-
+            'message' => 'Submission berhasil di-approve oleh Accounting Head.',
             'data' => $this->transform(
                 $submission->fresh([
                     'requestor',
@@ -410,42 +450,53 @@ class ApprovalController extends Controller
         Request $request,
         Submission $submission
     ) {
-        if (
-            $submission->status !==
-            Submission::STATUS_APPROVED_TAX
-        ) {
+        $isVendor = strtolower((string) $submission->sub_category) === 'vendor';
+        $isMaterial = $this->isMaterial($submission);
+
+        $allowedResolveStatuses = $isMaterial
+            ? [
+                Submission::STATUS_APPROVED_ACCOUNTING,
+                Submission::STATUS_APPROVED_DIV_HEAD,
+            ]
+            : [
+                Submission::STATUS_APPROVED_TAX,
+                Submission::STATUS_APPROVED_ACCOUNTING,
+            ];
+
+        if (!in_array(
+            $submission->status,
+            $allowedResolveStatuses,
+            true
+        )) {
             return response()->json([
-                'message' =>
-                'Submission belum berada pada tahap penyelesaian PIC.',
+                'message' => 'Submission belum berada pada tahap penyelesaian PIC.',
             ], 422);
         }
 
         /*
          * Jika request type New, customer code wajib diisi.
          */
-        $formData =
-            $submission->form_data ?? [];
+        $formData = $submission->form_data ?? [];
 
-        $isVendor = strtolower((string) $submission->sub_category) === 'vendor';
+        $isNewRequest = ($formData['requestType'] ?? '') === 'New';
 
-        $isNewRequest =
-            ($formData['requestType'] ?? '') === 'New';
-
-        $codeRequestField = $isVendor
-            ? 'vendor_code'
-            : 'customer_code';
-
-        $codeFormField = $isVendor
-            ? 'vendorCode'
-            : 'customerCode';
+        if ($isMaterial) {
+            $codeRequestField = 'material_code';
+            $codeFormField = 'materialCode';
+        } elseif ($isVendor) {
+            $codeRequestField = 'vendor_code';
+            $codeFormField = 'vendorCode';
+        } else {
+            $codeRequestField = 'customer_code';
+            $codeFormField = 'customerCode';
+        }
 
         $rules = [
             'notes' => 'nullable|string|max:1000',
         ];
 
         if ($isNewRequest) {
-            $rules[$codeRequestField] =
-                'required|string|max:50';
+            $rules[$codeRequestField] = 'required|string|max:50';
         }
 
         $request->validate($rules);
