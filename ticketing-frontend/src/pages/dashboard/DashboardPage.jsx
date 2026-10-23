@@ -6,14 +6,14 @@ const TICKET_STATS = [
   {
     key: "total",
     label: "Total",
-    accent: "border-l-slate-500",
-    count: "text-slate-800",
+    accent: "border-l-blue-500",
+    count: "text-blue-600",
   },
   {
     key: "open",
     label: "Open",
-    accent: "border-l-blue-500",
-    count: "text-blue-600",
+    accent: "border-l-red-500", 
+    count: "text-red-600",
   },
   {
     key: "in_progress",
@@ -30,8 +30,8 @@ const TICKET_STATS = [
   {
     key: "rejected",
     label: "Rejected",
-    accent: "border-l-red-500",
-    count: "text-red-600",
+    accent: "border-l-slate-500",
+    count: "text-slate-600",
   },
 ];
 

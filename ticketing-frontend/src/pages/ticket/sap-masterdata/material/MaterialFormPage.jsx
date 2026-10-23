@@ -58,7 +58,7 @@ export default function MaterialFormPage() {
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "material"
+          submission.sub_category !== "Material"
         ) {
           navigate("/submission");
           return;

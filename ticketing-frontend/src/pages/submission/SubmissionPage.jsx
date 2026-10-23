@@ -262,6 +262,17 @@ function SubmissionList() {
         );
         return;
       }
+
+      if (
+        submission.type === "SAP" &&
+        submission.category === "Master Data" &&
+        submission.sub_category === "Material"
+      ) {
+        navigate(
+          `/create-ticket/sap-masterdata/material-form?submission=${submission.id}`,
+        );
+        return;
+      }
     }
 
     navigate(`/submission/${submission.id}`);
