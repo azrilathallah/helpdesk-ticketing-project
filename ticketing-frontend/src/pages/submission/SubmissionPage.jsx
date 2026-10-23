@@ -855,7 +855,7 @@ function SubmissionDetailPage({ id }) {
                           </time>
                         </div>
 
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="text-xs text-slate-500">
                           By: {item.actor?.name || "-"}
                         </p>
 

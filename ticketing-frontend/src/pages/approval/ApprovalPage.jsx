@@ -4,12 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { approvalApi } from "../../api/approval";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
-import {
-  DEFAULT_CUSTOMER_FORM,
-  getUserValue,
-} from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
-import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
-import { DEFAULT_MATERIAL_FORM } from "../../components/forms-sap-masterdata/material/MaterialFormFields";
+import { getUserValue } from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
+import { getApprovalFormLogic } from "../../config/approval/forms";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -557,19 +553,7 @@ function ApprovalDetailPage({ id }) {
   const [revisionError, setRevisionError] = useState("");
 
   const getDefaultForm = (data) => {
-    if (data?.sub_category === "Customer") {
-      return DEFAULT_CUSTOMER_FORM;
-    }
-
-    if (data?.sub_category === "Vendor") {
-      return DEFAULT_VENDOR_FORM;
-    }
-
-    if (data?.sub_category === "Material") {
-      return DEFAULT_MATERIAL_FORM;
-    }
-
-    return {};
+    return getApprovalFormLogic(data)?.getDefaultForm() || {};
   };
 
   const loadDetail = async () => {
@@ -610,9 +594,10 @@ function ApprovalDetailPage({ id }) {
   const isMaterialSubmission =
     String(submission?.sub_category || "").toLowerCase() === "material";
 
-  const materialType = String(submission?.form_data?.materialType || "")
-    .trim()
-    .toUpperCase();
+  const formLogic = getApprovalFormLogic(submission);
+  const materialType = formLogic?.getMaterialType
+    ? formLogic.getMaterialType(submission)
+    : "";
 
   const requestor = useMemo(
     () => ({
@@ -626,95 +611,19 @@ function ApprovalDetailPage({ id }) {
     [submission],
   );
 
-  const approvalRole = useMemo(() => {
-    if (isMaterialSubmission) {
-      switch (submission?.status) {
-        case "REVIEW_DIV_HEAD":
-          return "division_head";
-
-        case "APPROVED_DIV_HEAD":
-        case "REVISION_ACCOUNTING":
-          return ["YPRO", "ZCOM"].includes(materialType) ? "accounting" : "pic";
-
-        case "APPROVED_ACCOUNTING":
-        case "WAITING_PIC":
-          return "pic";
-
-        default:
-          return null;
-      }
-    }
-
-    switch (submission?.status) {
-      case "REVIEW_DIV_HEAD":
-        return "division_head";
-
-      case "APPROVED_DIV_HEAD":
-      case "REVISION_ACCOUNTING":
-        return "accounting";
-
-      case "APPROVED_ACCOUNTING":
-      case "REVISION_TAX":
-        return "tax";
-
-      case "APPROVED_TAX":
-      case "WAITING_PIC":
-        return "pic";
-
-      default:
-        return null;
-    }
-  }, [submission, isMaterialSubmission, materialType]);
+  const approvalRole = useMemo(
+    () => formLogic?.getRole(submission?.status, materialType) || null,
+    [formLogic, submission?.status, materialType],
+  );
 
   /* =========================================================
      ACCOUNTING / TAX SAVED
   ========================================================= */
 
-  const hasAccountingSaved = useMemo(() => {
-    if (!submission) return false;
-
-    const data = submission.form_data || {};
-
-    const hasHistory = submission.approval_history?.some(
-      (item) =>
-        ["ACCOUNTING_FILL", "ACCOUNTING_REFILLED"].includes(item.step) &&
-        ["FILLED", "REFILLED"].includes(item.action),
-    );
-
-    if (isMaterialSubmission && materialType === "YPRO") {
-      return (
-        Boolean(String(data.glAccount || "").trim()) && Boolean(hasHistory)
-      );
-    }
-
-    if (isMaterialSubmission && materialType === "ZCOM") {
-      return (
-        Boolean(String(data.reconAccount || "").trim()) && Boolean(hasHistory)
-      );
-    }
-
-    const isVendor =
-      String(submission.sub_category || "").toLowerCase() === "vendor";
-
-    if (isVendor) {
-      const hasPaymentMethod =
-        Array.isArray(data.paymentMethod) && data.paymentMethod.length > 0;
-
-      return (
-        (Boolean(data.accountGroup && data.reconAccount) && hasPaymentMethod) ||
-        Boolean(hasHistory)
-      );
-    }
-
-    return (
-      Boolean(
-        data.accountGroup &&
-        data.reconAccount &&
-        data.sortKey &&
-        data.toleranceGroup,
-      ) || Boolean(hasHistory)
-    );
-  }, [submission, isMaterialSubmission, materialType]);
+  const hasAccountingSaved = useMemo(
+    () => formLogic?.hasAccountingSaved(submission, materialType) || false,
+    [formLogic, submission, materialType],
+  );
 
   const hasTaxSaved = useMemo(() => {
     if (!submission) return false;
@@ -838,85 +747,28 @@ function ApprovalDetailPage({ id }) {
         }
 
         case "fill-accounting": {
-          if (isMaterialSubmission) {
-            const accountingData = {};
+          const result = formLogic?.getAccountingPayload(
+            formData,
+            materialType,
+          );
 
-            if (materialType === "YPRO") {
-              const glAccount = String(formData.glAccount || "").trim();
-
-              if (!glAccount) {
-                setActionError("GL Account wajib diisi.");
-                return;
-              }
-
-              accountingData.glAccount = glAccount;
-            } else if (materialType === "ZCOM") {
-              const reconAccount = String(formData.reconAccount || "").trim();
-
-              if (!reconAccount) {
-                setActionError("Recon Account wajib diisi.");
-                return;
-              }
-
-              accountingData.reconAccount = reconAccount;
-            } else {
-              setActionError(
-                "Pengisian Accounting Staff hanya diperlukan untuk Material YPRO dan ZCOM.",
-              );
-              return;
-            }
-
-            response = await approvalApi.fillAccounting(
-              submission.id,
-              accountingData,
-              "",
+          if (!result) {
+            setActionError(
+              "Aturan accounting untuk form ini belum dikonfigurasi.",
             );
-
-            break;
+            return;
           }
 
-          const isVendor =
-            String(submission.sub_category || "").toLowerCase() === "vendor";
-
-          const accountingData = isVendor
-            ? {
-                accountGroup: formData.accountGroup || "",
-                reconAccount: formData.reconAccount || "",
-                paymentMethod: Array.isArray(formData.paymentMethod)
-                  ? formData.paymentMethod
-                  : [],
-              }
-            : {
-                accountGroup: formData.accountGroup || "",
-                reconAccount: formData.reconAccount || "",
-                sortKey: formData.sortKey || "",
-                toleranceGroup: formData.toleranceGroup || "",
-              };
-
-          const isInvalid = isVendor
-            ? !accountingData.accountGroup ||
-              !accountingData.reconAccount ||
-              accountingData.paymentMethod.length === 0
-            : !accountingData.accountGroup ||
-              !accountingData.reconAccount ||
-              !accountingData.sortKey ||
-              !accountingData.toleranceGroup;
-
-          if (isInvalid) {
-            setActionError(
-              isVendor
-                ? "Account Group, Recon Account, dan minimal satu Payment Method wajib diisi."
-                : "Semua field Accounting wajib diisi sebelum disimpan.",
-            );
+          if (result.error) {
+            setActionError(result.error);
             return;
           }
 
           response = await approvalApi.fillAccounting(
             submission.id,
-            accountingData,
+            result.payload,
             "",
           );
-
           break;
         }
 
@@ -931,21 +783,23 @@ function ApprovalDetailPage({ id }) {
         }
 
         case "fill-tax": {
-          const taxData = {
-            witholdingTax: formData.witholdingTax || [],
-          };
+          const result = formLogic?.getTaxPayload(formData);
 
-          if (
-            !Array.isArray(taxData.witholdingTax) ||
-            taxData.witholdingTax.length === 0
-          ) {
-            setActionError(
-              "Pilih minimal satu withholding tax sebelum disimpan.",
-            );
+          if (!result) {
+            setActionError("Aturan tax untuk form ini belum dikonfigurasi.");
             return;
           }
 
-          response = await approvalApi.fillTax(submission.id, taxData, "");
+          if (result.error) {
+            setActionError(result.error);
+            return;
+          }
+
+          response = await approvalApi.fillTax(
+            submission.id,
+            result.payload,
+            "",
+          );
           break;
         }
 
@@ -960,39 +814,26 @@ function ApprovalDetailPage({ id }) {
         }
 
         case "resolve": {
-          const isVendor =
-            String(submission.sub_category || "").toLowerCase() === "vendor";
+          const result = formLogic?.getResolveInfo(formData, submission);
 
-          const isMaterial = isMaterialSubmission;
-
-          const requestType =
-            submission.form_data?.requestType || formData.requestType;
-
-          const isNewRequest = requestType === "New";
-
-          const code = isMaterial
-            ? String(formData.materialCode || "").trim()
-            : isVendor
-              ? String(formData.vendorCode || "").trim()
-              : String(formData.customerCode || "").trim();
-
-          if (isNewRequest && !code) {
+          if (!result) {
             setActionError(
-              isMaterial
-                ? "Material Code wajib diisi."
-                : isVendor
-                  ? "Vendor Code wajib diisi."
-                  : "Customer Code wajib diisi.",
+              "Aturan resolve untuk form ini belum dikonfigurasi.",
             );
+            return;
+          }
+
+          if (result.error) {
+            setActionError(result.error);
             return;
           }
 
           response = await approvalApi.resolve(
             submission.id,
-            code,
+            result.code,
             "",
-            isVendor,
-            isMaterial,
+            result.isVendor,
+            result.isMaterial,
           );
 
           window.alert(
@@ -1467,7 +1308,7 @@ function ApprovalDetailPage({ id }) {
                           </time>
                         </div>
 
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="text-xs text-slate-500">
                           By: {item.actor?.name || "-"}
                         </p>
 
