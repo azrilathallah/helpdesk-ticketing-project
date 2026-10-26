@@ -91,7 +91,7 @@ export default function Sidebar() {
                 <span className="min-w-0 flex-1">{label}</span>
 
                 {to === "/approval" && approvalCount > 0 && (
-                  <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-1.5 text-[11px] leading-none font-bold text-white shadow-sm">
+                  <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-3 text-[11px] leading-none font-bold text-white shadow-sm">
                     {approvalCount > 99 ? "99+" : approvalCount}
                   </span>
                 )}

@@ -332,9 +332,6 @@ class ApprovalController extends Controller
             $taxData,
             $wasRevisionTax
         ) {
-            /*
-             * Simpan history Tax Staff.
-             */
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => $wasRevisionTax ? 'TAX_REFILLED' : 'TAX_FILL',
@@ -345,9 +342,6 @@ class ApprovalController extends Controller
                 'created_at' => now(),
             ]);
 
-            /*
-             * Merge data Tax ke form_data.
-             */
             $formData =
                 $submission->form_data ?? [];
 
@@ -358,9 +352,6 @@ class ApprovalController extends Controller
 
             $submission->form_data = $formData;
 
-            /*
-             * Tetap REVIEW_TAX.
-             */
             $submission->status =
                 Submission::STATUS_REVIEW_TAX;
 
@@ -473,9 +464,6 @@ class ApprovalController extends Controller
             ], 422);
         }
 
-        /*
-         * Jika request type New, customer code wajib diisi.
-         */
         $formData = $submission->form_data ?? [];
 
         $isNewRequest = ($formData['requestType'] ?? '') === 'New';
@@ -597,9 +585,6 @@ class ApprovalController extends Controller
                 'created_at' => now(),
             ]);
 
-            /*
-             * Reject adalah status terminal.
-             */
             $submission->status =
                 Submission::STATUS_TICKET_REJECTED;
 
