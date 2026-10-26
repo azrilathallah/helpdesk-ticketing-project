@@ -4,11 +4,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { submissionApi } from "../../../../api/submission";
 
 import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
+import { DEFAULT_MATERIAL_FORM } from "../../../../components/forms-sap-masterdata/material/MaterialFormFields";
 
-import {
-  DEFAULT_MATERIAL_FORM,
-  validateAttachments,
-} from "../../../../components/forms-sap-masterdata/material/MaterialFormFields";
+import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
 
 export default function MaterialFormPage() {
   const navigate = useNavigate();

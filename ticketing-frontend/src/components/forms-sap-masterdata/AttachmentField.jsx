@@ -132,3 +132,15 @@ export default function AttachmentField({
     </div>
   );
 }
+
+export const validateAttachments = (files) => {
+  if (!files || files.length === 0) return "";
+
+  const maxSize = 10 * 1024 * 1024;
+
+  if (files.length === 1) {
+    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
+  }
+
+  return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
+};

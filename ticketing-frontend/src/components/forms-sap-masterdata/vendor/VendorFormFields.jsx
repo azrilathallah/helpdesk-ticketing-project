@@ -37,18 +37,6 @@ export const DEFAULT_VENDOR_FORM = {
   ],
 };
 
-export const validateAttachments = (files) => {
-  if (!files || files.length === 0) return "";
-
-  const maxSize = 10 * 1024 * 1024;
-
-  if (files.length === 1) {
-    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
-  }
-
-  return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
-};
-
 /* =========================================================
    STYLE HELPERS
 ========================================================= */
@@ -148,7 +136,7 @@ export function PaymentTransactionsTable({
       <div className="mb-2.5 flex flex-wrap items-center justify-between">
         <label className={labelClass}>
           {label}
-          <span className={requiredClass}>*</span>
+          {required && <span className={requiredClass}>*</span>}
         </label>
 
         {!disabled && (
@@ -510,7 +498,10 @@ export default function VendorFormFields({
       </Section>
 
       {/* 3. COMPANY CODE DATA — ACCOUNTING */}
-      <Section number={nextSection()} title="Company Code Data (Accounting Dept)">
+      <Section
+        number={nextSection()}
+        title="Company Code Data (Accounting Dept)"
+      >
         <ChoiceGroup
           label="Account Group"
           groupKey="vendor_account_group"

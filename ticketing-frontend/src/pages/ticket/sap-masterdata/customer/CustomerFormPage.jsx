@@ -5,12 +5,10 @@ import { useAuth } from "../../../../context/AuthContext";
 import { submissionApi } from "../../../../api/submission";
 
 import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
+import { DEFAULT_CUSTOMER_FORM } from "../../../../components/forms-sap-masterdata/customer/CustomerFormFields";
 
-import {
-  DEFAULT_CUSTOMER_FORM,
-  getUserValue,
-  validateAttachments,
-} from "../../../../components/forms-sap-masterdata/customer/CustomerFormFields";
+import { getUserValue } from "../../../../config/UserValue";
+import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
 
 export default function CustomerFormPage() {
   const navigate = useNavigate();

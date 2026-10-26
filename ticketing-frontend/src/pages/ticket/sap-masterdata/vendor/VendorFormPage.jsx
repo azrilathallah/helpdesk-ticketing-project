@@ -4,11 +4,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { submissionApi } from "../../../../api/submission";
 
 import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
+import { DEFAULT_VENDOR_FORM } from "../../../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
-import {
-  DEFAULT_VENDOR_FORM,
-  validateAttachments,
-} from "../../../../components/forms-sap-masterdata/vendor/VendorFormFields";
+import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
 
 export default function VendorFormPage() {
   const navigate = useNavigate();

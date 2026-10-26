@@ -1,11 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
+
 import LoginPage from '../pages/auth/LoginPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import CreateTicketPage from '../pages/ticket/CreateTicketPage';
+
 import CustomerFormPage from '../pages/ticket/sap-masterdata/customer/CustomerFormPage';
 import VendorFormPage from '../pages/ticket/sap-masterdata/vendor/VendorFormPage';
 import MaterialFormPage from '../pages/ticket/sap-masterdata/material/MaterialFormPage';
+import GLFormPage from '../pages/ticket/sap-masterdata/gl/GLFormPage';
+
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';
 
@@ -28,6 +32,7 @@ export default function AppRoutes() {
         <Route path="/create-ticket/sap-masterdata/customer-form" element={<CustomerFormPage />} />
         <Route path="/create-ticket/sap-masterdata/vendor-form" element={<VendorFormPage />} />
         <Route path="/create-ticket/sap-masterdata/material-form" element={<MaterialFormPage />} />
+        <Route path="/create-ticket/sap-masterdata/gl-form" element={<GLFormPage />} />
 
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={ <SubmissionPage /> } />

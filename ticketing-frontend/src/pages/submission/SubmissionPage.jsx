@@ -4,12 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { submissionApi } from "../../api/submission";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
-import {
-  DEFAULT_CUSTOMER_FORM,
-  getUserValue,
-} from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
-import { DEFAULT_VENDOR_FORM } from "../../components/forms-sap-masterdata/vendor/VendorFormFields";
-import { DEFAULT_MATERIAL_FORM } from "../../components/forms-sap-masterdata/material/MaterialFormFields";
+import { getUserValue } from "../../config/UserValue";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -270,6 +265,17 @@ function SubmissionList() {
       ) {
         navigate(
           `/create-ticket/sap-masterdata/material-form?submission=${submission.id}`,
+        );
+        return;
+      }
+
+      if (
+        submission.type === "SAP" &&
+        submission.category === "Master Data" &&
+        submission.sub_category === "GL"
+      ) {
+        navigate(
+          `/create-ticket/sap-masterdata/gl-form?submission=${submission.id}`,
         );
         return;
       }
@@ -624,22 +630,6 @@ function SubmissionDetailPage({ id }) {
   const [submission, setSubmission] = useState(null);
   const [formData, setFormData] = useState({});
 
-  const getDefaultForm = (data) => {
-    if (data?.sub_category === "Customer") {
-      return DEFAULT_CUSTOMER_FORM;
-    }
-
-    if (data?.sub_category === "Vendor") {
-      return DEFAULT_VENDOR_FORM;
-    }
-
-    if (data?.sub_category === "Material") {
-      return DEFAULT_MATERIAL_FORM;
-    }
-
-    return {};
-  };
-
   const loadDetail = async () => {
     try {
       setLoading(true);
@@ -655,7 +645,6 @@ function SubmissionDetailPage({ id }) {
       setSubmission(data);
 
       setFormData({
-        ...getDefaultForm(data),
         ...(data.form_data || {}),
       });
     } catch (err) {

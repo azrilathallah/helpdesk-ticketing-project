@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { approvalApi } from "../../api/approval";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
-import { getUserValue } from "../../components/forms-sap-masterdata/customer/CustomerFormFields";
+import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval/forms";
 
 /* =========================================================

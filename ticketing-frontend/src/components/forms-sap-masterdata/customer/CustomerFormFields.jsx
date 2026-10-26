@@ -39,30 +39,6 @@ export const DEFAULT_CUSTOMER_FORM = {
   taxClassification: "",
 };
 
-export const getUserValue = (user, keys) => {
-  for (const key of keys) {
-    const value = user?.[key];
-
-    if (value !== undefined && value !== null && String(value).trim() !== "") {
-      return String(value);
-    }
-  }
-
-  return "-";
-};
-
-export const validateAttachments = (files) => {
-  if (!files || files.length === 0) return "";
-
-  const maxSize = 10 * 1024 * 1024;
-
-  if (files.length === 1) {
-    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
-  }
-
-  return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
-};
-
 /* =========================================================
    STYLE HELPERS
 ========================================================= */

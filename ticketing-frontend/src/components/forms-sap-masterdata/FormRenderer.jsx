@@ -1,6 +1,7 @@
 import CustomerFormFields from "./customer/CustomerFormFields";
 import VendorFormFields from "./vendor/VendorFormFields";
 import MaterialFormFields from "./material/MaterialFormFields";
+import GLFormFields from "./gl/GLFormFields";
 
 export default function FormRenderer({
   type,
@@ -80,5 +81,13 @@ export default function FormRenderer({
         onMaterialCodeChange={onMaterialCodeChange}
       />
     );
+  }
+
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "gl"
+  ) {
+    return <GLFormFields {...commonProps} />;
   }
 }

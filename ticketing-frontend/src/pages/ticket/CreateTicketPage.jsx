@@ -240,6 +240,11 @@ export default function CreateTicketPage() {
           return;
         }
 
+        if (selection.subCategory === "GL") {
+          navigate("/create-ticket/sap-masterdata/gl-form");
+          return;
+        }
+
         console.log("Form belum dibuat:", selection.subCategory);
         return;
       }
@@ -400,7 +405,7 @@ export default function CreateTicketPage() {
         "Vendor",
         "Material",
         "User ID",
-        "GL Form",
+        "GL",
         "WBS",
         "Cost Center and Profit Center",
       ];
