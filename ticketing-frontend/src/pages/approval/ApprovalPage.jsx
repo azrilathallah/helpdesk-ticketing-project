@@ -621,27 +621,20 @@ function ApprovalDetailPage({ id }) {
   ========================================================= */
 
   const hasAccountingSaved = useMemo(
-    () => formLogic?.hasAccountingSaved(submission, materialType) || false,
+    () =>
+      typeof formLogic?.hasAccountingSaved === "function"
+        ? formLogic.hasAccountingSaved(submission, materialType)
+        : false,
     [formLogic, submission, materialType],
   );
 
-  const hasTaxSaved = useMemo(() => {
-    if (!submission) return false;
-
-    const hasHistory = submission.approval_history?.some(
-      (item) =>
-        ["TAX_FILL", "TAX_REFILLED"].includes(item.step) &&
-        ["FILLED", "REFILLED"].includes(item.action),
-    );
-
-    const data = submission.form_data || {};
-
-    return (
-      Boolean(
-        Array.isArray(data.witholdingTax) && data.witholdingTax.length > 0,
-      ) || Boolean(hasHistory)
-    );
-  }, [submission]);
+  const hasTaxSaved = useMemo(
+    () =>
+      typeof formLogic?.hasTaxSaved === "function"
+        ? formLogic.hasTaxSaved(submission)
+        : false,
+    [formLogic, submission],
+  );
 
   /* =========================================================
      REJECT
