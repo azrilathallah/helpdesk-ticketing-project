@@ -115,7 +115,6 @@ export default function MaterialFormFields({
 
   // Kondisi berdasarkan Material Type
   const isZCOM = form.materialType === "ZCOM";
-  const isZINV = form.materialType === "ZINV";
   const isYPRO = form.materialType === "YPRO";
   const isYOMV = form.materialType === "YOMV";
 
@@ -219,13 +218,13 @@ export default function MaterialFormFields({
           />
         )}
 
-        <Field label="Storage Location" required={isCreateMode && isZINV}>
+        <Field label="Storage Location" required={isCreateMode}>
           <input
             type="text"
             className={inputClass}
             value={form.storageLocation || ""}
             onChange={(event) => update("storageLocation", event.target.value)}
-            required={isCreateMode && isZINV}
+            required={isCreateMode}
             disabled={!editable("storageLocation")}
           />
         </Field>

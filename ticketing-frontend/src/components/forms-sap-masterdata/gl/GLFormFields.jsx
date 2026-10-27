@@ -154,7 +154,7 @@ export function GLAccountTable({
               <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
                 No.
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="w-48 border-b border-slate-200 px-3 py-3">
                 GL Account Number
               </th>
               <th className="border-b border-slate-200 px-3 py-3">
