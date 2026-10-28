@@ -16,7 +16,7 @@ export const materialApproval = {
       case "APPROVED_DIV_HEAD":
       case "REVISION_ACCOUNTING":
         return ["YPRO", "ZCOM"].includes(materialType) ? "accounting" : "pic";
-      case "APPROVED_ACCOUNTING":
+      case "APPROVED_ACCOUNTING_HEAD":
       case "WAITING_PIC":
         return "pic";
       default:

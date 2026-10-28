@@ -5,6 +5,11 @@ export const approvalApi = {
 
   getById: (id) => api.get(`/approvals/${id}`),
 
+  approveAccDeptHead: (id, notes = "") =>
+    api.post(`/approvals/${id}/approve-acc-depthead`, {
+      notes,
+    }),
+
   approveDivHead: (id, notes = "") =>
     api.post(`/approvals/${id}/approve-divhead`, {
       notes,
@@ -16,8 +21,8 @@ export const approvalApi = {
       notes,
     }),
 
-  approveAccounting: (id, notes = "") =>
-    api.post(`/approvals/${id}/approve-accounting`, {
+  approveAccountingHead: (id, notes = "") =>
+    api.post(`/approvals/${id}/approve-accountinghead`, {
       notes,
     }),
 
@@ -27,8 +32,8 @@ export const approvalApi = {
       notes,
     }),
 
-  approveTax: (id, notes = "") =>
-    api.post(`/approvals/${id}/approve-tax`, {
+  approveTaxHead: (id, notes = "") =>
+    api.post(`/approvals/${id}/approve-taxhead`, {
       notes,
     }),
 

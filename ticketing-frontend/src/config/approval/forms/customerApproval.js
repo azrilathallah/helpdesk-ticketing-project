@@ -10,10 +10,10 @@ export const customerApproval = {
       case "APPROVED_DIV_HEAD":
       case "REVISION_ACCOUNTING":
         return "accounting";
-      case "APPROVED_ACCOUNTING":
+      case "APPROVED_ACCOUNTING_HEAD":
       case "REVISION_TAX":
         return "tax";
-      case "APPROVED_TAX":
+      case "APPROVED_TAX_HEAD":
       case "WAITING_PIC":
         return "pic";
       default:

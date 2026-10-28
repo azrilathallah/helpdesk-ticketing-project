@@ -127,7 +127,7 @@ export default function MaterialFormFields({
 
   return (
     <div className="space-y-5">
-      {/* 1. REQUEST TYPE */}
+      {/* REQUEST TYPE */}
       <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
@@ -162,7 +162,7 @@ export default function MaterialFormFields({
         )}
       </Section>
 
-      {/* 2. INITIAL SCREEN */}
+      {/* INITIAL SCREEN */}
       <Section number={nextSection()} title="Initial Screen">
         <ChoiceGroup
           label="Industry Sector"
@@ -241,7 +241,7 @@ export default function MaterialFormFields({
         </Field>
       </Section>
 
-      {/* 3. BASIC DATA */}
+      {/* BASIC DATA */}
       <Section number={nextSection()} title="Basic Data">
         <Field label="Description" required={isCreateMode}>
           <input
@@ -277,7 +277,7 @@ export default function MaterialFormFields({
         />
       </Section>
 
-      {/* 4. SALES VIEW */}
+      {/* SALES VIEW */}
       {isZCOM && (
         <Section number={nextSection()} title="Sales View">
           <ChoiceGroup
@@ -341,7 +341,7 @@ export default function MaterialFormFields({
         </Section>
       )}
 
-      {/* 5. Accounting Data 1 */}
+      {/* Accounting Data 1 */}
       {isYPRO && (
         <Section number={nextSection()} title="Accounting Data 1">
           {isAccounting ? (

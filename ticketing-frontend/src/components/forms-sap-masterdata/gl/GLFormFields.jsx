@@ -274,7 +274,7 @@ export default function GLFormFields({
     isEditable({ mode, readOnly, approvalRole, field });
 
   const isCreateMode = mode === "create";
-  const isApprovalMode = mode === "approval";
+  // const isApprovalMode = mode === "approval";
   //   const isPIC = isApprovalMode && approvalRole === "pic";
   //   const isNewRequest = form.requestType === "New";
   //   const isAccounting = isApprovalMode && approvalRole === "accounting";

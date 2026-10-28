@@ -12,12 +12,14 @@ class Submission extends Model
     use HasFactory;
 
     const STATUS_DRAFT = 'DRAFT';
+    const STATUS_REVIEW_ACC_DEPT_HEAD = 'REVIEW_ACC_DEPT_HEAD';
+    const STATUS_APPROVED_ACC_DEPT_HEAD = 'APPROVED_ACC_DEPT_HEAD';
     const STATUS_REVIEW_DIV_HEAD = 'REVIEW_DIV_HEAD';
     const STATUS_APPROVED_DIV_HEAD = 'APPROVED_DIV_HEAD';
-    const STATUS_REVIEW_ACCOUNTING = 'REVIEW_ACCOUNTING';
-    const STATUS_APPROVED_ACCOUNTING = 'APPROVED_ACCOUNTING';
-    const STATUS_REVIEW_TAX = 'REVIEW_TAX';
-    const STATUS_APPROVED_TAX = 'APPROVED_TAX';
+    const STATUS_REVIEW_ACCOUNTING_HEAD = 'REVIEW_ACCOUNTING_HEAD';
+    const STATUS_APPROVED_ACCOUNTING_HEAD = 'APPROVED_ACCOUNTING_HEAD';
+    const STATUS_REVIEW_TAX_HEAD = 'REVIEW_TAX_HEAD';
+    const STATUS_APPROVED_TAX_HEAD = 'APPROVED_TAX_HEAD';
     const STATUS_WAITING_PIC = 'WAITING_PIC';
     const STATUS_TICKET_SOLVED = 'TICKET_SOLVED';
     const STATUS_TICKET_CANCELLED = 'TICKET_CANCELLED';
@@ -29,16 +31,18 @@ class Submission extends Model
     /**
      * Urutan flow status.
      */
-    const STATUS_FLOW = [
-        self::STATUS_REVIEW_DIV_HEAD,
-        self::STATUS_APPROVED_DIV_HEAD,
-        self::STATUS_REVIEW_ACCOUNTING,
-        self::STATUS_APPROVED_ACCOUNTING,
-        self::STATUS_REVIEW_TAX,
-        self::STATUS_APPROVED_TAX,
-        self::STATUS_WAITING_PIC,
-        self::STATUS_TICKET_SOLVED,
-    ];
+    // const STATUS_FLOW = [
+    //     self::STATUS_REVIEW_ACC_DEPT_HEAD,
+    //     self::STATUS_APPROVED_ACC_DEPT_HEAD,
+    //     self::STATUS_REVIEW_DIV_HEAD,
+    //     self::STATUS_APPROVED_DIV_HEAD,
+    //     self::STATUS_REVIEW_ACCOUNTING_HEAD,
+    //     self::STATUS_APPROVED_ACCOUNTING_HEAD,
+    //     self::STATUS_REVIEW_TAX_HEAD,
+    //     self::STATUS_APPROVED_TAX_HEAD,
+    //     self::STATUS_WAITING_PIC,
+    //     self::STATUS_TICKET_SOLVED,
+    // ];
 
     protected $fillable = [
         'requestor_id',
@@ -79,15 +83,38 @@ class Submission extends Model
         ], true);
     }
 
+    /**
+     * Status awal saat requestor submit, berdasarkan sub category form.
+     * GL dimulai dari Accounting Department Head, form lain dari Division Head.
+     */
+    public static function initialStatusFor(?string $subCategory): string
+    {
+        return strtolower(trim((string) $subCategory)) === 'gl'
+            ? self::STATUS_REVIEW_ACC_DEPT_HEAD
+            : self::STATUS_REVIEW_DIV_HEAD;
+    }
+
+    /**
+     * Step approval history untuk status awal.
+     */
+    public static function initialStepFor(?string $subCategory): string
+    {
+        return self::initialStatusFor($subCategory) === self::STATUS_REVIEW_ACC_DEPT_HEAD
+            ? 'ACC_DEPT_HEAD_REVIEW'
+            : 'DIV_HEAD_REVIEW';
+    }
+
     public static function activeStatuses(): array
     {
         return [
+            self::STATUS_REVIEW_ACC_DEPT_HEAD,
+            self::STATUS_APPROVED_ACC_DEPT_HEAD,
             self::STATUS_REVIEW_DIV_HEAD,
             self::STATUS_APPROVED_DIV_HEAD,
-            self::STATUS_REVIEW_ACCOUNTING,
-            self::STATUS_APPROVED_ACCOUNTING,
-            self::STATUS_REVIEW_TAX,
-            self::STATUS_APPROVED_TAX,
+            self::STATUS_REVIEW_ACCOUNTING_HEAD,
+            self::STATUS_APPROVED_ACCOUNTING_HEAD,
+            self::STATUS_REVIEW_TAX_HEAD,
+            self::STATUS_APPROVED_TAX_HEAD,
             self::STATUS_WAITING_PIC,
             self::STATUS_REVISION_REQUESTOR,
             self::STATUS_REVISION_ACCOUNTING,

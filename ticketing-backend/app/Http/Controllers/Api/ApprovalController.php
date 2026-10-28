@@ -28,6 +28,10 @@ class ApprovalController extends Controller
         return $service;
     }
 
+    public function approveAccDeptHead(Request $request, Submission $submission)
+    {
+        return $this->formService($submission)->approveAccDeptHead($request, $submission);
+    }
     public function approveDivHead(Request $request, Submission $submission)
     {
         return $this->formService($submission)->approveDivHead($request, $submission);
@@ -36,17 +40,17 @@ class ApprovalController extends Controller
     {
         return $this->formService($submission)->fillAccounting($request, $submission);
     }
-    public function approveAccounting(Request $request, Submission $submission)
+    public function approveAccountingHead(Request $request, Submission $submission)
     {
-        return $this->formService($submission)->approveAccounting($request, $submission);
+        return $this->formService($submission)->approveAccountingHead($request, $submission);
     }
     public function fillTax(Request $request, Submission $submission)
     {
         return $this->formService($submission)->fillTax($request, $submission);
     }
-    public function approveTax(Request $request, Submission $submission)
+    public function approveTaxHead(Request $request, Submission $submission)
     {
-        return $this->formService($submission)->approveTax($request, $submission);
+        return $this->formService($submission)->approveTaxHead($request, $submission);
     }
     public function resolve(Request $request, Submission $submission)
     {

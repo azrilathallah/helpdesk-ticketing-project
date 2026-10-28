@@ -61,7 +61,7 @@ class MaterialApprovalService
     protected function allowedResolveStatuses(): array
     {
         return [
-            Submission::STATUS_APPROVED_ACCOUNTING,
+            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
             Submission::STATUS_APPROVED_DIV_HEAD
         ];
     }
@@ -164,7 +164,7 @@ class MaterialApprovalService
                 $submission->form_data ?? [],
                 $accountingData
             );
-            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING;
+            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING_HEAD;
             $submission->save();
         });
 
@@ -174,9 +174,9 @@ class MaterialApprovalService
         );
     }
 
-    public function approveAccounting(Request $request, Submission $submission)
+    public function approveAccountingHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING) {
+        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
                 'message' => 'Submission tidak dalam status Review by Accounting.'
             ], 422);
@@ -212,14 +212,14 @@ class MaterialApprovalService
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'ACCOUNTING_APPROVE',
+                'step' => 'ACCOUNTING_HEAD_APPROVE',
                 'action' => 'APPROVED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'created_at' => now(),
             ]);
 
-            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING;
+            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
             $submission->save();
         });
         return $this->query->responseFor(
@@ -282,7 +282,7 @@ class MaterialApprovalService
     {
         if (!in_array($submission->status, [
             Submission::STATUS_REVIEW_DIV_HEAD,
-            Submission::STATUS_REVIEW_ACCOUNTING
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD
         ], true))
             return response()->json([
                 'message' => 'Submission tidak dapat di-reject pada tahap ini.'
@@ -325,7 +325,7 @@ class MaterialApprovalService
                 'step' => 'DIV_HEAD_REVISION',
                 'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
             ],
-            Submission::STATUS_REVIEW_ACCOUNTING => [
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_ACCOUNTING,
                 'step' => 'ACCOUNTING_REVISION',
                 'message' => 'Tiket dikembalikan kepada Accounting Staff untuk direvisi.'

@@ -55,7 +55,7 @@ export default function GLFormPage() {
         setRevisionNotes(
           (submission?.approval_history || []).filter(
             (item) =>
-              item.step === "DIV_HEAD_REVISION" &&
+              item.step === "DIV_HEAD_REVISION" || item.step === "ACC_DEPT_HEAD_REVISION" || item.step === "ACCOUNTING_HEAD_REVISION" &&
               item.action === "REVISION_REQUESTED" &&
               item.notes?.trim(),
           ),
@@ -158,7 +158,7 @@ export default function GLFormPage() {
 
       const saved = response.data?.data;
 
-      if (saved?.status === "REVIEW_DIV_HEAD") {
+      if (saved?.status === "REVIEW_ACC_DEPT_HEAD") {
         alert(
           `Form berhasil ${
             submissionId ? "diajukan kembali" : "disubmit"

@@ -146,7 +146,7 @@ export default function CustomerFormFields({
 
   return (
     <div className="space-y-5">
-      {/* 1. REQUEST TYPE */}
+      {/* REQUEST TYPE */}
       <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
@@ -194,7 +194,7 @@ export default function CustomerFormFields({
         )}
       </Section>
 
-      {/* 2. REQUESTOR */}
+      {/* REQUESTOR */}
       <Section number={nextSection()} title="Requestor">
         <ReadOnlyField label="Name" value={requestor.name} />
         <ReadOnlyField label="Position (Jabatan)" value={requestor.position} />
@@ -222,7 +222,7 @@ export default function CustomerFormFields({
         <ReadOnlyField label="Email" value={requestor.email} />
       </Section>
 
-      {/* 3. INITIAL SCREEN */}
+      {/* INITIAL SCREEN */}
       <Section number={nextSection()} title="Initial Screen">
         <ChoiceGroup
           label="Account Group"
@@ -270,7 +270,7 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* 4. GENERAL DATA */}
+      {/* GENERAL DATA */}
       <Section number={nextSection()} title="General Data">
         <Field label="Judul (Title)" required={isCreateMode}>
           <input
@@ -406,7 +406,7 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* 5. COMPANY CODE DATA */}
+      {/* COMPANY CODE DATA */}
       <Section number={nextSection()} title="Company Code Data">
         {isAccounting ? (
           <Field label="Recon Account" required>
@@ -461,7 +461,7 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* 6. SALES AREA DATA */}
+      {/* SALES AREA DATA */}
       <Section number={nextSection()} title="Sales Area Data">
         <ChoiceGroup
           label="Currency"
@@ -500,7 +500,7 @@ export default function CustomerFormFields({
         />
       </Section>
 
-      {/* 7. ATTACHMENT */}
+      {/* ATTACHMENT */}
       <Section number={nextSection()} title="Attachment">
         <AttachmentField
           files={attachments}

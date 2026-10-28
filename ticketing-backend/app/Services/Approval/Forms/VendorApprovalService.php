@@ -34,7 +34,7 @@ class VendorApprovalService
 
     protected function allowedResolveStatuses(): array
     {
-        return [Submission::STATUS_APPROVED_TAX];
+        return [Submission::STATUS_APPROVED_TAX_HEAD];
     }
 
     protected function accountingError(Submission $submission): ?string
@@ -117,7 +117,7 @@ class VendorApprovalService
                 $submission->form_data ?? [],
                 $accountingData
             );
-            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING;
+            $submission->status = Submission::STATUS_REVIEW_ACCOUNTING_HEAD;
             $submission->save();
         });
 
@@ -127,9 +127,9 @@ class VendorApprovalService
         );
     }
 
-    public function approveAccounting(Request $request, Submission $submission)
+    public function approveAccountingHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING) {
+        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
                 'message' => 'Submission tidak dalam status Review by Accounting.'
             ], 422);
@@ -159,14 +159,14 @@ class VendorApprovalService
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'ACCOUNTING_APPROVE',
+                'step' => 'ACCOUNTING_HEAD_APPROVE',
                 'action' => 'APPROVED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'created_at' => now(),
             ]);
 
-            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING;
+            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
             $submission->save();
         });
 
@@ -179,7 +179,7 @@ class VendorApprovalService
     public function fillTax(Request $request, Submission $submission)
     {
         if (!in_array($submission->status, [
-            Submission::STATUS_APPROVED_ACCOUNTING,
+            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
             Submission::STATUS_REVISION_TAX
         ], true)) {
             return response()->json([
@@ -215,7 +215,7 @@ class VendorApprovalService
                 $submission->form_data ?? [],
                 $taxData
             );
-            $submission->status = Submission::STATUS_REVIEW_TAX;
+            $submission->status = Submission::STATUS_REVIEW_TAX_HEAD;
             $submission->save();
         });
 
@@ -225,9 +225,9 @@ class VendorApprovalService
         );
     }
 
-    public function approveTax(Request $request, Submission $submission)
+    public function approveTaxHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_REVIEW_TAX)
+        if ($submission->status !== Submission::STATUS_REVIEW_TAX_HEAD)
             return response()->json([
                 'message' => 'Submission tidak dalam status Review by Tax.'
             ], 422);
@@ -256,7 +256,7 @@ class VendorApprovalService
                 'created_at' => now(),
             ]);
 
-            $submission->status = Submission::STATUS_APPROVED_TAX;
+            $submission->status = Submission::STATUS_APPROVED_TAX_HEAD;
             $submission->save();
         });
 
@@ -321,8 +321,8 @@ class VendorApprovalService
     {
         if (!in_array($submission->status, [
             Submission::STATUS_REVIEW_DIV_HEAD,
-            Submission::STATUS_REVIEW_ACCOUNTING,
-            Submission::STATUS_REVIEW_TAX
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD,
+            Submission::STATUS_REVIEW_TAX_HEAD
         ], true))
             return response()->json([
                 'message' => 'Submission tidak dapat di-reject pada tahap ini.'
@@ -366,12 +366,12 @@ class VendorApprovalService
                 'step' => 'DIV_HEAD_REVISION',
                 'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
             ],
-            Submission::STATUS_REVIEW_ACCOUNTING => [
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_ACCOUNTING,
                 'step' => 'ACCOUNTING_REVISION',
                 'message' => 'Tiket dikembalikan kepada Accounting Staff untuk direvisi.'
             ],
-            Submission::STATUS_REVIEW_TAX => [
+            Submission::STATUS_REVIEW_TAX_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_TAX,
                 'step' => 'TAX_REVISION',
                 'message' => 'Tiket dikembalikan kepada Tax Staff untuk direvisi.'

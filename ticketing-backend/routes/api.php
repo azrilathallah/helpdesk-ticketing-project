@@ -62,6 +62,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'show'
     ]);
 
+    Route::post('/approvals/{submission}/approve-acc-depthead', [
+        ApprovalController::class,
+        'approveAccDeptHead'
+    ]);
+
     Route::post('/approvals/{submission}/approve-divhead', [
         ApprovalController::class,
         'approveDivHead'
@@ -72,9 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'fillAccounting'
     ]);
 
-    Route::post('/approvals/{submission}/approve-accounting', [
+    Route::post('/approvals/{submission}/approve-accountinghead', [
         ApprovalController::class,
-        'approveAccounting'
+        'approveAccountingHead'
     ]);
 
     Route::post('/approvals/{submission}/fill-tax', [
@@ -82,9 +87,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'fillTax'
     ]);
 
-    Route::post('/approvals/{submission}/approve-tax', [
+    Route::post('/approvals/{submission}/approve-taxhead', [
         ApprovalController::class,
-        'approveTax'
+        'approveTaxHead'
     ]);
 
     Route::post('/approvals/{submission}/resolve', [

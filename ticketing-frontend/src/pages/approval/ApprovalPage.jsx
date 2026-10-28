@@ -12,28 +12,36 @@ import { getApprovalFormLogic } from "../../config/approval/forms";
 ========================================================= */
 
 const STATUS_CONFIG = {
+  REVIEW_ACC_DEPT_HEAD: {
+    label: "Review Accounting Dept Head",
+    style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
+  },
+  APPROVED_ACC_DEPT_HEAD: {
+    label: "Approved by Accounting Dept Head",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   REVIEW_DIV_HEAD: {
-    label: "Review by Division Head",
+    label: "Review Division Head",
     style: "bg-blue-50 text-blue-700 ring-blue-200",
   },
   APPROVED_DIV_HEAD: {
     label: "Approved by Division Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
-  REVIEW_ACCOUNTING: {
-    label: "Review by Accounting",
+  REVIEW_ACCOUNTING_HEAD: {
+    label: "Review Accounting Head",
     style: "bg-indigo-50 text-indigo-700 ring-indigo-200",
   },
-  APPROVED_ACCOUNTING: {
-    label: "Approved by Accounting",
+  APPROVED_ACCOUNTING_HEAD: {
+    label: "Approved by Accounting Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
-  REVIEW_TAX: {
-    label: "Review by Tax",
+  REVIEW_TAX_HEAD: {
+    label: "Review Tax Head",
     style: "bg-violet-50 text-violet-700 ring-violet-200",
   },
-  APPROVED_TAX: {
-    label: "Approved by Tax",
+  APPROVED_TAX_HEAD: {
+    label: "Approved by Tax Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
   WAITING_PIC: {
@@ -53,15 +61,15 @@ const STATUS_CONFIG = {
     style: "bg-red-50 text-red-700 ring-red-200",
   },
   REVISION_REQUESTOR: {
-    label: "Requestor Revision",
+    label: "Needs Revision - Requestor",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
   REVISION_ACCOUNTING: {
-    label: "Accounting Revision",
+    label: "Needs Revision - Accounting",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
   REVISION_TAX: {
-    label: "Tax Revision",
+    label: "Needs Revision - Tax",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
 };
@@ -351,17 +359,22 @@ function ApprovalList() {
                 onChange={(event) => setStatusFilter(event.target.value)}
               >
                 <option value="ALL">All Status</option>
-                <option value="REVIEW_DIV_HEAD">Review by Division Head</option>
+                <option value="REVIEW_ACC_DEPT_HEAD">
+                  Review Accounting Dept Head
+                </option>
+                <option value="APPROVED_ACC_DEPT_HEAD">
+                  Approved by Accounting Dept Head
+                </option>
+                <option value="REVIEW_DIV_HEAD">Review Division Head</option>
                 <option value="APPROVED_DIV_HEAD">
                   Approved by Division Head
                 </option>
-                <option value="REVIEW_ACCOUNTING">Review by Accounting</option>
-                <option value="APPROVED_ACCOUNTING">
-                  Approved by Accounting
+                <option value="REVIEW_ACCOUNTING_HEAD">Review Accounting Head</option>
+                <option value="APPROVED_ACCOUNTING_HEAD">
+                  Approved by Accounting Head
                 </option>
-                <option value="REVIEW_TAX">Review by Tax</option>
-                <option value="APPROVED_TAX">Approved by Tax</option>
-                <option value="WAITING_PIC">Waiting PIC</option>
+                <option value="REVIEW_TAX_HEAD">Review Tax Head</option>
+                <option value="APPROVED_TAX_HEAD">Approved by Tax Head</option>
                 <option value="TICKET_SOLVED">Solved</option>
                 <option value="TICKET_CANCELLED">Cancelled</option>
                 <option value="TICKET_REJECTED">Rejected</option>
@@ -594,6 +607,9 @@ function ApprovalDetailPage({ id }) {
   const isMaterialSubmission =
     String(submission?.sub_category || "").toLowerCase() === "material";
 
+  const isGLSubmission =
+    String(submission?.sub_category || "").toLowerCase() === "gl";
+
   const formLogic = getApprovalFormLogic(submission);
   const materialType = formLogic?.getMaterialType
     ? formLogic.getMaterialType(submission)
@@ -734,6 +750,16 @@ function ApprovalDetailPage({ id }) {
       let response;
 
       switch (action) {
+        case "approve-acc-depthead": {
+          response = await approvalApi.approveAccDeptHead(submission.id, "");
+          break;
+        }
+
+        case "approve-accounting-head": {
+          response = await approvalApi.approveAccountingHead(submission.id, "");
+          break;
+        }
+
         case "approve-divhead": {
           response = await approvalApi.approveDivHead(submission.id, "");
           break;
@@ -771,7 +797,7 @@ function ApprovalDetailPage({ id }) {
             return;
           }
 
-          response = await approvalApi.approveAccounting(submission.id, "");
+          response = await approvalApi.approveAccountingHead(submission.id, "");
           break;
         }
 
@@ -802,7 +828,7 @@ function ApprovalDetailPage({ id }) {
             return;
           }
 
-          response = await approvalApi.approveTax(submission.id, "");
+          response = await approvalApi.approveTaxHead(submission.id, "");
           break;
         }
 
@@ -874,6 +900,60 @@ function ApprovalDetailPage({ id }) {
 
     const currentStatus = submission.status;
 
+    if (isGLSubmission) {
+      const approveAction = formLogic?.getApproveAction?.(currentStatus);
+
+      if (approveAction) {
+        return (
+          <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+            <button
+              type="button"
+              className={rejectButton}
+              onClick={openRejectModal}
+              disabled={processing}
+            >
+              Reject
+            </button>
+
+            <button
+              type="button"
+              className={revisionButton}
+              onClick={openRevisionModal}
+              disabled={processing}
+            >
+              Revision
+            </button>
+
+            <button
+              type="button"
+              className={primaryButton}
+              onClick={() => handleAction(approveAction)}
+              disabled={processing}
+            >
+              {processing ? "Processing..." : "Approve"}
+            </button>
+          </div>
+        );
+      }
+
+      if (formLogic?.canResolve?.(currentStatus)) {
+        return (
+          <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+            <button
+              type="submit"
+              className={primaryButton}
+              onClick={() => handleAction("resolve")}
+              disabled={processing}
+            >
+              {processing ? "Processing..." : "Resolve"}
+            </button>
+          </div>
+        );
+      }
+
+      return null;
+    }
+
     if (currentStatus === "REVIEW_DIV_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
@@ -930,7 +1010,7 @@ function ApprovalDetailPage({ id }) {
       [
         "APPROVED_DIV_HEAD",
         "REVISION_ACCOUNTING",
-        "REVIEW_ACCOUNTING",
+        "REVIEW_ACCOUNTING_HEAD",
       ].includes(currentStatus)
     ) {
       return (
@@ -948,7 +1028,7 @@ function ApprovalDetailPage({ id }) {
             </button>
           )}
 
-          {currentStatus === "REVIEW_ACCOUNTING" && (
+          {currentStatus === "REVIEW_ACCOUNTING_HEAD" && (
             <>
               <button
                 type="button"
@@ -984,7 +1064,7 @@ function ApprovalDetailPage({ id }) {
 
     if (
       isMaterialSubmission &&
-      ["APPROVED_ACCOUNTING", "WAITING_PIC"].includes(currentStatus)
+      ["APPROVED_ACCOUNTING_HEAD", "WAITING_PIC"].includes(currentStatus)
     ) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
@@ -1001,13 +1081,13 @@ function ApprovalDetailPage({ id }) {
     }
 
     if (
-      ["APPROVED_ACCOUNTING", "REVISION_TAX", "REVIEW_TAX"].includes(
+      ["APPROVED_ACCOUNTING_HEAD", "REVISION_TAX", "REVIEW_TAX_HEAD"].includes(
         currentStatus,
       )
     ) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
-          {["APPROVED_ACCOUNTING", "REVISION_TAX"].includes(currentStatus) && (
+          {["APPROVED_ACCOUNTING_HEAD", "REVISION_TAX"].includes(currentStatus) && (
             <button
               type="submit"
               className={primaryButton}
@@ -1018,7 +1098,7 @@ function ApprovalDetailPage({ id }) {
             </button>
           )}
 
-          {currentStatus === "REVIEW_TAX" && (
+          {currentStatus === "REVIEW_TAX_HEAD" && (
             <>
               <button
                 type="button"
@@ -1052,7 +1132,7 @@ function ApprovalDetailPage({ id }) {
       );
     }
 
-    if (["APPROVED_TAX", "WAITING_PIC"].includes(currentStatus)) {
+    if (["APPROVED_TAX_HEAD", "WAITING_PIC"].includes(currentStatus)) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -1103,9 +1183,12 @@ function ApprovalDetailPage({ id }) {
   const visibleHistory = (submission.approval_history || []).filter(
     (item) =>
       [
+        "ACC_DEPT_HEAD_APPROVE",
         "DIV_HEAD_APPROVE",
-        "ACCOUNTING_APPROVE",
-        "TAX_APPROVE",
+        "ACCOUNTING_HEAD_APPROVE",
+        "TAX_HEAD_APPROVE",
+        "ACC_DEPT_HEAD_REVISION",
+        "ACCOUNTING_HEAD_REVISION",
         "DIV_HEAD_REVISION",
         "ACCOUNTING_REVISION",
         "TAX_REVISION",
@@ -1114,30 +1197,21 @@ function ApprovalDetailPage({ id }) {
   );
 
   const getHistoryLabel = (item) => {
-    if (item.step === "DIV_HEAD_APPROVE") {
-      return "Approved by Division Head";
-    }
-
-    if (item.step === "ACCOUNTING_APPROVE") {
-      return "Approved by Accounting";
-    }
-
-    if (item.step === "TAX_APPROVE") {
-      return "Approved by Tax";
-    }
-
-    if (item.step === "DIV_HEAD_REVISION") {
+    if (item.step === "ACC_DEPT_HEAD_APPROVE") return "Approved by Accounting Dept Head";
+    if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
+    if (item.step === "ACCOUNTING_HEAD_APPROVE") return "Approved by Accounting Head";
+    if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
+    if (
+      [
+        "ACC_DEPT_HEAD_REVISION",
+        "ACCOUNTING_HEAD_REVISION",
+        "DIV_HEAD_REVISION",
+      ].includes(item.step)
+    ) {
       return "Requestor Revision";
     }
-
-    if (item.step === "ACCOUNTING_REVISION") {
-      return "Accounting Revision";
-    }
-
-    if (item.step === "TAX_REVISION") {
-      return "Tax Revision";
-    }
-
+    if (item.step === "ACCOUNTING_REVISION") return "Accounting Revision";
+    if (item.step === "TAX_REVISION") return "Tax Revision";
     if (item.action === "SOLVED") return "Ticket Solved";
     if (item.action === "REJECTED") return "Ticket Rejected";
     if (item.action === "CANCELLED") return "Ticket Cancelled";
@@ -1147,9 +1221,13 @@ function ApprovalDetailPage({ id }) {
 
   const isNegativeHistoryItem = (item) =>
     ["REJECTED", "CANCELLED"].includes(item.action) ||
-    ["DIV_HEAD_REVISION", "ACCOUNTING_REVISION", "TAX_REVISION"].includes(
-      item.step,
-    );
+    [
+      "ACC_DEPT_HEAD_REVISION",
+      "ACCOUNTING_HEAD_REVISION",
+      "DIV_HEAD_REVISION",
+      "ACCOUNTING_REVISION",
+      "TAX_REVISION",
+    ].includes(item.step);
 
   /* =========================================================
      DETAIL PAGE

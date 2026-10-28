@@ -333,7 +333,7 @@ export default function VendorFormFields({
 
   return (
     <div className="space-y-5">
-      {/* 1. REQUEST TYPE */}
+      {/* REQUEST TYPE */}
       <Section number={nextSection()} title="Request Type">
         <ChoiceGroup
           label="Request Type"
@@ -365,7 +365,7 @@ export default function VendorFormFields({
         )}
       </Section>
 
-      {/* 2. GENERAL DATA */}
+      {/* GENERAL DATA */}
       <Section number={nextSection()} title="General Data">
         <Field label="Name" required={isCreateMode}>
           <input
@@ -497,7 +497,7 @@ export default function VendorFormFields({
         </Field>
       </Section>
 
-      {/* 3. COMPANY CODE DATA — ACCOUNTING */}
+      {/* COMPANY CODE DATA — ACCOUNTING */}
       <Section
         number={nextSection()}
         title="Company Code Data (Accounting Dept)"
@@ -541,7 +541,7 @@ export default function VendorFormFields({
         />
       </Section>
 
-      {/* 4. COMPANY CODE DATA — PURCHASING */}
+      {/* COMPANY CODE DATA — PURCHASING */}
       <Section number={nextSection()} title="Company Code Data (Purch Dept)">
         <ChoiceGroup
           label="Company Code"
@@ -562,7 +562,7 @@ export default function VendorFormFields({
         />
       </Section>
 
-      {/* 5. PURCHASING ORGANIZATION DATA */}
+      {/* PURCHASING ORGANIZATION DATA */}
       <Section number={nextSection()} title="Purchasing Organization Data">
         <ChoiceGroup
           label="Order Currency"
@@ -584,7 +584,7 @@ export default function VendorFormFields({
         </Field>
       </Section>
 
-      {/* 6. PAYMENT TRANSACTIONS */}
+      {/* PAYMENT TRANSACTIONS */}
       <Section number={nextSection()} title="Payment Transactions">
         <PaymentTransactionsTable
           label="Bank Account Details"
@@ -595,7 +595,7 @@ export default function VendorFormFields({
         />
       </Section>
 
-      {/* 7. ATTACHMENT */}
+      {/* ATTACHMENT */}
       <Section number={nextSection()} title="Attachment">
         <AttachmentField
           files={attachments}

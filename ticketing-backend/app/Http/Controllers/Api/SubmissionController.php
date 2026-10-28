@@ -43,17 +43,19 @@ class SubmissionController extends Controller
 
         $open = (clone $baseQuery)
             ->whereIn('status', [
+                Submission::STATUS_REVIEW_ACC_DEPT_HEAD,
                 Submission::STATUS_REVIEW_DIV_HEAD,
             ])
             ->count();
 
         $inProgress = (clone $baseQuery)
             ->whereIn('status', [
+                Submission::STATUS_APPROVED_ACC_DEPT_HEAD,
                 Submission::STATUS_APPROVED_DIV_HEAD,
-                Submission::STATUS_REVIEW_ACCOUNTING,
-                Submission::STATUS_APPROVED_ACCOUNTING,
-                Submission::STATUS_REVIEW_TAX,
-                Submission::STATUS_APPROVED_TAX,
+                Submission::STATUS_REVIEW_ACCOUNTING_HEAD,
+                Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
+                Submission::STATUS_REVIEW_TAX_HEAD,
+                Submission::STATUS_APPROVED_TAX_HEAD,
                 Submission::STATUS_WAITING_PIC,
                 Submission::STATUS_REVISION_REQUESTOR,
                 Submission::STATUS_REVISION_ACCOUNTING,
@@ -163,7 +165,7 @@ class SubmissionController extends Controller
                 $year .
                 str_pad(
                     (string) $nextNumber,
-                    4,
+                    5,
                     '0',
                     STR_PAD_LEFT
                 );
@@ -180,10 +182,11 @@ class SubmissionController extends Controller
 
                 /*
                 * Jika requestor langsung submit:
-                * SUBMITTED -> REVIEW_DIV_HEAD
+                * SUBMITTED -> status awal approval sesuai form
+                * (GL: REVIEW_ACC_DEPT_HEAD, lainnya: REVIEW_DIV_HEAD)
                 */
                 'status' => $isSubmitted
-                    ? Submission::STATUS_REVIEW_DIV_HEAD
+                    ? Submission::initialStatusFor($data['sub_category'] ?? null)
                     : Submission::STATUS_DRAFT,
 
                 'form_data' => $data['form_data'],
@@ -205,7 +208,7 @@ class SubmissionController extends Controller
             if ($isSubmitted) {
                 SubmissionApproval::create([
                     'submission_id' => $submission->id,
-                    'step' => 'DIV_HEAD_REVIEW',
+                    'step' => Submission::initialStepFor($submission->sub_category),
                     'action' => 'SUBMITTED',
                     'acted_by' => $request->user()->id,
                     'notes' => null,
@@ -298,7 +301,7 @@ class SubmissionController extends Controller
          * Draft -> Submit.
          */
         if ($data['status'] === 'SUBMITTED') {
-            $submission->status = Submission::STATUS_REVIEW_DIV_HEAD;
+            $submission->status = Submission::initialStatusFor($submission->sub_category);
             $submission->updated_at = now();
             $submission->save();
 
@@ -306,7 +309,7 @@ class SubmissionController extends Controller
                 'submission_id' => $submission->id,
                 'step' => $wasRevision
                     ? 'REQUESTOR_RESUBMITTED'
-                    : 'DIV_HEAD_REVIEW',
+                    : Submission::initialStepFor($submission->sub_category),
                 'action' => $wasRevision
                     ? 'RESUBMITTED'
                     : 'SUBMITTED',
@@ -316,12 +319,16 @@ class SubmissionController extends Controller
             ]);
         }
 
+        $firstApprover = $submission->status === Submission::STATUS_REVIEW_ACC_DEPT_HEAD
+            ? 'Accounting Department Head'
+            : 'Division Head';
+
         return response()->json([
             'message' => $data['status'] === 'SUBMITTED'
                 ? (
                     $wasRevision
-                    ? 'Revisi berhasil diajukan kembali dan menunggu Division Head.'
-                    : 'Form berhasil disubmit dan menunggu review Division Head.'
+                    ? "Revisi berhasil diajukan kembali dan menunggu {$firstApprover}."
+                    : "Form berhasil disubmit dan menunggu review {$firstApprover}."
                 )
                 : 'Draft berhasil diperbarui.',
 
