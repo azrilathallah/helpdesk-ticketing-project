@@ -18,12 +18,4 @@ export const glApproval = {
         return null;
     }
   },
-
-  canResolve(status) {
-    return ["APPROVED_DIV_HEAD", "WAITING_PIC"].includes(status);
-  },
-
-  getResolveInfo() {
-    return { code: "", isVendor: false, isMaterial: false };
-  },
 };

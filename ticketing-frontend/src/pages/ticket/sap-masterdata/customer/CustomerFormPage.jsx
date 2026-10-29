@@ -221,9 +221,9 @@ export default function CustomerFormPage() {
 
         <div className="p-4 sm:p-6">
           {submissionId && revisionNotes.length > 0 && (
-            <section className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 ">
+            <section className="mb-4 rounded-lg border border-orange-200 bg-orange-50 py-2 px-3 sm:px-4">
               <h2 className="text-sm font-semibold text-orange-800">
-                Catatan Revisi
+                Revision Notes
               </h2>
 
               <div className="mt-1 space-y-3">

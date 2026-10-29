@@ -8,9 +8,6 @@ use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-/**
- * Revisi selalu dikembalikan ke Requestor, lalu dimulai lagi dari Accounting Dept Head.
- */
 class GLApprovalService
 {
     public function __construct(private ApprovalQueryService $query) {}
@@ -191,29 +188,17 @@ class GLApprovalService
             ['notes.required' => 'Catatan revisi wajib diisi.']
         );
 
-        $flowMap = [
-            Submission::STATUS_REVIEW_ACC_DEPT_HEAD => [
-                'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'ACC_DEPT_HEAD_REVISION',
-                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
-            ],
-            Submission::STATUS_APPROVED_ACC_DEPT_HEAD => [
-                'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'ACCOUNTING_HEAD_REVISION',
-                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
-            ],
-            Submission::STATUS_APPROVED_ACCOUNTING_HEAD => [
-                'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'DIV_HEAD_REVISION',
-                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
-            ],
+        if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
+            return response()->json([
+                'message' => 'Revisi GL hanya dapat diberikan oleh Accounting Department Head.'
+            ], 422);
+        }
+
+        $flow = [
+            'next_status' => Submission::STATUS_REVISION_REQUESTOR,
+            'step' => 'ACC_DEPT_HEAD_REVISION',
+            'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
         ];
-
-        $flow = $flowMap[$submission->status] ?? null;
-
-        if (!$flow) return response()->json([
-            'message' => 'Revisi tidak dapat dilakukan pada status tiket ini.'
-        ], 422);
 
         DB::transaction(function () use (
             $request,
