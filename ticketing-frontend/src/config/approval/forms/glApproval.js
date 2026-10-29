@@ -8,28 +8,12 @@ export const glApproval = {
       case "REVIEW_ACC_DEPT_HEAD":
         return "accounting_dept_head";
       case "APPROVED_ACC_DEPT_HEAD":
-        return "accounting_head";
+        return "accounting";
       case "APPROVED_ACCOUNTING_HEAD":
         return "division_head";
       case "APPROVED_DIV_HEAD":
       case "WAITING_PIC":
         return "pic";
-      default:
-        return null;
-    }
-  },
-
-  /**
-   * Action approve per status. Setiap tahap hanya approve / reject / revision.
-   */
-  getApproveAction(status) {
-    switch (status) {
-      case "REVIEW_ACC_DEPT_HEAD":
-        return "approve-acc-depthead";
-      case "APPROVED_ACC_DEPT_HEAD":
-        return "approve-accounting-head";
-      case "APPROVED_ACCOUNTING_HEAD":
-        return "approve-divhead";
       default:
         return null;
     }

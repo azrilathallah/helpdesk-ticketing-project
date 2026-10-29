@@ -369,7 +369,9 @@ function ApprovalList() {
                 <option value="APPROVED_DIV_HEAD">
                   Approved by Division Head
                 </option>
-                <option value="REVIEW_ACCOUNTING_HEAD">Review Accounting Head</option>
+                <option value="REVIEW_ACCOUNTING_HEAD">
+                  Review Accounting Head
+                </option>
                 <option value="APPROVED_ACCOUNTING_HEAD">
                   Approved by Accounting Head
                 </option>
@@ -755,11 +757,6 @@ function ApprovalDetailPage({ id }) {
           break;
         }
 
-        case "approve-accounting-head": {
-          response = await approvalApi.approveAccountingHead(submission.id, "");
-          break;
-        }
-
         case "approve-divhead": {
           response = await approvalApi.approveDivHead(submission.id, "");
           break;
@@ -900,58 +897,52 @@ function ApprovalDetailPage({ id }) {
 
     const currentStatus = submission.status;
 
-    if (isGLSubmission) {
-      const approveAction = formLogic?.getApproveAction?.(currentStatus);
+    if (isGLSubmission && currentStatus === "REVIEW_ACC_DEPT_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="button"
+            className={rejectButton}
+            onClick={openRejectModal}
+            disabled={processing}
+          >
+            Reject
+          </button>
 
-      if (approveAction) {
-        return (
-          <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
-            <button
-              type="button"
-              className={rejectButton}
-              onClick={openRejectModal}
-              disabled={processing}
-            >
-              Reject
-            </button>
+          <button
+            type="button"
+            className={revisionButton}
+            onClick={openRevisionModal}
+            disabled={processing}
+          >
+            Revision
+          </button>
 
-            <button
-              type="button"
-              className={revisionButton}
-              onClick={openRevisionModal}
-              disabled={processing}
-            >
-              Revision
-            </button>
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => handleAction("approve-acc-depthead")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Approve"}
+          </button>
+        </div>
+      );
+    }
 
-            <button
-              type="button"
-              className={primaryButton}
-              onClick={() => handleAction(approveAction)}
-              disabled={processing}
-            >
-              {processing ? "Processing..." : "Approve"}
-            </button>
-          </div>
-        );
-      }
-
-      if (formLogic?.canResolve?.(currentStatus)) {
-        return (
-          <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
-            <button
-              type="submit"
-              className={primaryButton}
-              onClick={() => handleAction("resolve")}
-              disabled={processing}
-            >
-              {processing ? "Processing..." : "Resolve"}
-            </button>
-          </div>
-        );
-      }
-
-      return null;
+    if (isGLSubmission && currentStatus === "APPROVED_DIV_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="submit"
+            className={primaryButton}
+            onClick={() => handleAction("resolve")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Resolve"}
+          </button>
+        </div>
+      );
     }
 
     if (currentStatus === "REVIEW_DIV_HEAD") {
@@ -1087,7 +1078,9 @@ function ApprovalDetailPage({ id }) {
     ) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
-          {["APPROVED_ACCOUNTING_HEAD", "REVISION_TAX"].includes(currentStatus) && (
+          {["APPROVED_ACCOUNTING_HEAD", "REVISION_TAX"].includes(
+            currentStatus,
+          ) && (
             <button
               type="submit"
               className={primaryButton}
@@ -1197,9 +1190,11 @@ function ApprovalDetailPage({ id }) {
   );
 
   const getHistoryLabel = (item) => {
-    if (item.step === "ACC_DEPT_HEAD_APPROVE") return "Approved by Accounting Dept Head";
+    if (item.step === "ACC_DEPT_HEAD_APPROVE")
+      return "Approved by Accounting Dept Head";
     if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
-    if (item.step === "ACCOUNTING_HEAD_APPROVE") return "Approved by Accounting Head";
+    if (item.step === "ACCOUNTING_HEAD_APPROVE")
+      return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
     if (
       [
