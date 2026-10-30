@@ -6,10 +6,10 @@ import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
 
 import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval/forms";
-import { createCustomerActions } from "./actions/CustomerActions";
-import { createVendorActions } from "./actions/VendorActions";
-import { createMaterialActions } from "./actions/MaterialActions";
-import { createGLActions } from "./actions/GLActions";
+import { createCustomerActions } from "../../config/approval/forms/CustomerApproval";
+import { createVendorActions } from "../../config/approval/forms/VendorApproval";
+import { createMaterialActions } from "../../config/approval/forms/MaterialApproval";
+import { createGLActions } from "../../config/approval/forms/GLApproval";
 
 /* =========================================================
    STATUS CONFIGURATION

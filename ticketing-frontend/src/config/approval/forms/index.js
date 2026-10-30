@@ -1,7 +1,7 @@
-import { customerApproval } from "./customerApproval";
-import { vendorApproval } from "./vendorApproval";
-import { materialApproval } from "./materialApproval";
-import { glApproval } from "./glApproval";
+import { customerApproval } from "./CustomerApproval";
+import { vendorApproval } from "./VendorApproval";
+import { materialApproval } from "./MaterialApproval";
+import { glApproval } from "./GLApproval";
 
 export const approvalFormLogic = {
   customer: customerApproval,

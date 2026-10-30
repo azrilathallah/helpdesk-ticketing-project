@@ -1,3 +1,33 @@
+import { DEFAULT_GL_FORM } from "../../../components/forms-sap-masterdata/gl/GLFormFields";
+
+/* =========================================================
+   GL APPROVAL CONFIGURATION
+========================================================= */
+
+export const glApproval = {
+  getDefaultForm: () => DEFAULT_GL_FORM,
+
+  getRole(status) {
+    switch (status) {
+      case "REVIEW_ACC_DEPT_HEAD":
+        return "accounting_dept_head";
+      case "APPROVED_ACC_DEPT_HEAD":
+        return "accounting";
+      case "APPROVED_ACCOUNTING_HEAD":
+        return "division_head";
+      case "APPROVED_DIV_HEAD":
+      case "WAITING_PIC":
+        return "pic";
+      default:
+        return null;
+    }
+  },
+};
+
+/* =========================================================
+   GL APPROVAL ACTIONS
+========================================================= */
+
 export function createGLActions(context) {
   const {
     approvalApi,
