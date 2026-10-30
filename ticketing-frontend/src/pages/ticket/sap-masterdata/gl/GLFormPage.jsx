@@ -62,7 +62,7 @@ export default function GLFormPage() {
         );
 
         if (!submission) {
-          throw new Error("Submission tidak ditemukan.");
+          throw new Error("Request not found.");
         }
 
         if (
@@ -85,7 +85,7 @@ export default function GLFormPage() {
       } catch (error) {
         console.error(error);
 
-        alert(error.response?.data?.message || "Gagal mengambil submission.");
+        alert(error.response?.data?.message || "Failed to load request.");
 
         navigate("/submission");
       } finally {
@@ -120,10 +120,6 @@ export default function GLFormPage() {
       if (!formElement.reportValidity()) {
         return;
       }
-
-    //   if (!formData.requestType) {
-    //     return;
-    //   }
     }
 
     setSubmitMode(mode);
@@ -160,8 +156,8 @@ export default function GLFormPage() {
 
       if (saved?.status === "REVIEW_ACC_DEPT_HEAD") {
         alert(
-          `Form berhasil ${
-            submissionId ? "diajukan kembali" : "disubmit"
+          `Request successfully ${
+            submissionId ? "resubmitted" : "submitted"
           }.\n\nNumber: ${saved.number}`,
         );
 
@@ -171,7 +167,7 @@ export default function GLFormPage() {
       }
 
       if (saved?.status === "DRAFT") {
-        alert(`Draft berhasil disimpan.\n\nNumber: ${saved.number}`);
+        alert(`Draft successfully saved.\n\nNumber: ${saved.number}`);
 
         navigate("/submission");
 
@@ -180,7 +176,7 @@ export default function GLFormPage() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Gagal menyimpan submission.");
+      alert(error.response?.data?.message || "Failed to save Request.");
     } finally {
       setSubmitMode("");
     }

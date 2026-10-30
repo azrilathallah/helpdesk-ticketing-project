@@ -48,17 +48,17 @@ export const materialApproval = {
       const glAccount = String(formData.glAccount || "").trim();
       return glAccount
         ? { payload: { glAccount } }
-        : { error: "GL Account wajib diisi." };
+        : { error: "The GL Account field is required." };
     }
     if (materialType === "ZCOM") {
       const reconAccount = String(formData.reconAccount || "").trim();
       return reconAccount
         ? { payload: { reconAccount } }
-        : { error: "Recon Account wajib diisi." };
+        : { error: "The Recon Account field is required." };
     }
     return {
       error:
-        "Pengisian Accounting Staff hanya diperlukan untuk Material YPRO dan ZCOM.",
+        "Accounting Staff entries are required only for YPRO and ZCOM material types.",
     };
   },
 
@@ -67,7 +67,7 @@ export const materialApproval = {
       submission?.form_data?.requestType || formData.requestType;
     const code = String(formData.materialCode || "").trim();
     if (requestType === "New" && !code)
-      return { error: "Material Code wajib diisi." };
+      return { error: "The Material Code is required." };
     return { code, isVendor: false, isMaterial: true };
   },
 };
@@ -121,7 +121,7 @@ export function createMaterialActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan accounting untuk form ini belum dikonfigurasi.",
+              "The accounting rules for this form have not yet been configured.",
             );
             return;
           }
@@ -141,7 +141,7 @@ export function createMaterialActions(context) {
 
         case "approve-accounting": {
           if (!hasAccountingSaved) {
-            setActionError("Data accounting harus disimpan terlebih dahulu.");
+            setActionError("Accounting data must be saved first.");
             return;
           }
 
@@ -154,7 +154,7 @@ export function createMaterialActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan resolve untuk form ini belum dikonfigurasi.",
+              "The resolve rule for this form has not been configured.",
             );
             return;
           }
@@ -173,7 +173,7 @@ export function createMaterialActions(context) {
           );
 
           window.alert(
-            response?.data?.message || "Ticket berhasil diselesaikan.",
+            response?.data?.message || "The request was successfully resolved.",
           );
 
           navigate("/approval");
@@ -184,13 +184,13 @@ export function createMaterialActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "Action berhasil dilakukan.");
+      window.alert(response?.data?.message || "The action was successfully completed.");
 
       await loadDetail();
     } catch (err) {
       console.error(err);
 
-      setActionError(err.response?.data?.message || "Action gagal dilakukan.");
+      setActionError(err.response?.data?.message || "The action failed.");
     } finally {
       setProcessing(false);
     }
@@ -270,7 +270,7 @@ export function createMaterialActions(context) {
               onClick={() => handleMaterialAction("fill-accounting")}
               disabled={processing}
             >
-              {processing ? "Saving..." : "Save Accounting Data"}
+              {processing ? "Saving..." : "Save"}
             </button>
           )}
 

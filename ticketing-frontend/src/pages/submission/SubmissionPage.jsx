@@ -196,7 +196,7 @@ function SubmissionList() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || "Gagal mengambil data submission.",
+        err.response?.data?.message || "Failed to load submission data.",
       );
     } finally {
       setLoading(false);
@@ -274,7 +274,7 @@ function SubmissionList() {
     event?.stopPropagation();
 
     const confirmed = window.confirm(
-      `Apakah Anda yakin ingin membatalkan ticket ${submission.number}?`,
+      `Are you sure you want to cancel request ${submission.number}?`,
     );
 
     if (!confirmed) return;
@@ -282,14 +282,14 @@ function SubmissionList() {
     try {
       const response = await submissionApi.cancel(
         submission.id,
-        "Dibatalkan oleh requestor",
+        "Cancelled by requestor",
       );
 
-      window.alert(response?.data?.message || "Ticket berhasil dibatalkan.");
+      window.alert(response?.data?.message || "Request has been cancelled");
       await loadSubmissions();
     } catch (err) {
       console.error(err);
-      window.alert(err.response?.data?.message || "Gagal membatalkan tiket.");
+      window.alert(err.response?.data?.message || "Failed to cancel request.");
     }
   };
 
@@ -370,7 +370,7 @@ function SubmissionDetailPage({ id }) {
       const data = response.data?.data;
 
       if (!data) {
-        throw new Error("Submission tidak ditemukan.");
+        throw new Error("Submission not found.");
       }
 
       setSubmission(data);
@@ -383,7 +383,7 @@ function SubmissionDetailPage({ id }) {
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Gagal mengambil detail submission.",
+          "Failed to load submission data.",
       );
     } finally {
       setLoading(false);
@@ -550,7 +550,7 @@ function SubmissionDetailPage({ id }) {
                 ◷
               </div>
               <p className="mt-2 text-xs font-medium text-slate-700">
-                Belum ada riwayat approval
+                No approval history yet
               </p>
             </div>
           ) : (

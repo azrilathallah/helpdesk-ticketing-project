@@ -56,7 +56,7 @@ export const customerApproval = {
       !payload.sortKey ||
       !payload.toleranceGroup
     ) {
-      return { error: "Semua field Accounting wajib diisi sebelum disimpan." };
+      return { error: "All Accounting fields must be filled in before saving." };
     }
     return { payload };
   },
@@ -84,7 +84,7 @@ export const customerApproval = {
       : [];
 
     if (witholdingTax.length === 0) {
-      return { error: "Pilih minimal satu withholding tax sebelum disimpan." };
+      return { error: "Select at least one withholding tax before saving." };
     }
 
     return { payload: { witholdingTax } };
@@ -95,7 +95,7 @@ export const customerApproval = {
       submission?.form_data?.requestType || formData.requestType;
     const code = String(formData.customerCode || "").trim();
     if (requestType === "New" && !code)
-      return { error: "Customer Code wajib diisi." };
+      return { error: "The Customer Code is required." };
     return { code, isVendor: false, isMaterial: false };
   },
 };
@@ -150,7 +150,7 @@ export function createCustomerActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan accounting untuk form ini belum dikonfigurasi.",
+              "The accounting rules for this form have not yet been configured.",
             );
             return;
           }
@@ -170,7 +170,7 @@ export function createCustomerActions(context) {
 
         case "approve-accounting": {
           if (!hasAccountingSaved) {
-            setActionError("Data accounting harus disimpan terlebih dahulu.");
+            setActionError("Accounting data must be saved first.");
             return;
           }
 
@@ -182,7 +182,7 @@ export function createCustomerActions(context) {
           const result = formLogic?.getTaxPayload(formData);
 
           if (!result) {
-            setActionError("Aturan tax untuk form ini belum dikonfigurasi.");
+            setActionError("The tax rules for this form have not yet been configured.");
             return;
           }
 
@@ -201,7 +201,7 @@ export function createCustomerActions(context) {
 
         case "approve-tax": {
           if (!hasTaxSaved) {
-            setActionError("Data tax harus disimpan terlebih dahulu.");
+            setActionError("Tax data must be saved first.");
             return;
           }
 
@@ -214,7 +214,7 @@ export function createCustomerActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan resolve untuk form ini belum dikonfigurasi.",
+              "The resolve rule for this form has not been configured.",
             );
             return;
           }
@@ -233,7 +233,7 @@ export function createCustomerActions(context) {
           );
 
           window.alert(
-            response?.data?.message || "Ticket berhasil diselesaikan.",
+            response?.data?.message || "The request was successfully resolved.",
           );
 
           navigate("/approval");
@@ -244,13 +244,13 @@ export function createCustomerActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "Action berhasil dilakukan.");
+      window.alert(response?.data?.message || "The action was successfully completed.");
 
       await loadDetail();
     } catch (err) {
       console.error(err);
 
-      setActionError(err.response?.data?.message || "Action gagal dilakukan.");
+      setActionError(err.response?.data?.message || "The action failed.");
     } finally {
       setProcessing(false);
     }
@@ -312,7 +312,7 @@ export function createCustomerActions(context) {
               onClick={() => handleCustomerAction("fill-accounting")}
               disabled={processing}
             >
-              {processing ? "Saving..." : "Save Accounting Data"}
+              {processing ? "Saving..." : "Save"}
             </button>
           )}
 
@@ -366,7 +366,7 @@ export function createCustomerActions(context) {
               onClick={() => handleCustomerAction("fill-tax")}
               disabled={processing}
             >
-              {processing ? "Saving..." : "Save Tax Data"}
+              {processing ? "Saving..." : "Save"}
             </button>
           )}
 

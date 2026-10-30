@@ -21,7 +21,7 @@ class GLApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Accounting Department Head.'
+                'message' => 'The request is not in the "Review by Accounting Dept Head" status.'
             ], 422);
         }
 
@@ -45,7 +45,7 @@ class GLApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Accounting Department Head.'
+            'The request was successfully approved by the Accounting Department Head.'
         );
     }
 
@@ -53,7 +53,7 @@ class GLApprovalService
     {
         if ($submission->status !== Submission::STATUS_APPROVED_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Accounting Head.'
+                'message' => 'The request is not in the "Review by Accounting Head" status.'
             ], 422);
         }
 
@@ -77,7 +77,7 @@ class GLApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Accounting Head.'
+            'The request was successfully approved by the Accounting Head.'
         );
     }
 
@@ -85,7 +85,7 @@ class GLApprovalService
     {
         if ($submission->status !== Submission::STATUS_APPROVED_ACCOUNTING_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.'
+                'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
         }
 
@@ -109,7 +109,7 @@ class GLApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Division Head.'
+            'The request was successfully approved by the Division Head.'
         );
     }
 
@@ -117,7 +117,7 @@ class GLApprovalService
     {
         if (!in_array($submission->status, $this->allowedResolveStatuses(), true))
             return response()->json([
-                'message' => 'Submission belum berada pada tahap penyelesaian PIC.'
+                'message' => 'The request is not in the PIC processing stage.'
             ], 422);
 
         $request->validate([
@@ -141,7 +141,7 @@ class GLApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Ticket berhasil diselesaikan.'
+            'The request was succesfully resolved.'
         );
     }
 
@@ -153,12 +153,12 @@ class GLApprovalService
             Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
         ], true))
             return response()->json([
-                'message' => 'Submission tidak dapat di-reject pada tahap ini.'
+                'message' => 'The request cannot be rejected at this stage.'
             ], 422);
 
         $request->validate(
             ['notes' => 'required|string|max:1000'],
-            ['notes.required' => 'Catatan alasan reject wajib diisi.']
+            ['notes.required' => 'Reason for rejection is required.']
         );
 
         DB::transaction(function () use ($request, $submission) {
@@ -177,7 +177,7 @@ class GLApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-reject.'
+            'The request was succesfully rejected.'
         );
     }
 
@@ -185,19 +185,19 @@ class GLApprovalService
     {
         $request->validate(
             ['notes' => 'required|string|min:1|max:1000'],
-            ['notes.required' => 'Catatan revisi wajib diisi.']
+            ['notes.required' => 'Revision notes is required.']
         );
 
         if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'Revisi GL hanya dapat diberikan oleh Accounting Department Head.'
+                'message' => 'Revision can only be given by Accounting Department Head.'
             ], 422);
         }
 
         $flow = [
             'next_status' => Submission::STATUS_REVISION_REQUESTOR,
             'step' => 'ACC_DEPT_HEAD_REVISION',
-            'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
+            'message' => 'The request has been returned to the Requester for revision.'
         ];
 
         DB::transaction(function () use (

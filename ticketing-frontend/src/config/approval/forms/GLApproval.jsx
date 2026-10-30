@@ -78,7 +78,7 @@ export function createGLActions(context) {
           );
 
           window.alert(
-            response?.data?.message || "GL request berhasil diselesaikan.",
+            response?.data?.message || "The request was successfully resolved.",
           );
 
           navigate("/approval");
@@ -88,13 +88,13 @@ export function createGLActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "Approval berhasil diproses.");
+      window.alert(response?.data?.message || "The action was successfully completed.");
 
       await loadDetail();
     } catch (err) {
       console.error(err);
 
-      setActionError(err.response?.data?.message || "Action gagal dilakukan.");
+      setActionError(err.response?.data?.message || "The action failed.");
     } finally {
       setProcessing(false);
     }

@@ -27,7 +27,7 @@ export default function Sidebar() {
           setApprovalCount(submissions.length);
         }
       } catch (error) {
-        console.error("Gagal mengambil jumlah approval:", error);
+        console.error("Failed to get approval count:", error);
 
         if (mounted) {
           setApprovalCount(0);
@@ -64,7 +64,7 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          aria-label={isMobileOpen ? "Tutup navigasi" : "Buka navigasi"}
+          aria-label={isMobileOpen ? "Close navigation" : "Open navigation"}
           aria-expanded={isMobileOpen}
           className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100"
         >
@@ -80,7 +80,7 @@ export default function Sidebar() {
       {isMobileOpen && (
         <button
           type="button"
-          aria-label="Tutup navigasi"
+          aria-label="Close navigation"
           onClick={() => setIsMobileOpen(false)}
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
         />
@@ -113,7 +113,7 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav
-          aria-label="Navigasi utama"
+          aria-label="Main navigation"
           className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
         >
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => (

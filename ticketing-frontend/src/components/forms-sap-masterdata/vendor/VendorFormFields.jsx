@@ -264,10 +264,10 @@ export function PaymentTransactionsTable({
                       className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
                       title={
                         rows.length === 1
-                          ? "Minimal satu rekening bank"
-                          : "Hapus rekening bank"
+                          ? "At least one bank account"
+                          : "Delete"
                       }
-                      aria-label={`Hapus rekening bank ${index + 1}`}
+                      aria-label={`Delete ${index + 1}`}
                     >
                       <Trash2 size={17} strokeWidth={2} />
                     </button>
@@ -357,7 +357,6 @@ export default function VendorFormFields({
                 update("vendorCode", value);
                 onVendorCodeChange?.(value);
               }}
-              placeholder="Masukkan vendor code"
               required={isPIC || isCreateMode}
               disabled={!editable("vendorCode")}
             />

@@ -92,9 +92,7 @@ export function Section({ number, title, children }) {
         <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 sm:p-4">
-        {children}
-      </div>
+      <div className="flex flex-col gap-3 p-3 sm:p-4">{children}</div>
     </section>
   );
 }
@@ -138,7 +136,6 @@ export default function CustomerFormFields({
   const isTax = isApprovalMode && approvalRole === "tax";
 
   let sectionNumber = 0;
-
   const nextSection = () => {
     sectionNumber += 1;
     return sectionNumber;
@@ -157,37 +154,20 @@ export default function CustomerFormFields({
           disabled={!editable("requestType")}
         />
 
-        {isNewRequest ? (
-          isPIC ? (
-            <Field label="Customer Code" required>
-              <input
-                type="text"
-                className={inputClass}
-                value={form.customerCode || ""}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  update("customerCode", value);
-                  onCustomerCodeChange?.(value);
-                }}
-                placeholder="Masukkan customer code"
-                required
-              />
-            </Field>
-          ) : (
-            <ReadOnlyField
-              label="Customer Code"
-              value={form.customerCode || "-"}
-            />
-          )
+        {isNewRequest && !isPIC ? (
+          <ReadOnlyField label="Customer Code" value={form.customerCode || "-"} />
         ) : (
-          <Field label="Customer Code" required={isCreateMode}>
+          <Field label="Customer Code" required={isPIC || isCreateMode}>
             <input
               type="text"
               className={inputClass}
               value={form.customerCode || ""}
-              onChange={(event) => update("customerCode", event.target.value)}
-              placeholder="Masukkan customer code"
-              required={isCreateMode}
+              onChange={(event) => {
+                const value = event.target.value;
+                update("customerCode", value);
+                onCustomerCodeChange?.(value);
+              }}
+              required={isPIC || isCreateMode}
               disabled={!editable("customerCode")}
             />
           </Field>
@@ -335,8 +315,6 @@ export default function CustomerFormFields({
           rightValue={form.postalCode}
           onLeftChange={(value) => update("city", value)}
           onRightChange={(value) => update("postalCode", value)}
-          leftPlaceholder="Kota"
-          rightPlaceholder="Kode Pos"
           requiredLeft={isCreateMode}
           requiredRight={isCreateMode}
           disabled={!editable("city") && !editable("postalCode")}
@@ -389,7 +367,6 @@ export default function CustomerFormFields({
           rightValue={form.npwpregisteredDate}
           onLeftChange={(value) => update("npwp", value)}
           onRightChange={(value) => update("npwpregisteredDate", value)}
-          leftPlaceholder="NPWP (VAT Reg. No.)"
           rightType="date"
           requiredLeft={isCreateMode}
           requiredRight={isCreateMode}
@@ -415,7 +392,6 @@ export default function CustomerFormFields({
               className={inputClass}
               value={form.reconAccount || ""}
               onChange={(event) => update("reconAccount", event.target.value)}
-              placeholder="Masukkan Recon Account"
               required
             />
           </Field>

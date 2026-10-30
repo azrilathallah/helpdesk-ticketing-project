@@ -42,11 +42,11 @@ export default function AttachmentField({
             </span>
 
             <span className="text-sm font-semibold text-slate-800">
-              Klik untuk unggah file
+              Upload a file
             </span>
 
             <span className="mt-1 text-xs leading-5 text-slate-500">
-              Satu file atau beberapa file dalam satu ZIP. Maksimal 10 MB.
+              One file or multiple files in a ZIP. Maximum size: 10 MB.
             </span>
 
             <input
@@ -77,8 +77,8 @@ export default function AttachmentField({
 
                   <button
                     type="button"
-                    aria-label={`Hapus ${file.name}`}
-                    title="Hapus file"
+                    aria-label={`Delete ${file.name}`}
+                    title="Delete"
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
                     onClick={() => handleRemove(index)}
                   >
@@ -124,7 +124,7 @@ export default function AttachmentField({
           <Paperclip className="h-4 w-4 text-slate-400" />
           <div>
             <p className="text-xs text-slate-500">
-              Tidak ada attachment yang diunggah.
+              No file was uploaded.
             </p>
           </div>
         </div>
@@ -139,8 +139,8 @@ export const validateAttachments = (files) => {
   const maxSize = 10 * 1024 * 1024;
 
   if (files.length === 1) {
-    return files[0].size > maxSize ? "Ukuran file maksimal 10 MB." : "";
+    return files[0].size > maxSize ? "Maximum file size: 10 MB." : "";
   }
 
-  return "Jika mengunggah lebih dari 1 file, harap kompres menjadi satu file ZIP.";
+  return "If you are uploading more than one file, please compress them into a single ZIP file.";
 };

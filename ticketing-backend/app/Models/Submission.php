@@ -28,22 +28,6 @@ class Submission extends Model
     const STATUS_REVISION_ACCOUNTING = 'REVISION_ACCOUNTING';
     const STATUS_REVISION_TAX = 'REVISION_TAX';
 
-    /**
-     * Urutan flow status.
-     */
-    // const STATUS_FLOW = [
-    //     self::STATUS_REVIEW_ACC_DEPT_HEAD,
-    //     self::STATUS_APPROVED_ACC_DEPT_HEAD,
-    //     self::STATUS_REVIEW_DIV_HEAD,
-    //     self::STATUS_APPROVED_DIV_HEAD,
-    //     self::STATUS_REVIEW_ACCOUNTING_HEAD,
-    //     self::STATUS_APPROVED_ACCOUNTING_HEAD,
-    //     self::STATUS_REVIEW_TAX_HEAD,
-    //     self::STATUS_APPROVED_TAX_HEAD,
-    //     self::STATUS_WAITING_PIC,
-    //     self::STATUS_TICKET_SOLVED,
-    // ];
-
     protected $fillable = [
         'requestor_id',
         'number',

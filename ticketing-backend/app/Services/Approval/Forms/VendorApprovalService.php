@@ -46,7 +46,7 @@ class VendorApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.'
+                'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
         }
 
@@ -70,7 +70,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Division Head.'
+            'The request was successfully approved by the Division Head.'
         );
     }
 
@@ -81,7 +81,7 @@ class VendorApprovalService
             Submission::STATUS_REVISION_ACCOUNTING
         ], true)) {
             return response()->json([
-                'message' => 'Submission tidak berada pada tahap pengisian Accounting.'
+                'message' => 'The request is not in the Accounting processing stage.'
             ], 422);
         }
 
@@ -89,7 +89,7 @@ class VendorApprovalService
 
         if (!$rules) {
             return response()->json([
-                'message' => 'Form ini tidak memiliki tahap pengisian Accounting.'
+                'message' => 'This request does not include an accounting entry step.'
             ], 422);
         }
 
@@ -123,7 +123,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Data accounting berhasil disimpan.'
+            'Accounting data was successfully saved.'
         );
     }
 
@@ -131,7 +131,7 @@ class VendorApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status Review by Accounting.'
+                'message' => 'The request is not in the "Review by Accounting Head" status.'
             ], 422);
         }
 
@@ -142,7 +142,7 @@ class VendorApprovalService
 
         if (!$hasFill)
             return response()->json([
-                'message' => 'Accounting Staff belum mengisi data. Tidak dapat di-approve.'
+                'message' => 'Accounting Staff has not filled the data. Cannot be approved.'
             ], 422);
 
         $error = $this->accountingError($submission);
@@ -172,7 +172,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Accounting Head.'
+            'The request was successfully approved by the Accounting Head.'
         );
     }
 
@@ -183,7 +183,7 @@ class VendorApprovalService
             Submission::STATUS_REVISION_TAX
         ], true)) {
             return response()->json([
-                'message' => 'Submission belum berada pada tahap pengisian Tax.'
+                'message' => 'The request is not in the Tax processing stage.'
             ], 422);
         }
 
@@ -221,7 +221,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Data tax berhasil disimpan.'
+            'Tax data was successfully saved.'
         );
     }
 
@@ -229,7 +229,7 @@ class VendorApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_TAX_HEAD)
             return response()->json([
-                'message' => 'Submission tidak dalam status Review by Tax.'
+                'message' => 'The request is not in the "Review by Tax Head" status.'
             ], 422);
 
         $hasFill = $submission->approvals()
@@ -239,7 +239,7 @@ class VendorApprovalService
 
         if (!$hasFill)
             return response()->json([
-                'message' => 'Tax Staff belum mengisi data. Tidak dapat di-approve.'
+                'message' => 'Tax Staff has not filled the data. Cannot be approved.'
             ], 422);
 
         $request->validate([
@@ -262,7 +262,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Tax Head dan diteruskan ke PIC.'
+            'The request was successfully approved by the Tax Head and forwarded to the PIC.'
         );
     }
 
@@ -270,7 +270,7 @@ class VendorApprovalService
     {
         if (!in_array($submission->status, $this->allowedResolveStatuses(), true))
             return response()->json([
-                'message' => 'Submission belum berada pada tahap penyelesaian PIC.'
+                'message' => 'The request is not in the PIC processing stage.'
             ], 422);
 
         $formData = $submission->form_data ?? [];
@@ -313,7 +313,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Ticket berhasil diselesaikan.'
+            'The request was succesfully resolved'
         );
     }
 
@@ -325,12 +325,12 @@ class VendorApprovalService
             Submission::STATUS_REVIEW_TAX_HEAD
         ], true))
             return response()->json([
-                'message' => 'Submission tidak dapat di-reject pada tahap ini.'
+                'message' => 'The request cannot be rejected at this stage.'
             ], 422);
 
         $request->validate(
             ['notes' => 'required|string|max:1000'],
-            ['notes.required' => 'Catatan alasan reject wajib diisi.']
+            ['notes.required' => 'Reason for rejection is required.']
         );
 
         DB::transaction(function () use ($request, $submission) {
@@ -349,7 +349,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-reject.'
+            'The request was succesfully rejected.'
         );
     }
 
@@ -357,24 +357,24 @@ class VendorApprovalService
     {
         $request->validate(
             ['notes' => 'required|string|min:1|max:1000'],
-            ['notes.required' => 'Catatan revisi wajib diisi.']
+            ['notes.required' => 'Revision notes is required.']
         );
 
         $flowMap = [
             Submission::STATUS_REVIEW_DIV_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_REQUESTOR,
                 'step' => 'DIV_HEAD_REVISION',
-                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
+                'message' => 'The request has been returned to the Requester for revision.'
             ],
             Submission::STATUS_REVIEW_ACCOUNTING_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_ACCOUNTING,
                 'step' => 'ACCOUNTING_REVISION',
-                'message' => 'Tiket dikembalikan kepada Accounting Staff untuk direvisi.'
+                'message' => 'The request has been returned to the Accounting Staff for revision.'
             ],
             Submission::STATUS_REVIEW_TAX_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_TAX,
                 'step' => 'TAX_REVISION',
-                'message' => 'Tiket dikembalikan kepada Tax Staff untuk direvisi.'
+                'message' => 'The request has been returned to the Tax Staff for revision.'
             ],
         ];
 
@@ -382,7 +382,7 @@ class VendorApprovalService
 
         if (!$flow)
             return response()->json([
-                'message' => 'Revisi tidak dapat dilakukan pada status tiket ini.'
+                'message' => 'No revisions can be made to this request status.'
             ], 422);
 
         DB::transaction(function () use (

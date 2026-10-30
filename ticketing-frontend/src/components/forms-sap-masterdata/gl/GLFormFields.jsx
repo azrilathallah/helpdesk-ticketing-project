@@ -50,19 +50,11 @@ const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
 const requiredClass = "text-red-600";
 
-function isEditable({ mode, readOnly, approvalRole, field }) {
+function isEditable({ mode, readOnly }) {
   if (readOnly) return false;
   if (mode === "create") return true;
   if (mode === "submission") return false;
   if (mode !== "approval") return false;
-
-  //   if (approvalRole === "accounting") {
-  //     return ["reconAccount", "glAccount"].includes(field);
-  //   }
-
-  //   if (approvalRole === "pic") {
-  //     return field === "materialCode";
-  //   }
 
   return false;
 }
@@ -225,10 +217,10 @@ export function GLAccountTable({
                       className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
                       title={
                         rows.length === 1
-                          ? "Minimal satu gl account"
-                          : "Hapus gl account"
+                          ? "At least one GL account"
+                          : "Delete"
                       }
-                      aria-label={`Hapus gl account ${index + 1}`}
+                      aria-label={`Delete ${index + 1}`}
                     >
                       <Trash2 size={17} strokeWidth={2} />
                     </button>
@@ -274,13 +266,8 @@ export default function GLFormFields({
     isEditable({ mode, readOnly, approvalRole, field });
 
   const isCreateMode = mode === "create";
-  // const isApprovalMode = mode === "approval";
-  //   const isPIC = isApprovalMode && approvalRole === "pic";
-  //   const isNewRequest = form.requestType === "New";
-  //   const isAccounting = isApprovalMode && approvalRole === "accounting";
 
   let sectionNumber = 0;
-
   const nextSection = () => {
     sectionNumber += 1;
     return sectionNumber;

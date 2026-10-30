@@ -256,14 +256,14 @@ export default function CreateTicketPage() {
   const handleSubmit = () => {
     console.log("Submitting:", selection);
 
-    alert(
-      `Tiket Berhasil Dibuat!\n\n` +
-        `Tipe: ${selection.type}\n` +
-        `Kategori: ${selection.category}\n` +
-        `Sub: ${selection.subCategory || "-"}\n` +
-        `Module: ${selection.module || "-"}\n` +
-        `Desc: ${selection.description || "-"}`,
-    );
+    // alert(
+    //   `Tiket Berhasil Dibuat!\n\n` +
+    //     `Tipe: ${selection.type}\n` +
+    //     `Kategori: ${selection.category}\n` +
+    //     `Sub: ${selection.subCategory || "-"}\n` +
+    //     `Module: ${selection.module || "-"}\n` +
+    //     `Desc: ${selection.description || "-"}`,
+    // );
   };
 
   const selectType = (type) => {
@@ -510,7 +510,7 @@ export default function CreateTicketPage() {
       <section className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <header className="border-b border-slate-200 px-6 py-4">
           <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
-            Create Request Ticket
+            Create Trouble Ticket
           </h1>
         </header>
 

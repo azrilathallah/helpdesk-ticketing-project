@@ -222,8 +222,8 @@ class SubmissionController extends Controller
         return response()->json([
             'message' =>
             $submission->status === 'DRAFT'
-                ? 'Form berhasil disimpan sebagai draft.'
-                : 'Form berhasil disubmit.',
+                ? 'The request was successfully saved as a draft.'
+                : 'The request was successfully submitted.',
 
             'data' => $this->transform(
                 $submission,
@@ -251,7 +251,7 @@ class SubmissionController extends Controller
 
         if (!$canEdit) {
             return response()->json([
-                'message' => 'Submission ini tidak dapat diedit.',
+                'message' => 'This request cannot be edited.',
             ], 422);
         }
 
@@ -327,10 +327,10 @@ class SubmissionController extends Controller
             'message' => $data['status'] === 'SUBMITTED'
                 ? (
                     $wasRevision
-                    ? "Revisi berhasil diajukan kembali dan menunggu {$firstApprover}."
-                    : "Form berhasil disubmit dan menunggu review {$firstApprover}."
+                    ? "The revision has been successfully resubmitted and is awaiting approval from {$firstApprover}."
+                    : "The request was successfully submitted and is awaiting review by {$firstApprover}."
                 )
-                : 'Draft berhasil diperbarui.',
+                : 'Draft was successfully updated.',
 
             'data' => $this->transform(
                 $submission->fresh([
@@ -374,7 +374,7 @@ class SubmissionController extends Controller
         if (!is_array($payload)) {
             throw ValidationException::withMessages([
                 'data' =>
-                'Data form tidak valid.',
+                'Invalid form data.',
             ]);
         }
 
@@ -395,7 +395,7 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'status' =>
-                'Status harus DRAFT atau SUBMIITED.',
+                'Status must be DRAFT or SUBMITTED.',
             ]);
         }
 
@@ -412,7 +412,7 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'type' =>
-                'Type harus SAP atau IT.',
+                'Type must be SAP or IT.',
             ]);
         }
 
@@ -421,7 +421,7 @@ class SubmissionController extends Controller
         ) {
             throw ValidationException::withMessages([
                 'form_type' =>
-                'Form type wajib diisi.',
+                'Form type is required.',
             ]);
         }
 
@@ -447,7 +447,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * Simpan attachment.
+     *  Attachment.
      */
     private function storeFiles(
         Request $request,
@@ -510,7 +510,7 @@ class SubmissionController extends Controller
 
         if (in_array($submission->status, $terminalStatuses, true)) {
             return response()->json([
-                'message' => 'Submission tidak dapat di-cancel.',
+                'message' => 'The request cannot be cancelled.',
             ], 422);
         }
 
@@ -524,7 +524,7 @@ class SubmissionController extends Controller
                 'step' => $submission->status,
                 'action' => 'CANCELLED',
                 'acted_by' => $request->user()->id,
-                'notes' => $request->input('notes') ?: 'Ticket dibatalkan oleh requestor.',
+                'notes' => $request->input('notes') ?: 'The request was canceled by the requester.',
                 'created_at' => now(),
             ]);
 
@@ -533,7 +533,7 @@ class SubmissionController extends Controller
         });
 
         return response()->json([
-            'message' => 'Ticket berhasil dibatalkan.',
+            'message' => 'The request was successfully canceled.',
             'data' => $this->transform($submission->fresh(['requestor']), true),
         ]);
     }
@@ -547,7 +547,7 @@ class SubmissionController extends Controller
 
             403,
 
-            'Anda tidak memiliki akses ke submission ini.'
+            'You do not have access to this request.'
         );
     }
 

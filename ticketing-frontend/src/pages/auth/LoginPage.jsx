@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-slate-950 via-red-950 to-red-700 px-4 py-10">
-      {/* Decorative background */}
+      {/* Background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-white-400/20 blur-3xl"

@@ -183,7 +183,6 @@ function TextareaField({
     <div>
       <label className="mb-1 block text-sm font-semibold text-slate-700">
         {label}
-        <span className="text-red-500">*</span>
       </label>
 
       <textarea
@@ -239,7 +238,7 @@ function ApprovalList() {
     } catch (err) {
       console.error(err);
 
-      setError(err.response?.data?.message || "Gagal mengambil data approval.");
+      setError(err.response?.data?.message || "Failed to load request data.");
     } finally {
       setLoading(false);
     }
@@ -339,7 +338,7 @@ function ApprovalDetailPage({ id }) {
       const data = response.data?.data;
 
       if (!data) {
-        throw new Error("Approval tidak ditemukan.");
+        throw new Error("Request not found.");
       }
 
       setSubmission(data);
@@ -354,7 +353,7 @@ function ApprovalDetailPage({ id }) {
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Gagal mengambil detail approval.",
+          "Failed to load request details.",
       );
     } finally {
       setLoading(false);
@@ -430,7 +429,7 @@ function ApprovalDetailPage({ id }) {
     if (!submission || processing) return;
 
     if (!rejectNotes.trim()) {
-      setRejectError("Catatan / alasan penolakan wajib diisi.");
+      setRejectError("Notes / Reason for rejection is required");
       return;
     }
 
@@ -443,7 +442,7 @@ function ApprovalDetailPage({ id }) {
         rejectNotes.trim(),
       );
 
-      window.alert(response?.data?.message || "Submission berhasil di-reject.");
+      window.alert(response?.data?.message || "The request was successfully rejected.");
 
       setRejectModalOpen(false);
       setRejectNotes("");
@@ -452,7 +451,7 @@ function ApprovalDetailPage({ id }) {
       console.error(err);
 
       setRejectError(
-        err.response?.data?.message || "Gagal me-reject submission.",
+        err.response?.data?.message || "Failed to reject the request.",
       );
     } finally {
       setProcessing(false);
@@ -473,7 +472,7 @@ function ApprovalDetailPage({ id }) {
     if (!submission || processing) return;
 
     if (!revisionNotes.trim()) {
-      setRevisionError("Catatan revisi wajib diisi.");
+      setRevisionError("Revision notes is required");
       return;
     }
 
@@ -486,7 +485,7 @@ function ApprovalDetailPage({ id }) {
         revisionNotes.trim(),
       );
 
-      window.alert(response?.data?.message || "Revisi berhasil dikirim.");
+      window.alert(response?.data?.message || "The revision was successfully sent.");
 
       setRevisionModalOpen(false);
       setRevisionNotes("");
@@ -494,7 +493,7 @@ function ApprovalDetailPage({ id }) {
     } catch (err) {
       console.error(err);
 
-      setRevisionError(err.response?.data?.message || "Revisi gagal dikirim.");
+      setRevisionError(err.response?.data?.message || "The revision failed to send.");
     } finally {
       setProcessing(false);
     }
@@ -558,7 +557,7 @@ function ApprovalDetailPage({ id }) {
   if (loading) {
     return (
       <main className="mx-auto w-full space-y-5">
-        <PageLoading message="Loading approval detail..." />
+        <PageLoading message="Loading request detail..." />
       </main>
     );
   }
@@ -741,7 +740,7 @@ function ApprovalDetailPage({ id }) {
                 ◷
               </div>
               <p className="mt-2 text-xs font-medium text-slate-700">
-                Belum ada riwayat approval
+                No approval history yet
               </p>
             </div>
           ) : (
@@ -846,14 +845,14 @@ function ApprovalDetailPage({ id }) {
 
             <div className="space-y-4 p-4 sm:p-6">
               <div className="rounded-sm border border-red-100 bg-red-50 p-2 text-xs text-red-700">
-                Anda akan menolak ticket <strong>{submission.number}</strong>.
+                You will reject request <strong>{submission.number}</strong>.
               </div>
 
               <TextareaField
-                label="Catatan / Alasan Penolakan"
+                label="Notes / Reason for rejection"
                 value={rejectNotes}
                 onChange={(event) => setRejectNotes(event.target.value)}
-                placeholder="Tuliskan catatan alasan penolakan..."
+                placeholder="Write the reason for the rejection..."
                 disabled={processing}
                 error={rejectError}
               />
@@ -866,7 +865,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={() => setRejectModalOpen(false)}
                 disabled={processing}
               >
-                Batal
+                Cancel
               </button>
 
               <button
@@ -875,7 +874,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={handleConfirmReject}
                 disabled={processing || !rejectNotes.trim()}
               >
-                {processing ? "Memproses..." : "Konfirmasi Reject"}
+                {processing ? "Processing..." : "Confirm Reject"}
               </button>
             </footer>
           </section>
@@ -924,15 +923,14 @@ function ApprovalDetailPage({ id }) {
 
             <div className="space-y-4 p-4 sm:p-6">
               <div className="rounded-lg border border-orange-100 bg-orange-50 p-2 text-xs text-orange-700">
-                Catatan revisi akan membantu pihak terkait memperbaiki data
-                sebelum proses approval dilanjutkan.
+                Revision notes will help the relevant parties correct the data.
               </div>
 
               <TextareaField
-                label="Catatan Revisi"
+                label="Revision notes"
                 value={revisionNotes}
                 onChange={(event) => setRevisionNotes(event.target.value)}
-                placeholder="Tuliskan data yang perlu diperbaiki..."
+                placeholder="Write the notes for the revision..."
                 disabled={processing}
                 error={revisionError}
               />
@@ -945,7 +943,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={() => setRevisionModalOpen(false)}
                 disabled={processing}
               >
-                Batal
+                Cancel
               </button>
 
               <button
@@ -954,7 +952,7 @@ function ApprovalDetailPage({ id }) {
                 onClick={handleConfirmRevision}
                 disabled={processing || !revisionNotes.trim()}
               >
-                {processing ? "Memproses..." : "Kirim Revisi"}
+                {processing ? "Processing..." : "Submit Revision"}
               </button>
             </footer>
           </section>

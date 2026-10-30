@@ -55,7 +55,7 @@ export const vendorApproval = {
       payload.paymentMethod.length === 0
     ) {
       return {
-        error: "Semua field Accounting wajib diisi sebelum disimpan.",
+        error: "All Accounting fields must be filled in before saving.",
       };
     }
     return { payload };
@@ -84,7 +84,7 @@ export const vendorApproval = {
       : [];
 
     if (witholdingTax.length === 0) {
-      return { error: "Pilih minimal satu withholding tax sebelum disimpan." };
+      return { error: "Select at least one withholding tax before saving." };
     }
 
     return { payload: { witholdingTax } };
@@ -95,7 +95,7 @@ export const vendorApproval = {
       submission?.form_data?.requestType || formData.requestType;
     const code = String(formData.vendorCode || "").trim();
     if (requestType === "New" && !code)
-      return { error: "Vendor Code wajib diisi." };
+      return { error: "The Vendor Code is required." };
     return { code, isVendor: true, isMaterial: false };
   },
 };
@@ -150,7 +150,7 @@ export function createVendorActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan accounting untuk form ini belum dikonfigurasi.",
+              "The accounting rules for this form have not yet been configured.",
             );
             return;
           }
@@ -170,7 +170,7 @@ export function createVendorActions(context) {
 
         case "approve-accounting": {
           if (!hasAccountingSaved) {
-            setActionError("Data accounting harus disimpan terlebih dahulu.");
+            setActionError("Accounting data must be saved first.");
             return;
           }
 
@@ -182,7 +182,7 @@ export function createVendorActions(context) {
           const result = formLogic?.getTaxPayload(formData);
 
           if (!result) {
-            setActionError("Aturan tax untuk form ini belum dikonfigurasi.");
+            setActionError("The tax rules for this form have not yet been configured.");
             return;
           }
 
@@ -201,7 +201,7 @@ export function createVendorActions(context) {
 
         case "approve-tax": {
           if (!hasTaxSaved) {
-            setActionError("Data tax harus disimpan terlebih dahulu.");
+            setActionError("Tax data must be saved first.");
             return;
           }
 
@@ -214,7 +214,7 @@ export function createVendorActions(context) {
 
           if (!result) {
             setActionError(
-              "Aturan resolve untuk form ini belum dikonfigurasi.",
+              "The resolve rule for this form has not been configured.",
             );
             return;
           }
@@ -233,7 +233,7 @@ export function createVendorActions(context) {
           );
 
           window.alert(
-            response?.data?.message || "Ticket berhasil diselesaikan.",
+            response?.data?.message || "The request was successfully resolved.",
           );
 
           navigate("/approval");
@@ -244,13 +244,13 @@ export function createVendorActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "Action berhasil dilakukan.");
+      window.alert(response?.data?.message || "The action was successfully completed.");
 
       await loadDetail();
     } catch (err) {
       console.error(err);
 
-      setActionError(err.response?.data?.message || "Action gagal dilakukan.");
+      setActionError(err.response?.data?.message || "The action failed.");
     } finally {
       setProcessing(false);
     }
@@ -312,7 +312,7 @@ export function createVendorActions(context) {
               onClick={() => handleVendorAction("fill-accounting")}
               disabled={processing}
             >
-              {processing ? "Saving..." : "Save Accounting Data"}
+              {processing ? "Saving..." : "Save"}
             </button>
           )}
 
@@ -366,7 +366,7 @@ export function createVendorActions(context) {
               onClick={() => handleVendorAction("fill-tax")}
               disabled={processing}
             >
-              {processing ? "Saving..." : "Save Tax Data"}
+              {processing ? "Saving..." : "Save"}
             </button>
           )}
 

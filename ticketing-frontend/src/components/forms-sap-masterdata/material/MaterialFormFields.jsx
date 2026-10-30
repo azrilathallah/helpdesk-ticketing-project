@@ -154,7 +154,6 @@ export default function MaterialFormFields({
                 update("materialCode", value);
                 onMaterialCodeChange?.(value);
               }}
-              placeholder="Masukkan material code"
               required={isPIC || isCreateMode}
               disabled={!editable("materialCode")}
             />

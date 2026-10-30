@@ -85,7 +85,7 @@ export default function DashboardPage() {
         if (!mounted) return;
 
         setError(
-          err.response?.data?.message || "Gagal mengambil data dashboard.",
+          err.response?.data?.message || "Failed to get dashboard data",
         );
       } finally {
         if (mounted) setLoading(false);

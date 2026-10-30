@@ -65,7 +65,7 @@ export default function CustomerFormPage() {
         );
 
         if (!submission) {
-          throw new Error("Submission tidak ditemukan.");
+          throw new Error("Request not found.");
         }
 
         if (
@@ -88,7 +88,7 @@ export default function CustomerFormPage() {
       } catch (error) {
         console.error(error);
 
-        alert(error.response?.data?.message || "Gagal mengambil submission.");
+        alert(error.response?.data?.message || "Failed to load Request.");
 
         navigate("/submission");
       } finally {
@@ -167,8 +167,8 @@ export default function CustomerFormPage() {
 
       if (saved?.status === "REVIEW_DIV_HEAD") {
         alert(
-          `Form berhasil ${
-            submissionId ? "diajukan kembali" : "disubmit"
+          `Request successfully ${
+            submissionId ? "resubmitted" : "submitted"
           }.\n\nNumber: ${saved.number}`,
         );
 
@@ -178,7 +178,7 @@ export default function CustomerFormPage() {
       }
 
       if (saved?.status === "DRAFT") {
-        alert(`Draft berhasil disimpan.\n\nNumber: ${saved.number}`);
+        alert(`Draft successfully saved.\n\nNumber: ${saved.number}`);
 
         navigate("/submission");
 
@@ -187,7 +187,7 @@ export default function CustomerFormPage() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Gagal menyimpan submission.");
+      alert(error.response?.data?.message || "Failed to save Request.");
     } finally {
       setSubmitMode("");
     }

@@ -72,13 +72,13 @@ class MaterialApprovalService
         $data = $submission->form_data ?? [];
 
         if (!in_array($type, ['YPRO', 'ZCOM'], true))
-            return 'Material ini tidak memerlukan approval Accounting Head.';
+            return 'This material type does not require approval from the Accounting Head.';
 
         if ($type === 'YPRO' && trim((string) ($data['glAccount'] ?? '')) === '')
-            return 'GL Account wajib diisi oleh Accounting Staff.';
+            return 'The GL Account must be filled out by the accounting staff.';
 
         if ($type === 'ZCOM' && trim((string) ($data['reconAccount'] ?? '')) === '')
-            return 'Recon Account wajib diisi oleh Accounting Staff.';
+            return 'The Recon Account must be filled out by the accounting staff.';
 
         return null;
     }
@@ -87,7 +87,7 @@ class MaterialApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status yang tepat untuk di-approve oleh Division Head.'
+                'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
         }
 
@@ -111,7 +111,7 @@ class MaterialApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Division Head.'
+            'The request was successfully approved by the Division Head.'
         );
     }
 
@@ -119,7 +119,7 @@ class MaterialApprovalService
     {
         if ($this->isMaterial($submission) && !in_array($this->materialType($submission), ['YPRO', 'ZCOM'], true)) {
             return response()->json([
-                'message' => 'Pengisian Accounting Staff hanya diperlukan untuk Material YPRO dan ZCOM.'
+                'message' => 'Accounting Staff entries are required only for YPRO and ZCOM material types.'
             ], 422);
         }
 
@@ -128,7 +128,7 @@ class MaterialApprovalService
             Submission::STATUS_REVISION_ACCOUNTING
         ], true)) {
             return response()->json([
-                'message' => 'Submission tidak berada pada tahap pengisian Accounting.'
+                'message' => 'The request is not in the Accounting processing stage.'
             ], 422);
         }
 
@@ -136,7 +136,7 @@ class MaterialApprovalService
 
         if (!$rules) {
             return response()->json([
-                'message' => 'Form ini tidak memiliki tahap pengisian Accounting.'
+                'message' => 'This request does not include an accounting entry step.'
             ], 422);
         }
 
@@ -170,7 +170,7 @@ class MaterialApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'Data accounting berhasil disimpan.'
+            'Accounting data was successfully saved.'
         );
     }
 
@@ -178,13 +178,13 @@ class MaterialApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
-                'message' => 'Submission tidak dalam status Review by Accounting.'
+                'message' => 'The request is not in the "Review by Accounting Head" status.'
             ], 422);
         }
 
         if ($this->isMaterial($submission) && !in_array($this->materialType($submission), ['YPRO', 'ZCOM'], true)) {
             return response()->json([
-                'message' => 'Material ini tidak memerlukan approval Accounting Head.'
+                'message' => 'This material type does not require approval from the Accounting Head.'
             ], 422);
         }
 
@@ -195,7 +195,7 @@ class MaterialApprovalService
 
         if (!$hasFill)
             return response()->json([
-                'message' => 'Accounting Staff belum mengisi data. Tidak dapat di-approve.'
+                'message' => 'Accounting Staff has not filled the data. Cannot be approved.'
             ], 422);
 
         $error = $this->accountingError($submission);
@@ -224,7 +224,7 @@ class MaterialApprovalService
         });
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-approve oleh Accounting Head.'
+            'The request was successfully approved by the Accounting Head.'
         );
     }
 
@@ -232,7 +232,7 @@ class MaterialApprovalService
     {
         if (!in_array($submission->status, $this->allowedResolveStatuses(), true))
             return response()->json([
-                'message' => 'Submission belum berada pada tahap penyelesaian PIC.'
+                'message' => 'The request is not in the PIC processing stage.'
             ], 422);
 
         $formData = $submission->form_data ?? [];
@@ -274,7 +274,7 @@ class MaterialApprovalService
         });
         return $this->query->responseFor(
             $submission,
-            'Ticket berhasil diselesaikan.'
+            'The request was succesfully resolved.'
         );
     }
 
@@ -285,12 +285,12 @@ class MaterialApprovalService
             Submission::STATUS_REVIEW_ACCOUNTING_HEAD
         ], true))
             return response()->json([
-                'message' => 'Submission tidak dapat di-reject pada tahap ini.'
+                'message' => 'The request cannot be rejected at this stage.'
             ], 422);
 
         $request->validate(
             ['notes' => 'required|string|max:1000'],
-            ['notes.required' => 'Catatan alasan reject wajib diisi.']
+            ['notes.required' => 'Reason for rejection is required.']
         );
 
         DB::transaction(function () use ($request, $submission) {
@@ -308,7 +308,7 @@ class MaterialApprovalService
         });
         return $this->query->responseFor(
             $submission,
-            'Submission berhasil di-reject.'
+            'The request was succesfully rejected.'
         );
     }
 
@@ -316,19 +316,19 @@ class MaterialApprovalService
     {
         $request->validate(
             ['notes' => 'required|string|min:1|max:1000'],
-            ['notes.required' => 'Catatan revisi wajib diisi.']
+            ['notes.required' => 'Revision notes is required.']
         );
 
         $flowMap = [
             Submission::STATUS_REVIEW_DIV_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_REQUESTOR,
                 'step' => 'DIV_HEAD_REVISION',
-                'message' => 'Tiket dikembalikan kepada Requestor untuk direvisi.'
+                'message' => 'The request has been returned to the Requester for revision.'
             ],
             Submission::STATUS_REVIEW_ACCOUNTING_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_ACCOUNTING,
                 'step' => 'ACCOUNTING_REVISION',
-                'message' => 'Tiket dikembalikan kepada Accounting Staff untuk direvisi.'
+                'message' => 'The request has been returned to the Accounting Staff for revision.'
             ],
         ];
 
@@ -336,7 +336,7 @@ class MaterialApprovalService
 
         if (!$flow)
             return response()->json([
-                'message' => 'Revisi tidak dapat dilakukan pada status tiket ini.'
+                'message' => 'No revisions can be made to this request status.'
             ], 422);
 
         DB::transaction(function () use (
