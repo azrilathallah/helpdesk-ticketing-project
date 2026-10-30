@@ -13,6 +13,7 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const { logout } = useAuth();
   const [approvalCount, setApprovalCount] = useState(0);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -45,73 +46,127 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-slate-200 bg-white shadow-sm lg:flex">
-      <div className="border-b border-slate-200 px-5 py-6">
+    <>
+      {/* Mobile Header */}
+      <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm lg:hidden">
         <div className="flex items-center gap-3">
           <img
             src="/logo-ibsw.png"
             alt="IBSW"
-            className="h-8 w-8 shrink-0 object-contain"
+            className="h-8 w-8 object-contain"
           />
 
           <span className="font-bold tracking-tight text-slate-900">
             Helpdesk System IBS
           </span>
         </div>
-      </div>
 
-      <nav
-        aria-label="Navigasi utama"
-        className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
-      >
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              [
-                "relative flex items-center gap-3 rounded-lg px-3 py-2",
-                "text-sm font-medium no-underline transition-colors",
-                isActive
-                  ? "bg-red-100 font-semibold text-red-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-              ].join(" ")
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <Icon
-                  className={
-                    isActive
-                      ? "h-5 w-5 shrink-0 text-red-600"
-                      : "h-5 w-5 shrink-0 text-slate-400"
-                  }
-                />
-
-                <span className="min-w-0 flex-1">{label}</span>
-
-                {to === "/approval" && approvalCount > 0 && (
-                  <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-3 text-[11px] leading-none font-bold text-white shadow-sm">
-                    {approvalCount > 99 ? "99+" : approvalCount}
-                  </span>
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="border-t border-slate-200 p-3">
         <button
           type="button"
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-red-600 transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          aria-label={isMobileOpen ? "Tutup navigasi" : "Buka navigasi"}
+          aria-expanded={isMobileOpen}
+          className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100"
         >
-          <LogoutIcon className="h-5 w-5 shrink-0" />
-          <span className="text-sm font-medium">Logout</span>
+          {isMobileOpen ? (
+            <CloseIcon className="h-6 w-6" />
+          ) : (
+            <MenuIcon className="h-6 w-6" />
+          )}
         </button>
-      </div>
-    </aside>
+      </header>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <button
+          type="button"
+          aria-label="Tutup navigasi"
+          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col",
+          "border-r border-slate-200 bg-white shadow-sm",
+          "transition-transform duration-300 ease-in-out",
+          "lg:translate-x-0",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+      >
+        {/* Logo */}
+        <div className="border-b border-slate-200 px-5 py-6">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo-ibsw.png"
+              alt="IBSW"
+              className="h-8 w-8 shrink-0 object-contain"
+            />
+
+            <span className="font-bold tracking-tight text-slate-900">
+              Helpdesk System IBS
+            </span>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav
+          aria-label="Navigasi utama"
+          className="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
+        >
+          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setIsMobileOpen(false)}
+              className={({ isActive }) =>
+                [
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2",
+                  "text-sm font-medium no-underline transition-colors",
+                  isActive
+                    ? "bg-red-100 font-semibold text-red-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                ].join(" ")
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    className={
+                      isActive
+                        ? "h-5 w-5 shrink-0 text-red-600"
+                        : "h-5 w-5 shrink-0 text-slate-400"
+                    }
+                  />
+
+                  <span className="min-w-0 flex-1">{label}</span>
+
+                  {to === "/approval" && approvalCount > 0 && (
+                    <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-3 text-[11px] leading-none font-bold text-white shadow-sm">
+                      {approvalCount > 99 ? "99+" : approvalCount}
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Logout */}
+        <div className="border-t border-slate-200 p-3">
+          <button
+            type="button"
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-red-600 transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+          >
+            <LogoutIcon className="h-5 w-5 shrink-0" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
 
@@ -181,5 +236,37 @@ function LogoutIcon({ className }) {
         clipRule="evenodd"
       />
     </IconBase>
+  );
+}
+
+function MenuIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+function CloseIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="m18 6-12 12M6 6l12 12" />
+    </svg>
   );
 }

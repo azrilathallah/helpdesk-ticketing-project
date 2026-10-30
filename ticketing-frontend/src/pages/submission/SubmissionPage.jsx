@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { submissionApi } from "../../api/submission";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
+import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
 
@@ -184,9 +185,6 @@ function SubmissionList() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [typeFilter, setTypeFilter] = useState("ALL");
 
   const loadSubmissions = async () => {
     try {
@@ -219,26 +217,6 @@ function SubmissionList() {
       item.status !== "TICKET_CANCELLED" &&
       item.status !== "TICKET_REJECTED",
   ).length;
-
-  const filteredSubmissions = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-
-    return submissions.filter((item) => {
-      const matchesSearch =
-        !keyword ||
-        item.number?.toLowerCase().includes(keyword) ||
-        item.form_type?.toLowerCase().includes(keyword) ||
-        item.category?.toLowerCase().includes(keyword) ||
-        item.sub_category?.toLowerCase().includes(keyword);
-
-      const matchesStatus =
-        statusFilter === "ALL" || item.status === statusFilter;
-
-      const matchesType = typeFilter === "ALL" || item.type === typeFilter;
-
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [submissions, search, statusFilter, typeFilter]);
 
   const handleOpen = (submission) => {
     const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
@@ -292,9 +270,6 @@ function SubmissionList() {
     navigate(`/submission/${submission.id}`);
   };
 
-  const canCancel = (status) =>
-    !["TICKET_SOLVED", "TICKET_CANCELLED", "TICKET_REJECTED"].includes(status);
-
   const handleCancelSubmission = async (submission, event) => {
     event?.stopPropagation();
 
@@ -318,9 +293,6 @@ function SubmissionList() {
     }
   };
 
-  const inputClass =
-    "min-h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
   return (
     <main className="mx-auto w-full space-y-3">
       {/* Header */}
@@ -337,7 +309,7 @@ function SubmissionList() {
 
       {/* Summary */}
       <section className="grid grid-cols-2 gap-2 sm:gap-4">
-        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1 sm:p-2 shadow-sm">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-lg text-amber-700">
             ✎
           </div>
@@ -349,7 +321,7 @@ function SubmissionList() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1 sm:p-2 shadow-sm">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-700">
             ✓
           </div>
@@ -363,268 +335,16 @@ function SubmissionList() {
       </section>
 
       {/* Submission List */}
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 p-4">
-          <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Submission List
-              </h2>
-              <p className="text-xs text-slate-500">
-                {filteredSubmissions.length} request
-                {filteredSubmissions.length !== 1 ? "s" : ""} found
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-150 xl:grid-cols-[minmax(220px,1fr)_140px_210px]">
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
-                  ⌕
-                </span>
-
-                <input
-                  type="search"
-                  aria-label="Search submission"
-                  placeholder="Search number or form..."
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  className={`${inputClass} pl-9`}
-                />
-
-                {search && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-slate-400 hover:text-slate-700"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-
-              {/* Status Filter */}
-              <select
-                aria-label="Filter by type"
-                className={inputClass}
-                value={typeFilter}
-                onChange={(event) => setTypeFilter(event.target.value)}
-              >
-                <option value="ALL">All Type</option>
-                <option value="SAP">SAP</option>
-                <option value="IT">IT</option>
-              </select>
-
-              <select
-                aria-label="Filter by status"
-                className={inputClass}
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-              >
-                <option value="ALL">All Status</option>
-                <option value="DRAFT">Draft</option>
-                <option value="REVIEW_ACC_DEPT_HEAD">
-                  Review Accounting Dept Head
-                </option>
-                <option value="APPROVED_ACC_DEPT_HEAD">
-                  Approved by Accounting Dept Head
-                </option>
-                <option value="REVIEW_DIV_HEAD">Review Division Head</option>
-                <option value="APPROVED_DIV_HEAD">
-                  Approved by Division Head
-                </option>
-                <option value="REVIEW_ACCOUNTING_HEAD">Review Accounting Head</option>
-                <option value="APPROVED_ACCOUNTING_HEAD">
-                  Approved by Accounting Head
-                </option>
-                <option value="REVIEW_TAX_HEAD">Review Tax Head</option>
-                <option value="APPROVED_TAX_HEAD">Approved by Tax Head</option>
-                <option value="TICKET_SOLVED">Solved</option>
-                <option value="TICKET_CANCELLED">Cancelled</option>
-                <option value="TICKET_REJECTED">Rejected</option>
-                <option value="REVISION_REQUESTOR">Needs Revision</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          {error && <ErrorPanel message={error} onRetry={loadSubmissions} />}
-
-          {loading && !error && (
-            <PageLoading message="Please wait while submission data is being loaded." />
-          )}
-
-          {!loading && !error && filteredSubmissions.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-14 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-slate-200">
-                📄
-              </div>
-              <h3 className="mt-4 font-semibold text-slate-900">
-                {submissions.length === 0
-                  ? "No submissions yet"
-                  : "No matching submissions"}
-              </h3>
-              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                {submissions.length === 0
-                  ? "Your saved drafts and submitted requests will appear here."
-                  : "Try changing your search keyword or filters."}
-              </p>
-            </div>
-          )}
-
-          {!error && filteredSubmissions.length > 0 && (
-            <>
-              {/* Desktop table */}
-              <div className="hidden overflow-x-auto md:block">
-                <table className="w-full border-separate border-spacing-0 text-left">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      {[
-                        "Number",
-                        "Request",
-                        "Created",
-                        "Status",
-                        "Actions",
-                      ].map((heading) => (
-                        <th
-                          key={heading}
-                          className="border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
-                        >
-                          {heading}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filteredSubmissions.map((submission) => (
-                      <tr
-                        key={submission.id}
-                        onClick={() => handleOpen(submission)}
-                        className="cursor-pointer transition hover:bg-blue-50/40"
-                      >
-                        <td className="border-b border-slate-100 p-3">
-                          <span className="text-xs font-semibold text-blue-700">
-                            {submission.number || "-"}
-                          </span>
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <p className="text-xs font-medium text-slate-800">
-                            {submission.form_type ||
-                              `${submission.category || ""} ${submission.sub_category || ""}`}
-                          </p>
-                        </td>
-
-                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
-                          {formatDate(
-                            submission.submitted_at || submission.created_at,
-                          )}
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <StatusBadge status={submission.status} />
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleOpen(submission);
-                              }}
-                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                            >
-                              {["DRAFT", "REVISION_REQUESTOR"].includes(
-                                submission.status,
-                              )
-                                ? "Edit"
-                                : "View"}
-                              <span aria-hidden="true">→</span>
-                            </button>
-
-                            {canCancel(submission.status) && (
-                              <button
-                                type="button"
-                                onClick={(event) =>
-                                  handleCancelSubmission(submission, event)
-                                }
-                                className="rounded-sm border border-red-200 bg-white px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                              >
-                                Cancel
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile cards */}
-              <div className="grid grid-cols-1 md:hidden">
-                {filteredSubmissions.map((submission) => (
-                  <article
-                    key={submission.id}
-                    className="border border-slate-300 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
-                          {submission.number || "-"}
-                        </p>
-                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
-                          {submission.form_type ||
-                            `${submission.category || ""} ${submission.sub_category || ""}`}
-                        </h3>
-                      </div>
-                      <StatusBadge status={submission.status} />
-                    </div>
-
-                    <div className="mt-1 space-y-1 text-xs text-slate-500">
-                      <p>
-                        Created:{" "}
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
-                        )}
-                      </p>
-                    </div>
-
-                    <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-300 pt-3 items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleOpen(submission)}
-                        className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        {["DRAFT", "REVISION_REQUESTOR"].includes(
-                          submission.status,
-                        )
-                          ? "Edit Submission"
-                          : "View Details"}
-                      </button>
-
-                      {canCancel(submission.status) && (
-                        <button
-                          type="button"
-                          onClick={(event) =>
-                            handleCancelSubmission(submission, event)
-                          }
-                          className="rounded-lg border border-red-200 px-2.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+      <DataTable
+        mode="submission"
+        title="Submission List"
+        submissions={submissions}
+        loading={loading}
+        error={error}
+        onRetry={loadSubmissions}
+        onOpen={handleOpen}
+        onCancel={handleCancelSubmission}
+      />
     </main>
   );
 }
@@ -718,15 +438,16 @@ function SubmissionDetailPage({ id }) {
         "ACC_DEPT_HEAD_REVISION",
         "ACCOUNTING_HEAD_REVISION",
         "DIV_HEAD_REVISION",
-
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
   );
 
   const getHistoryLabel = (item) => {
-    if (item.step === "ACC_DEPT_HEAD_APPROVE") return "Approved by Accounting Dept Head";
+    if (item.step === "ACC_DEPT_HEAD_APPROVE")
+      return "Approved by Accounting Dept Head";
     if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
-    if (item.step === "ACCOUNTING_HEAD_APPROVE") return "Approved by Accounting Head";
+    if (item.step === "ACCOUNTING_HEAD_APPROVE")
+      return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
     if (
       [

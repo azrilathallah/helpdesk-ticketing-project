@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { approvalApi } from "../../api/approval";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
+import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval/forms";
@@ -227,8 +228,6 @@ function ApprovalList() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const loadApprovals = async () => {
     try {
@@ -250,33 +249,11 @@ function ApprovalList() {
     loadApprovals();
   }, []);
 
-  const filteredSubmissions = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-
-    return submissions.filter((item) => {
-      const matchesSearch =
-        !keyword ||
-        item.number?.toLowerCase().includes(keyword) ||
-        item.form_type?.toLowerCase().includes(keyword) ||
-        item.category?.toLowerCase().includes(keyword) ||
-        item.sub_category?.toLowerCase().includes(keyword) ||
-        item.requestor?.name?.toLowerCase().includes(keyword);
-
-      const matchesStatus =
-        statusFilter === "ALL" || item.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [submissions, search, statusFilter]);
-
   const handleOpen = (submission) => {
     if (!submission?.id) return;
 
     navigate(`/approval/${submission.id}`);
   };
-
-  const inputClass =
-    "min-h-8 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   return (
     <main className="mx-auto w-full space-y-3">
@@ -295,8 +272,8 @@ function ApprovalList() {
 
       {/* Summary */}
       <section className="grid grid-cols-2 gap-2 sm:gap-4">
-        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1.5 sm:p-3 shadow-sm">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-700">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-1 sm:p-2 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-lg text-amber-700">
             ✎
           </div>
 
@@ -313,237 +290,15 @@ function ApprovalList() {
       </section>
 
       {/* Approval List */}
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 p-4">
-          <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900">
-                Approval List
-              </h2>
-
-              <p className="text-xs text-slate-500">
-                {filteredSubmissions.length} request
-                {filteredSubmissions.length !== 1 ? "s" : ""} found
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-110 xl:grid-cols-[minmax(220px,1fr)_210px]">
-              {/* Search */}
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
-                  ⌕
-                </span>
-
-                <input
-                  type="search"
-                  aria-label="Search approval"
-                  placeholder="Search number or form..."
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  className={`${inputClass} pl-9`}
-                />
-
-                {search && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-slate-400 hover:text-slate-700"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-
-              {/* Status Filter */}
-              <select
-                aria-label="Filter by status"
-                className={inputClass}
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-              >
-                <option value="ALL">All Status</option>
-                <option value="REVIEW_ACC_DEPT_HEAD">
-                  Review Accounting Dept Head
-                </option>
-                <option value="APPROVED_ACC_DEPT_HEAD">
-                  Approved by Accounting Dept Head
-                </option>
-                <option value="REVIEW_DIV_HEAD">Review Division Head</option>
-                <option value="APPROVED_DIV_HEAD">
-                  Approved by Division Head
-                </option>
-                <option value="REVIEW_ACCOUNTING_HEAD">
-                  Review Accounting Head
-                </option>
-                <option value="APPROVED_ACCOUNTING_HEAD">
-                  Approved by Accounting Head
-                </option>
-                <option value="REVIEW_TAX_HEAD">Review Tax Head</option>
-                <option value="APPROVED_TAX_HEAD">Approved by Tax Head</option>
-                <option value="TICKET_SOLVED">Solved</option>
-                <option value="TICKET_CANCELLED">Cancelled</option>
-                <option value="TICKET_REJECTED">Rejected</option>
-                <option value="REVISION_REQUESTOR">Requestor Revision</option>
-                <option value="REVISION_ACCOUNTING">Accounting Revision</option>
-                <option value="REVISION_TAX">Tax Revision</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          {error && <ErrorPanel message={error} onRetry={loadApprovals} />}
-
-          {loading && !error && (
-            <PageLoading message="Please wait while approval data is being loaded." />
-          )}
-
-          {!loading && !error && filteredSubmissions.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-14 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-slate-200">
-                📄
-              </div>
-              <h3 className="mt-4 font-semibold text-slate-900">
-                {submissions.length === 0
-                  ? "No approvals yet"
-                  : "No matching approvals"}
-              </h3>
-              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                {submissions.length === 0
-                  ? "There are no requests available for your approval."
-                  : "Try changing your search keyword or filters."}
-              </p>
-            </div>
-          )}
-
-          {!error && filteredSubmissions.length > 0 && (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden overflow-x-auto md:block">
-                <table className="w-full border-separate border-spacing-0 text-left">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      {[
-                        "Number",
-                        "Request",
-                        "Requestor",
-                        "Created",
-                        "Status",
-                        "Actions",
-                      ].map((heading) => (
-                        <th
-                          key={heading}
-                          className="border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg"
-                        >
-                          {heading}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filteredSubmissions.map((submission) => (
-                      <tr
-                        key={submission.id}
-                        onClick={() => handleOpen(submission)}
-                        className="cursor-pointer transition hover:bg-blue-50/40"
-                      >
-                        <td className="border-b border-slate-100 p-3">
-                          <span className="text-xs font-semibold text-blue-700">
-                            {submission.number || "-"}
-                          </span>
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <p className="text-xs font-medium text-slate-800">
-                            {submission.form_type ||
-                              `${submission.category || ""} ${submission.sub_category || ""}`}
-                          </p>
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3 text-xs text-slate-600">
-                          {submission.requestor?.name || "-"}
-                        </td>
-
-                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
-                          {formatDate(
-                            submission.submitted_at || submission.created_at,
-                          )}
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <StatusBadge status={submission.status} />
-                        </td>
-
-                        <td className="border-b border-slate-100 p-3">
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleOpen(submission);
-                            }}
-                            className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                          >
-                            Review
-                            <span aria-hidden="true">→</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="grid grid-cols-1 md:hidden">
-                {filteredSubmissions.map((submission) => (
-                  <article
-                    key={submission.id}
-                    className="border border-slate-300 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
-                          {submission.number || "-"}
-                        </p>
-
-                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
-                          {submission.form_type ||
-                            `${submission.category || ""} ${submission.sub_category || ""}`}
-                        </h3>
-                      </div>
-
-                      <StatusBadge status={submission.status} />
-                    </div>
-
-                    <div className="mt-1 space-y-1 text-xs text-slate-500">
-                      <p>Requestor: {submission.requestor?.name || "-"}</p>
-
-                      <p>
-                        Created:{" "}
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
-                        )}
-                      </p>
-                    </div>
-
-                    <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-300 pt-3 items-center justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleOpen(submission)}
-                        className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        Review
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+      <DataTable
+        mode="approval"
+        title="Approval List"
+        submissions={submissions}
+        loading={loading}
+        error={error}
+        onRetry={loadApprovals}
+        onOpen={handleOpen}
+      />
     </main>
   );
 }
