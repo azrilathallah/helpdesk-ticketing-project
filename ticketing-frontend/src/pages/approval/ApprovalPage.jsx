@@ -18,11 +18,11 @@ import { createGLActions } from "../../config/approval/forms/GLApproval";
 
 const STATUS_CONFIG = {
   REVIEW_ACC_DEPT_HEAD: {
-    label: "Review Accounting Dept Head",
+    label: "Review Accounting Department Head",
     style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
   },
   APPROVED_ACC_DEPT_HEAD: {
-    label: "Approved by Accounting Dept Head",
+    label: "Approved by Accounting Department Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
   REVIEW_DIV_HEAD: {
@@ -598,7 +598,7 @@ function ApprovalDetailPage({ id }) {
 
   const getHistoryLabel = (item) => {
     if (item.step === "ACC_DEPT_HEAD_APPROVE")
-      return "Approved by Accounting Dept Head";
+      return "Approved by Accounting Department Head";
     if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
     if (item.step === "ACCOUNTING_HEAD_APPROVE")
       return "Approved by Accounting Head";

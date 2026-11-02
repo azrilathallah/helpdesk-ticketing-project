@@ -524,7 +524,7 @@ export default function CreateTicketPage() {
               type="button"
               onClick={handleBack}
               disabled={step === 1}
-              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-8 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
             >
               Back
             </button>
@@ -533,7 +533,7 @@ export default function CreateTicketPage() {
               type="button"
               onClick={handleNext}
               disabled={isNextDisabled()}
-              className="inline-flex items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+              className="inline-flex items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-8 py-2 text-sm font-semibold text-white transition hover:border-blue-700 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
             >
               {getNextButtonLabel()}
             </button>

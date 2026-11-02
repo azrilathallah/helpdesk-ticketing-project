@@ -10,11 +10,11 @@ const STATUS_CONFIG = {
     style: "bg-slate-100 text-slate-700 ring-slate-200",
   },
   REVIEW_ACC_DEPT_HEAD: {
-    label: "Review Accounting Dept Head",
+    label: "Review Accounting Department Head",
     style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
   },
   APPROVED_ACC_DEPT_HEAD: {
-    label: "Approved by Accounting Dept Head",
+    label: "Approved by Accounting Department Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
   REVIEW_DIV_HEAD: {
@@ -358,10 +358,10 @@ export default function DataTable({
               <option value="ALL">All Status</option>
               {!isApproval && <option value="DRAFT">Draft</option>}
               <option value="REVIEW_ACC_DEPT_HEAD">
-                Review Accounting Dept Head
+                Review Accounting Department Head
               </option>
               <option value="APPROVED_ACC_DEPT_HEAD">
-                Approved by Accounting Dept Head
+                Approved by Accounting Department Head
               </option>
               <option value="REVIEW_DIV_HEAD">Review Division Head</option>
               <option value="APPROVED_DIV_HEAD">

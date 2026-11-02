@@ -21,7 +21,7 @@ class GLApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Dept Head" status.'
+                'message' => 'The request is not in the "Review by Accounting Department Head" status.'
             ], 422);
         }
 
