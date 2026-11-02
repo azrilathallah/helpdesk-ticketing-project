@@ -593,6 +593,9 @@ class SubmissionController extends Controller
                 'name' =>
                 $submission->requestor?->name,
 
+                'nik' =>
+                $submission->requestor?->nik,
+
                 'email' =>
                 $submission->requestor?->email,
 

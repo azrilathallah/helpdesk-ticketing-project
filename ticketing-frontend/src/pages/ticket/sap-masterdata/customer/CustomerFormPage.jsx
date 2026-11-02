@@ -37,7 +37,6 @@ export default function CustomerFormPage() {
       position: getUserValue(user, ["position"]),
       division: getUserValue(user, ["division"]),
       department: getUserValue(user, ["department"]),
-      telephone: getUserValue(user, ["telephone"]),
       email: getUserValue(user, ["email"]),
     }),
     [user],

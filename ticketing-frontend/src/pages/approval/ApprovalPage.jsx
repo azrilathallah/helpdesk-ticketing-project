@@ -373,6 +373,8 @@ function ApprovalDetailPage({ id }) {
     String(submission?.sub_category || "").toLowerCase() === "material";
   const isGLSubmission =
     String(submission?.sub_category || "").toLowerCase() === "gl";
+  const isUserIDSubmission =
+    String(submission?.sub_category || "").toLowerCase() === "user id";
 
   const formLogic = getApprovalFormLogic(submission);
   const materialType = formLogic?.getMaterialType
@@ -385,8 +387,8 @@ function ApprovalDetailPage({ id }) {
       position: getUserValue(submission?.requestor, ["position"]),
       division: getUserValue(submission?.requestor, ["division"]),
       department: getUserValue(submission?.requestor, ["department"]),
-      telephone: getUserValue(submission?.requestor, ["telephone"]),
       email: getUserValue(submission?.requestor, ["email"]),
+      nik: getUserValue(submission?.requestor, ["nik"]),
     }),
     [submission],
   );
@@ -533,6 +535,7 @@ function ApprovalDetailPage({ id }) {
     isVendorSubmission,
     isMaterialSubmission,
     isGLSubmission,
+    isUserIDSubmsission,
     submission,
     processing,
     setProcessing,

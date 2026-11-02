@@ -1,10 +1,11 @@
 import ChoiceGroup from "../ChoiceGroup";
 import AttachmentField from "../AttachmentField";
-import { Field, ReadOnlyField, PairedTextField } from "../FormField";
+import { Field, ReadOnlyField } from "../FormField";
 
 export const DEFAULT_CUSTOMER_FORM = {
   requestType: "New",
   customerCode: "",
+  telephone1: "",
 
   accountGroup: "",
   companyCode: "1200",
@@ -21,7 +22,7 @@ export const DEFAULT_CUSTOMER_FORM = {
   postalCode: "",
   country: "Indonesia",
   region: "",
-  telephone: "",
+  telephone2: "",
   fax: "",
   npwp: "",
   npwpregisteredDate: "",
@@ -45,11 +46,6 @@ export const DEFAULT_CUSTOMER_FORM = {
 
 const inputClass =
   "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
-
-const readOnlyInputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
-
-const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
 function isEditable({ mode, readOnly, approvalRole, field }) {
   if (readOnly) return false;
@@ -155,7 +151,10 @@ export default function CustomerFormFields({
         />
 
         {isNewRequest && !isPIC ? (
-          <ReadOnlyField label="Customer Code" value={form.customerCode || "-"} />
+          <ReadOnlyField
+            label="Customer Code"
+            value={form.customerCode || "-"}
+          />
         ) : (
           <Field label="Customer Code" required={isPIC || isCreateMode}>
             <input
@@ -177,29 +176,22 @@ export default function CustomerFormFields({
       {/* REQUESTOR */}
       <Section number={nextSection()} title="Requestor">
         <ReadOnlyField label="Name" value={requestor.name} />
-        <ReadOnlyField label="Position (Jabatan)" value={requestor.position} />
-
-        <div className="min-w-0">
-          <label className={labelClass}>Division / Department</label>
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+        <ReadOnlyField label="Position" value={requestor.position} />
+        
+        <div className="grid grid-cols-2 items-center gap-2">
+          <ReadOnlyField label="Division" value={requestor.division} />
+          <ReadOnlyField label="Department" value={requestor.department} />
+          <Field label="Telephone">
             <input
               type="text"
-              className={readOnlyInputClass}
-              value={requestor.division || "-"}
-              readOnly
+              className={inputClass}
+              value={form.telephone1 || ""}
+              onChange={(event) => update("telephone1", event.target.value)}
+              disabled={!editable("telephone1")}
             />
-            <span className="text-sm text-slate-400">/</span>
-            <input
-              type="text"
-              className={readOnlyInputClass}
-              value={requestor.department || "-"}
-              readOnly
-            />
-          </div>
+          </Field>
+          <ReadOnlyField label="Email" value={requestor.email} />
         </div>
-
-        <ReadOnlyField label="Telephone" value={requestor.telephone} />
-        <ReadOnlyField label="Email" value={requestor.email} />
       </Section>
 
       {/* INITIAL SCREEN */}
@@ -309,16 +301,29 @@ export default function CustomerFormFields({
           />
         </Field>
 
-        <PairedTextField
-          label="Kota / Kode Pos"
-          leftValue={form.city}
-          rightValue={form.postalCode}
-          onLeftChange={(value) => update("city", value)}
-          onRightChange={(value) => update("postalCode", value)}
-          requiredLeft={isCreateMode}
-          requiredRight={isCreateMode}
-          disabled={!editable("city") && !editable("postalCode")}
-        />
+        <div className="grid grid-cols-2 items-center gap-2">
+          <Field label="Kota" required={isCreateMode}>
+            <input
+              type="text"
+              className={inputClass}
+              value={form.city || ""}
+              onChange={(event) => update("city", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("city")}
+            />
+          </Field>
+
+          <Field label="Kode Pos" required={isCreateMode}>
+            <input
+              type="text"
+              className={inputClass}
+              value={form.postalCode || ""}
+              onChange={(event) => update("postalCode", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("postalCode")}
+            />
+          </Field>
+        </div>
 
         <Field label="Country" required={isCreateMode}>
           <input
@@ -345,9 +350,9 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.telephone || ""}
-            onChange={(event) => update("telephone", event.target.value)}
-            disabled={!editable("telephone")}
+            value={form.telephone2 || ""}
+            onChange={(event) => update("telephone2", event.target.value)}
+            disabled={!editable("telephone2")}
           />
         </Field>
 
@@ -361,17 +366,34 @@ export default function CustomerFormFields({
           />
         </Field>
 
-        <PairedTextField
-          label="NPWP (VAT Reg. No.) / Tanggal Terdaftar"
-          leftValue={form.npwp}
-          rightValue={form.npwpregisteredDate}
-          onLeftChange={(value) => update("npwp", value)}
-          onRightChange={(value) => update("npwpregisteredDate", value)}
-          rightType="date"
-          requiredLeft={isCreateMode}
-          requiredRight={isCreateMode}
-          disabled={!editable("npwp") && !editable("npwpregisteredDate")}
-        />
+        <div className="grid grid-cols-2 items-center gap-2">
+          <Field label="NPWP (VAT Reg. No.)" required={isCreateMode}>
+            <input
+              type="text"
+              className={inputClass}
+              value={form.npwp || ""}
+              onChange={(event) => update("npwp", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("npwp")}
+            />
+          </Field>
+
+          <Field
+            label="Tanggal Terdaftar (Sesuai Kartu NPWP)"
+            required={isCreateMode}
+          >
+            <input
+              type="date"
+              className={inputClass}
+              value={form.npwpregisteredDate || ""}
+              onChange={(event) =>
+                update("npwpregisteredDate", event.target.value)
+              }
+              required={isCreateMode}
+              disabled={!editable("npwpregisteredDate")}
+            />
+          </Field>
+        </div>
 
         <ChoiceGroup
           label="Customer Class"

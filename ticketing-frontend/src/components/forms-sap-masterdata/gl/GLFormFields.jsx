@@ -4,7 +4,7 @@ import AttachmentField from "../AttachmentField";
 import { Field, ReadOnlyField } from "../FormField";
 
 export const DEFAULT_GL_FORM = {
-  companyCode: "IBSW",
+  companyCode: "1200",
   requestType: "Create",
   purposeOfUse: "",
   accountGroup: "",
@@ -42,9 +42,6 @@ export const DEFAULT_GL_FORM = {
 
 const inputClass =
   "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
-
-const readOnlyInputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
 
 const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
@@ -141,20 +138,20 @@ export function GLAccountTable({
 
       <div className="w-full overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full min-w-200 border-collapse text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
+          <thead className="bg-slate-50 text-xs tracking-wide text-slate-600">
             <tr>
-              <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
+              <th className="w-12 border-b border-slate-200 px-3 py-2 text-center">
                 No.
               </th>
-              <th className="w-48 border-b border-slate-200 px-3 py-3">
+              <th className="w-48 border-b border-slate-200 px-3 py-2">
                 GL Account Number
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Short Text
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">Long Text</th>
+              <th className="border-b border-slate-200 px-3 py-2">Long Text</th>
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 px-2 py-3" />
+                <th className="w-14 border-b border-slate-200 px-2 py-2" />
               )}
             </tr>
           </thead>

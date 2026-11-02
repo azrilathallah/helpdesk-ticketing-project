@@ -245,6 +245,11 @@ export default function CreateTicketPage() {
           return;
         }
 
+        if (selection.subCategory === "User ID") {
+          navigate("/create-ticket/sap-masterdata/userid-form");
+          return;
+        }
+
         console.log("Form belum dibuat:", selection.subCategory);
         return;
       }

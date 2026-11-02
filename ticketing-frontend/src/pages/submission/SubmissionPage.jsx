@@ -266,6 +266,17 @@ function SubmissionList() {
         );
         return;
       }
+
+      if (
+        submission.type === "SAP" &&
+        submission.category === "Master Data" &&
+        submission.sub_category === "User ID"
+      ) {
+        navigate(
+          `/create-ticket/sap-masterdata/userid-form?submission=${submission.id}`,
+        );
+        return;
+      }
     }
 
     navigate(`/submission/${submission.id}`);
@@ -416,6 +427,7 @@ function SubmissionDetailPage({ id }) {
       department: getUserValue(submission?.requestor, ["department"]),
       telephone: getUserValue(submission?.requestor, ["telephone"]),
       email: getUserValue(submission?.requestor, ["email"]),
+      nik: getUserValue(submission?.requestor, ["nik"]),
     }),
     [submission],
   );

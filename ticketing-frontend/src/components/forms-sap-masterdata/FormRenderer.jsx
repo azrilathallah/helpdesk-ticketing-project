@@ -2,6 +2,7 @@ import CustomerFormFields from "./customer/CustomerFormFields";
 import VendorFormFields from "./vendor/VendorFormFields";
 import MaterialFormFields from "./material/MaterialFormFields";
 import GLFormFields from "./gl/GLFormFields";
+import UserIDFormFields from "./user-id/UserIDFormFields";
 
 export default function FormRenderer({
   type,
@@ -19,6 +20,7 @@ export default function FormRenderer({
   onCustomerCodeChange,
   onVendorCodeChange,
   onMaterialCodeChange,
+  onUserIDCodeChange,
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -89,5 +91,18 @@ export default function FormRenderer({
     normalizedSubCategory === "gl"
   ) {
     return <GLFormFields {...commonProps} />;
+  }
+
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "user id"
+  ) {
+    return (
+      <UserIDFormFields
+        {...commonProps}
+        onUserIDCodeChange={onUserIDCodeChange}
+      />
+    );
   }
 }

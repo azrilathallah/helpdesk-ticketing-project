@@ -42,6 +42,7 @@ class ApprovalQueryService
             'requestor' => [
                 'id' => $submission->requestor_id,
                 'name' => $submission->requestor?->name,
+                'nik' => $submission->requestor?->nik,
                 'email' => $submission->requestor?->email,
                 'position' => $submission->requestor?->position,
                 'division' => $submission->requestor?->division,

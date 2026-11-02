@@ -43,7 +43,6 @@ class AuthController extends Controller
             $division   = $hrisData['division']    ?? null;
             $department = $hrisData['department']  ?? null;
             $divhead    = $hrisData['divhead']     ?? null;
-            $telephone  = $hrisData['telephone']   ?? null;
 
             if ($nik === '') {
                 $nik = $hrisData['employee_id'] ?? 'TMP-' . strtoupper(explode('@', $email)[0]);
@@ -61,7 +60,6 @@ class AuthController extends Controller
                     'division'   => $division,
                     'department' => $department,
                     'divhead'    => $divhead,
-                    'telephone'  => $telephone,
                 ]);
             } else {
                 $user = User::create([
@@ -72,7 +70,6 @@ class AuthController extends Controller
                     'division'   => $division,
                     'department' => $department,
                     'divhead'    => $divhead,
-                    'telephone'  => $telephone,
                     'password'   => null,
                 ]);
             }

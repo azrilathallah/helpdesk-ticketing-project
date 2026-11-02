@@ -6,6 +6,7 @@ import { Field, ReadOnlyField } from "../FormField";
 export const DEFAULT_VENDOR_FORM = {
   requestType: "New",
   vendorCode: "",
+
   name: "",
   searchTerm: "",
   streetAddress: "",
@@ -18,14 +19,19 @@ export const DEFAULT_VENDOR_FORM = {
   npwp: "",
   email: "",
   businessType: "",
+
   accountGroup: "",
   reconAccount: "",
   paymentMethod: [],
   witholdingTax: [],
+
   companyCode: "1200",
+  purchaseOrganization: "1300",
   dueDatePayment: "AP01",
+
   currency: "IDR",
   salesperson: "",
+  
   paymentTransactions: [
     {
       bankName: "",
@@ -153,26 +159,26 @@ export function PaymentTransactionsTable({
 
       <div className="w-full overflow-x-auto rounded-lg border border-slate-200">
         <table className="w-full min-w-200 border-collapse text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
+          <thead className="bg-slate-50 text-xs tracking-wide text-slate-600">
             <tr>
-              <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
+              <th className="w-12 border-b border-slate-200 px-3 py-2 text-center">
                 No.
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">Bank Name</th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">Bank Name</th>
+              <th className="border-b border-slate-200 px-3 py-2">
                 Account Number
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Beneficiary
               </th>
-              <th className="w-28 border-b border-slate-200 px-3 py-3">
+              <th className="w-28 border-b border-slate-200 px-3 py-2">
                 Currency
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Swift Code
               </th>
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 px-2 py-3" />
+                <th className="w-14 border-b border-slate-200 px-2 py-2" />
               )}
             </tr>
           </thead>
@@ -549,6 +555,15 @@ export default function VendorFormFields({
           onChange={(value) => update("companyCode", value)}
           required={isCreateMode}
           disabled={!editable("companyCode")}
+        />
+
+        <ChoiceGroup
+          label="Purchase Organization"
+          groupKey="vendor_purchase_organization"
+          value={form.purchaseOrganization}
+          onChange={(value) => update("purchaseOrganization", value)}
+          required={isCreateMode}
+          disabled={!editable("purchaseOrganization")}
         />
 
         <ChoiceGroup
