@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { showNotification, showConfirmation } from "../../utils/notification";
 
 import { submissionApi } from "../../api/submission";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
@@ -273,9 +274,14 @@ function SubmissionList() {
   const handleCancelSubmission = async (submission, event) => {
     event?.stopPropagation();
 
-    const confirmed = window.confirm(
-      `Are you sure you want to cancel request ${submission.number}?`,
-    );
+    const confirmed = await showConfirmation({
+      title: "Cancel Request?",
+      text: `Are you sure you want to cancel request ${submission.number}?`,
+      icon: "warning",
+      confirmButtonText: "Yes, Cancel",
+      cancelButtonText: "Keep Request",
+      confirmButtonColor: "#dc2626",
+    });
 
     if (!confirmed) return;
 
@@ -285,11 +291,19 @@ function SubmissionList() {
         "Cancelled by requestor",
       );
 
-      window.alert(response?.data?.message || "Request has been cancelled");
+      showNotification({
+        icon: "success",
+        title: "Cancelled",
+        text: response?.data?.message || "Request has been cancelled.",
+      });
       await loadSubmissions();
     } catch (err) {
       console.error(err);
-      window.alert(err.response?.data?.message || "Failed to cancel request.");
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: err.response?.data?.message || "Failed to cancel request.",
+      });
     }
   };
 

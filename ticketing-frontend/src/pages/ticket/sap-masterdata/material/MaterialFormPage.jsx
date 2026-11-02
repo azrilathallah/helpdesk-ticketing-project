@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { showNotification } from "../../../../utils/notification";
 
 import { submissionApi } from "../../../../api/submission";
 
@@ -73,7 +74,11 @@ export default function MaterialFormPage() {
       } catch (error) {
         console.error(error);
 
-        alert(error.response?.data?.message || "Failed to load request.");
+        showNotification({
+          icon: "error",
+          title: "Failed",
+          text: error.response?.data?.message || "Failed to load request.",
+        });
 
         navigate("/submission");
       } finally {
@@ -151,11 +156,15 @@ export default function MaterialFormPage() {
       const saved = response.data?.data;
 
       if (saved?.status === "REVIEW_DIV_HEAD") {
-        alert(
-          `Request successfully ${
-            submissionId ? "resubmitted" : "submitted"
-          }.\n\nNumber: ${saved.number}`,
-        );
+        showNotification({
+          icon: "success",
+          title: submissionId ? "Resubmitted" : "Submitted",
+          html: `
+            Request successfully ${submissionId ? "resubmitted" : "submitted"}.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -163,7 +172,15 @@ export default function MaterialFormPage() {
       }
 
       if (saved?.status === "DRAFT") {
-        alert(`Draft successfully saved.\n\nNumber: ${saved.number}`);
+        showNotification({
+          icon: "success",
+          title: "Saved",
+          html: `
+            Draft successfully saved.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -172,7 +189,11 @@ export default function MaterialFormPage() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Failed to save Request.");
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: error.response?.data?.message || "Failed to save Request.",
+      });
     } finally {
       setSubmitMode("");
     }

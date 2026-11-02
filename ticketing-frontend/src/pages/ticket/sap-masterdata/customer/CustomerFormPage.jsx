@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { showNotification } from "../../../../utils/notification";
 
 import { useAuth } from "../../../../context/AuthContext";
 import { submissionApi } from "../../../../api/submission";
@@ -88,7 +89,11 @@ export default function CustomerFormPage() {
       } catch (error) {
         console.error(error);
 
-        alert(error.response?.data?.message || "Failed to load Request.");
+        showNotification({
+          icon: "error",
+          title: "Failed",
+          text: error.response?.data?.message || "Failed to load Request.",
+        });
 
         navigate("/submission");
       } finally {
@@ -166,11 +171,15 @@ export default function CustomerFormPage() {
       const saved = response.data?.data;
 
       if (saved?.status === "REVIEW_DIV_HEAD") {
-        alert(
-          `Request successfully ${
-            submissionId ? "resubmitted" : "submitted"
-          }.\n\nNumber: ${saved.number}`,
-        );
+        showNotification({
+          icon: "success",
+          title: submissionId ? "Resubmitted" : "Submitted",
+          html: `
+            Request successfully ${submissionId ? "resubmitted" : "submitted"}.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -178,7 +187,15 @@ export default function CustomerFormPage() {
       }
 
       if (saved?.status === "DRAFT") {
-        alert(`Draft successfully saved.\n\nNumber: ${saved.number}`);
+        showNotification({
+          icon: "success",
+          title: "Saved",
+          html: `
+            Draft successfully saved.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -187,7 +204,11 @@ export default function CustomerFormPage() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Failed to save Request.");
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: error.response?.data?.message || "Failed to save Request.",
+      });
     } finally {
       setSubmitMode("");
     }

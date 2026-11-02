@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { showNotification } from "../../../../utils/notification";
 
 import { useAuth } from "../../../../context/AuthContext";
 import { submissionApi } from "../../../../api/submission";
@@ -55,9 +56,11 @@ export default function GLFormPage() {
         setRevisionNotes(
           (submission?.approval_history || []).filter(
             (item) =>
-              item.step === "DIV_HEAD_REVISION" || item.step === "ACC_DEPT_HEAD_REVISION" || item.step === "ACCOUNTING_HEAD_REVISION" &&
-              item.action === "REVISION_REQUESTED" &&
-              item.notes?.trim(),
+              item.step === "DIV_HEAD_REVISION" ||
+              item.step === "ACC_DEPT_HEAD_REVISION" ||
+              (item.step === "ACCOUNTING_HEAD_REVISION" &&
+                item.action === "REVISION_REQUESTED" &&
+                item.notes?.trim()),
           ),
         );
 
@@ -85,7 +88,11 @@ export default function GLFormPage() {
       } catch (error) {
         console.error(error);
 
-        alert(error.response?.data?.message || "Failed to load request.");
+        showNotification({
+          icon: "error",
+          title: "Failed",
+          text: error.response?.data?.message || "Failed to load request.",
+        });
 
         navigate("/submission");
       } finally {
@@ -155,11 +162,15 @@ export default function GLFormPage() {
       const saved = response.data?.data;
 
       if (saved?.status === "REVIEW_ACC_DEPT_HEAD") {
-        alert(
-          `Request successfully ${
-            submissionId ? "resubmitted" : "submitted"
-          }.\n\nNumber: ${saved.number}`,
-        );
+        showNotification({
+          icon: "success",
+          title: submissionId ? "Resubmitted" : "Submitted",
+          html: `
+            Request successfully ${submissionId ? "resubmitted" : "submitted"}.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -167,7 +178,15 @@ export default function GLFormPage() {
       }
 
       if (saved?.status === "DRAFT") {
-        alert(`Draft successfully saved.\n\nNumber: ${saved.number}`);
+        showNotification({
+          icon: "success",
+          title: "Saved",
+          html: `
+            Draft successfully saved.
+            <br>
+            <strong>Number: ${saved.number}</strong>
+          `,
+        });
 
         navigate("/submission");
 
@@ -176,7 +195,11 @@ export default function GLFormPage() {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Failed to save Request.");
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: error.response?.data?.message || "Failed to save Request.",
+      });
     } finally {
       setSubmitMode("");
     }

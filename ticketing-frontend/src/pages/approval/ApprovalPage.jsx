@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { showNotification } from "../../utils/notification";
 
 import { approvalApi } from "../../api/approval";
 import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
@@ -442,7 +443,12 @@ function ApprovalDetailPage({ id }) {
         rejectNotes.trim(),
       );
 
-      window.alert(response?.data?.message || "The request was successfully rejected.");
+      showNotification({
+        icon: "success",
+        title: "Rejected",
+        text:
+          response?.data?.message || "The request was successfully rejected.",
+      });
 
       setRejectModalOpen(false);
       setRejectNotes("");
@@ -485,7 +491,11 @@ function ApprovalDetailPage({ id }) {
         revisionNotes.trim(),
       );
 
-      window.alert(response?.data?.message || "The revision was successfully sent.");
+      showNotification({
+        icon: "success",
+        title: "Revision Requested",
+        text: response?.data?.message || "The revision was successfully sent.",
+      });
 
       setRevisionModalOpen(false);
       setRevisionNotes("");
@@ -493,7 +503,9 @@ function ApprovalDetailPage({ id }) {
     } catch (err) {
       console.error(err);
 
-      setRevisionError(err.response?.data?.message || "The revision failed to send.");
+      setRevisionError(
+        err.response?.data?.message || "The revision failed to send.",
+      );
     } finally {
       setProcessing(false);
     }

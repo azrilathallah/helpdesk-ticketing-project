@@ -1,3 +1,4 @@
+import { showNotification } from "../../../utils/notification";
 import { DEFAULT_MATERIAL_FORM } from "../../../components/forms-sap-masterdata/material/MaterialFormFields";
 
 /* =========================================================
@@ -172,9 +173,13 @@ export function createMaterialActions(context) {
             result.isMaterial,
           );
 
-          window.alert(
-            response?.data?.message || "The request was successfully resolved.",
-          );
+          showNotification({
+            icon: "success",
+            title: "Resolved",
+            text:
+              response?.data?.message ||
+              "The request was successfully resolved.",
+          });
 
           navigate("/approval");
           return;
@@ -184,7 +189,12 @@ export function createMaterialActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "The action was successfully completed.");
+      showNotification({
+        icon: "success",
+        title: "Success",
+        text:
+          response?.data?.message || "The action was successfully completed.",
+      });
 
       await loadDetail();
     } catch (err) {

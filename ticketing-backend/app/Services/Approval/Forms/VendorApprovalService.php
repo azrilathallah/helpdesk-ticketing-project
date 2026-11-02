@@ -262,7 +262,7 @@ class VendorApprovalService
 
         return $this->query->responseFor(
             $submission,
-            'The request was successfully approved by the Tax Head and forwarded to the PIC.'
+            'The request was successfully approved by the Tax Head.'
         );
     }
 

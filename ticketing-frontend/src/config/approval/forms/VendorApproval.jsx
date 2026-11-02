@@ -1,3 +1,4 @@
+import { showNotification } from "../../../utils/notification";
 import { DEFAULT_VENDOR_FORM } from "../../../components/forms-sap-masterdata/vendor/VendorFormFields";
 
 /* =========================================================
@@ -182,7 +183,9 @@ export function createVendorActions(context) {
           const result = formLogic?.getTaxPayload(formData);
 
           if (!result) {
-            setActionError("The tax rules for this form have not yet been configured.");
+            setActionError(
+              "The tax rules for this form have not yet been configured.",
+            );
             return;
           }
 
@@ -232,9 +235,13 @@ export function createVendorActions(context) {
             result.isMaterial,
           );
 
-          window.alert(
-            response?.data?.message || "The request was successfully resolved.",
-          );
+          showNotification({
+            icon: "success",
+            title: "Resolved",
+            text:
+              response?.data?.message ||
+              "The request was successfully resolved.",
+          });
 
           navigate("/approval");
           return;
@@ -244,7 +251,12 @@ export function createVendorActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "The action was successfully completed.");
+      showNotification({
+        icon: "success",
+        title: "Success",
+        text:
+          response?.data?.message || "The action was successfully completed.",
+      });
 
       await loadDetail();
     } catch (err) {

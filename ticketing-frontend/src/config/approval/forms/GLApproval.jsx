@@ -1,3 +1,4 @@
+import { showNotification } from "../../../utils/notification";
 import { DEFAULT_GL_FORM } from "../../../components/forms-sap-masterdata/gl/GLFormFields";
 
 /* =========================================================
@@ -77,9 +78,13 @@ export function createGLActions(context) {
             false,
           );
 
-          window.alert(
-            response?.data?.message || "The request was successfully resolved.",
-          );
+          showNotification({
+            icon: "success",
+            title: "Resolved",
+            text:
+              response?.data?.message ||
+              "The request was successfully resolved.",
+          });
 
           navigate("/approval");
           return;
@@ -88,7 +93,12 @@ export function createGLActions(context) {
           return;
       }
 
-      window.alert(response?.data?.message || "The action was successfully completed.");
+      showNotification({
+        icon: "success",
+        title: "Success",
+        text:
+          response?.data?.message || "The action was successfully completed.",
+      });
 
       await loadDetail();
     } catch (err) {
