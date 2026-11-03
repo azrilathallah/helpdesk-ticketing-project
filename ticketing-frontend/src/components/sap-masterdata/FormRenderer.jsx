@@ -1,8 +1,8 @@
-import CustomerFormFields from "./customer/CustomerFormFields";
-import VendorFormFields from "./vendor/VendorFormFields";
-import MaterialFormFields from "./material/MaterialFormFields";
-import GLFormFields from "./gl/GLFormFields";
-import UserIdFormFields from "./user-id/UserIdFormFields";
+import CustomerFormFields from "./forms/CustomerFormFields";
+import VendorFormFields from "./forms/VendorFormFields";
+import MaterialFormFields from "./forms/MaterialFormFields";
+import GLFormFields from "./forms/GLFormFields";
+import UserIdFormFields from "./forms/UserIdFormFields";
 
 export default function FormRenderer({
   type,

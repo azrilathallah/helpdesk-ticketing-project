@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { showNotification, showConfirmation } from "../../utils/notification";
 
 import { submissionApi } from "../../api/submission";
-import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
+import FormRenderer from "../../components/sap-masterdata/FormRenderer";
 import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
@@ -478,12 +478,7 @@ function SubmissionDetailPage({ id }) {
     if (item.step === "ACCOUNTING_HEAD_APPROVE")
       return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
-    if (
-      [
-        "ACC_DEPT_HEAD_REVISION",
-        "DIV_HEAD_REVISION",
-      ].includes(item.step)
-    ) {
+    if (["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step)) {
       return "Requestor Revision";
     }
     if (item.action === "SOLVED") return "Ticket Solved";
@@ -495,10 +490,7 @@ function SubmissionDetailPage({ id }) {
 
   const isNegativeHistoryItem = (item) =>
     ["REJECTED", "CANCELLED"].includes(item.action) ||
-    [
-      "ACC_DEPT_HEAD_REVISION",
-      "DIV_HEAD_REVISION",
-    ].includes(item.step);
+    ["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step);
 
   return (
     <main className="mx-auto w-full space-y-5">
@@ -517,7 +509,8 @@ function SubmissionDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} · {submission.sub_category}
+                {submission.type} · {submission.category} ·{" "}
+                {submission.sub_category}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">

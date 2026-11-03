@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
@@ -51,16 +50,13 @@ export default function ChoiceGroup({
     ? normalizedValue.map(String)
     : [];
 
-  const checkboxGroupEmpty =
-    checkbox && selectedValues.length === 0;
+  const checkboxGroupEmpty = checkbox && selectedValues.length === 0;
 
   return (
     <div className="min-w-0">
       <label className="mb-1 block text-xs font-medium text-slate-700">
         {label}
-        {required && (
-          <span className="text-red-600">*</span>
-        )}
+        {required && <span className="text-red-600">*</span>}
       </label>
 
       <div
@@ -72,19 +68,14 @@ export default function ChoiceGroup({
           const code = String(option.value);
 
           const name =
-            option.label && option.label !== code
-              ? option.label
-              : "";
+            option.label && option.label !== code ? option.label : "";
 
           const checked = checkbox
             ? selectedValues.includes(code)
             : String(normalizedValue ?? "") === code;
 
           const inputRequired = checkbox
-            ? required &&
-              !disabled &&
-              checkboxGroupEmpty &&
-              index === 0
+            ? required && !disabled && checkboxGroupEmpty && index === 0
             : required && !disabled;
 
           return (
@@ -115,9 +106,7 @@ export default function ChoiceGroup({
 
                   const nextValues = event.target.checked
                     ? [...selectedValues, code]
-                    : selectedValues.filter(
-                        (item) => item !== code,
-                      );
+                    : selectedValues.filter((item) => item !== code);
 
                   onChange(nextValues);
                 }}
@@ -125,9 +114,7 @@ export default function ChoiceGroup({
               />
 
               <span className="min-w-0 wrap-break-word">
-                <strong className="font-semibold">
-                  {code}
-                </strong>
+                <strong className="font-semibold">{code}</strong>
                 {name && <span> {name}</span>}
               </span>
             </label>

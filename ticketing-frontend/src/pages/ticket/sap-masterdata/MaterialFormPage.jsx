@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { showNotification } from "../../../../utils/notification";
+import { showNotification } from "../../../utils/notification";
 
-import { submissionApi } from "../../../../api/submission";
+import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
-import { DEFAULT_MATERIAL_FORM } from "../../../../components/forms-sap-masterdata/material/MaterialFormFields";
+import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
+import { DEFAULT_MATERIAL_FORM } from "../../../components/sap-masterdata/forms/MaterialFormFields";
 
-import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
+import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
 
 export default function MaterialFormPage() {
   const navigate = useNavigate();

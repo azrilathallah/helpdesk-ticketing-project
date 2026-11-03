@@ -177,7 +177,7 @@ export default function CustomerFormFields({
       <Section number={nextSection()} title="Requestor">
         <ReadOnlyField label="Name" value={requestor.name} />
         <ReadOnlyField label="Position" value={requestor.position} />
-        
+
         <div className="grid grid-cols-2 items-center gap-2">
           <ReadOnlyField label="Division" value={requestor.division} />
           <ReadOnlyField label="Department" value={requestor.department} />

@@ -1,16 +1,20 @@
-import { showNotification } from "../../../utils/notification";
-import { DEFAULT_USERID_FORM } from "../../../components/forms-sap-masterdata/user-id/UserIdFormFields";
+import { showNotification } from "../../utils/notification";
+import { DEFAULT_GL_FORM } from "../../components/sap-masterdata/forms/GLFormFields";
 
 /* =========================================================
-   USER ID APPROVAL CONFIGURATION
+   GL APPROVAL CONFIGURATION
 ========================================================= */
 
-export const userIdApproval = {
-  getDefaultForm: () => DEFAULT_USERID_FORM,
+export const glApproval = {
+  getDefaultForm: () => DEFAULT_GL_FORM,
 
   getRole(status) {
     switch (status) {
-      case "REVIEW_DIV_HEAD":
+      case "REVIEW_ACC_DEPT_HEAD":
+        return "accounting_dept_head";
+      case "APPROVED_ACC_DEPT_HEAD":
+        return "accounting";
+      case "APPROVED_ACCOUNTING_HEAD":
         return "division_head";
       case "APPROVED_DIV_HEAD":
       case "WAITING_PIC":
@@ -19,31 +23,20 @@ export const userIdApproval = {
         return null;
     }
   },
-
-  getResolveInfo(formData, submission) {
-    const requestType =
-      submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.userIdCode || "").trim();
-    if (requestType === "New" && !code)
-      return { error: "The User ID Code is required." };
-    return { code, isVendor: false, isMaterial: false, isUserId: true };
-  },
 };
 
 /* =========================================================
-   USER ID APPROVAL ACTIONS
+   GL APPROVAL ACTIONS
 ========================================================= */
 
-export function createUserIdActions(context) {
+export function createGLActions(context) {
   const {
     approvalApi,
-    isUserIdSubmission,
+    isGLSubmission,
     submission,
     processing,
     setProcessing,
     setActionError,
-    formLogic,
-    formData,
     loadDetail,
     navigate,
     primaryButton,
@@ -53,8 +46,8 @@ export function createUserIdActions(context) {
     openRevisionModal,
   } = context;
 
-  const handleUserIdAction = async (action) => {
-    if (!isUserIdSubmission) return;
+  const handleGLAction = async (action) => {
+    if (!isGLSubmission) return;
     if (!submission || processing) return;
 
     try {
@@ -64,30 +57,20 @@ export function createUserIdActions(context) {
       let response;
 
       switch (action) {
-        case "approve-divhead": {
+        case "approve-acc-depthead":
+          response = await approvalApi.approveAccDeptHead(submission.id, "");
+          break;
+
+        case "approve-accounting":
+          response = await approvalApi.approveAccountingHead(submission.id, "");
+          break;
+
+        case "approve-divhead":
           response = await approvalApi.approveDivHead(submission.id, "");
           break;
-        }
 
-        case "resolve": {
-          const result = formLogic?.getResolveInfo(formData, submission);
-
-          if (!result) {
-            setActionError(
-              "The resolve rule for this form has not been configured.",
-            );
-            return;
-          }
-
-          if (result.error) {
-            setActionError(result.error);
-            return;
-          }
-
-          response = await approvalApi.resolve(submission.id, {
-            code: result.code,
-            type: "userId",
-          });
+        case "resolve":
+          response = await approvalApi.resolve(submission.id);
 
           showNotification({
             icon: "success",
@@ -99,7 +82,6 @@ export function createUserIdActions(context) {
 
           navigate("/approval");
           return;
-        }
 
         default:
           return;
@@ -122,12 +104,12 @@ export function createUserIdActions(context) {
     }
   };
 
-  const renderUserIdActionButtons = () => {
-    if (!isUserIdSubmission || !submission) return null;
+  const renderGLActionButtons = () => {
+    if (!isGLSubmission || !submission) return null;
 
-    const currentStatus = submission.status;
+    const status = submission.status;
 
-    if (currentStatus === "REVIEW_DIV_HEAD") {
+    if (status === "REVIEW_ACC_DEPT_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -138,7 +120,6 @@ export function createUserIdActions(context) {
           >
             Reject
           </button>
-
           <button
             type="button"
             className={revisionButton}
@@ -147,11 +128,10 @@ export function createUserIdActions(context) {
           >
             Revision
           </button>
-
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleUserIdAction("approve-divhead")}
+            onClick={() => handleGLAction("approve-acc-depthead")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Approve"}
@@ -160,13 +140,59 @@ export function createUserIdActions(context) {
       );
     }
 
-    if (["APPROVED_DIV_HEAD", "WAITING_PIC"].includes(currentStatus)) {
+    if (status === "APPROVED_ACC_DEPT_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
-            type="submit"
+            type="button"
+            className={rejectButton}
+            onClick={openRejectModal}
+            disabled={processing}
+          >
+            Reject
+          </button>
+          <button
+            type="button"
             className={primaryButton}
-            onClick={() => handleUserIdAction("resolve")}
+            onClick={() => handleGLAction("approve-accounting")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Approve"}
+          </button>
+        </div>
+      );
+    }
+
+    if (status === "APPROVED_ACCOUNTING_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="button"
+            className={rejectButton}
+            onClick={openRejectModal}
+            disabled={processing}
+          >
+            Reject
+          </button>
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => handleGLAction("approve-divhead")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Approve"}
+          </button>
+        </div>
+      );
+    }
+
+    if (status === "APPROVED_DIV_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => handleGLAction("resolve")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Resolve"}
@@ -178,5 +204,5 @@ export function createUserIdActions(context) {
     return null;
   };
 
-  return { handleUserIdAction, renderUserIdActionButtons };
+  return { handleGLAction, renderGLActionButtons };
 }

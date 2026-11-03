@@ -213,9 +213,7 @@ export function GLAccountTable({
                       disabled={rows.length === 1}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
                       title={
-                        rows.length === 1
-                          ? "At least one GL account"
-                          : "Delete"
+                        rows.length === 1 ? "At least one GL account" : "Delete"
                       }
                       aria-label={`Delete ${index + 1}`}
                     >

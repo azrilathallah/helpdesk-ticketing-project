@@ -5,11 +5,11 @@ import LoginPage from '../pages/auth/LoginPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import CreateTicketPage from '../pages/ticket/CreateTicketPage';
 
-import CustomerFormPage from '../pages/ticket/sap-masterdata/customer/CustomerFormPage';
-import VendorFormPage from '../pages/ticket/sap-masterdata/vendor/VendorFormPage';
-import MaterialFormPage from '../pages/ticket/sap-masterdata/material/MaterialFormPage';
-import GLFormPage from '../pages/ticket/sap-masterdata/gl/GLFormPage';
-import UserIDFormPage from '../pages/ticket/sap-masterdata/user-id/UserIDFormPage';
+import CustomerFormPage from '../pages/ticket/sap-masterdata/CustomerFormPage';
+import VendorFormPage from '../pages/ticket/sap-masterdata/VendorFormPage';
+import MaterialFormPage from '../pages/ticket/sap-masterdata/MaterialFormPage';
+import GLFormPage from '../pages/ticket/sap-masterdata/GLFormPage';
+import UserIdFormPage from '../pages/ticket/sap-masterdata/UserIdFormPage';
 
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';
@@ -34,7 +34,7 @@ export default function AppRoutes() {
         <Route path="/create-ticket/sap-masterdata/vendor-form" element={<VendorFormPage />} />
         <Route path="/create-ticket/sap-masterdata/material-form" element={<MaterialFormPage />} />
         <Route path="/create-ticket/sap-masterdata/gl-form" element={<GLFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/userid-form" element={<UserIDFormPage />} />
+        <Route path="/create-ticket/sap-masterdata/userid-form" element={<UserIdFormPage />} />
 
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={ <SubmissionPage /> } />

@@ -31,7 +31,7 @@ export const DEFAULT_VENDOR_FORM = {
 
   currency: "IDR",
   salesperson: "",
-  
+
   paymentTransactions: [
     {
       bankName: "",

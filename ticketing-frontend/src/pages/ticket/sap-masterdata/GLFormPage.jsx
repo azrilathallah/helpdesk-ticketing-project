@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { showNotification } from "../../../../utils/notification";
+import { showNotification } from "../../../utils/notification";
 
-import { useAuth } from "../../../../context/AuthContext";
-import { submissionApi } from "../../../../api/submission";
+import { useAuth } from "../../../context/AuthContext";
+import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
-import { DEFAULT_GL_FORM } from "../../../../components/forms-sap-masterdata/gl/GLFormFields";
+import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
+import { DEFAULT_GL_FORM } from "../../../components/sap-masterdata/forms/GLFormFields";
 
-import { getUserValue } from "../../../../config/UserValue";
-import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
+import { getUserValue } from "../../../config/UserValue";
+import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
 
 export default function GLFormPage() {
   const navigate = useNavigate();

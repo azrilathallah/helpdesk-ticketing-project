@@ -1,5 +1,5 @@
-import { showNotification } from "../../../utils/notification";
-import { DEFAULT_MATERIAL_FORM } from "../../../components/forms-sap-masterdata/material/MaterialFormFields";
+import { showNotification } from "../../utils/notification";
+import { DEFAULT_MATERIAL_FORM } from "../../components/sap-masterdata/forms/MaterialFormFields";
 
 /* =========================================================
    MATERIAL APPROVAL CONFIGURATION

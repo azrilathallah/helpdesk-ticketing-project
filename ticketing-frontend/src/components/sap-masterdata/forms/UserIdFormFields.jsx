@@ -364,10 +364,7 @@ export default function UserIdFormFields({
         />
 
         {isNewRequest && !isPIC ? (
-          <ReadOnlyField
-            label="User ID Code"
-            value={form.userIdCode || "-"}
-          />
+          <ReadOnlyField label="User ID Code" value={form.userIdCode || "-"} />
         ) : (
           <Field label="User ID Code" required={isPIC || isCreateMode}>
             <input

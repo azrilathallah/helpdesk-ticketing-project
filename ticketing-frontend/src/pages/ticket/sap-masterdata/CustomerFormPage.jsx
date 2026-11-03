@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { showNotification } from "../../../../utils/notification";
+import { showNotification } from "../../../utils/notification";
 
-import { useAuth } from "../../../../context/AuthContext";
-import { submissionApi } from "../../../../api/submission";
+import { useAuth } from "../../../context/AuthContext";
+import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
-import { DEFAULT_USERID_FORM } from "../../../../components/forms-sap-masterdata/user-id/UserIdFormFields";
+import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
+import { DEFAULT_CUSTOMER_FORM } from "../../../components/sap-masterdata/forms/CustomerFormFields";
 
-import { getUserValue } from "../../../../config/UserValue";
-import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
+import { getUserValue } from "../../../config/UserValue";
+import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
 
-export default function UserIdFormPage() {
+export default function CustomerFormPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -23,7 +23,7 @@ export default function UserIdFormPage() {
 
   const [readOnly, setReadOnly] = useState(false);
 
-  const [formData, setFormData] = useState(DEFAULT_USERID_FORM);
+  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
 
   const [revisionNotes, setRevisionNotes] = useState([]);
 
@@ -34,8 +34,8 @@ export default function UserIdFormPage() {
   const requestor = useMemo(
     () => ({
       name: getUserValue(user, ["name", "nama"]),
-      nik: getUserValue(user, ["nik"]),
       position: getUserValue(user, ["position"]),
+      division: getUserValue(user, ["division"]),
       department: getUserValue(user, ["department"]),
       email: getUserValue(user, ["email"]),
     }),
@@ -71,7 +71,7 @@ export default function UserIdFormPage() {
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "User ID"
+          submission.sub_category !== "Customer"
         ) {
           navigate("/submission");
           return;
@@ -82,7 +82,7 @@ export default function UserIdFormPage() {
         setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
-          ...DEFAULT_USERID_FORM,
+          ...DEFAULT_CUSTOMER_FORM,
           ...(submission.form_data || {}),
         });
       } catch (error) {
@@ -132,7 +132,7 @@ export default function UserIdFormPage() {
         return;
       }
 
-      if (formData.requestType !== "New" && !formData.userIdCode) {
+      if (formData.requestType !== "New" && !formData.customerCode) {
         return;
       }
     }
@@ -143,8 +143,8 @@ export default function UserIdFormPage() {
       const payload = {
         type: "SAP",
         category: "Master Data",
-        sub_category: "User ID",
-        form_type: "SAP - Master Data - User ID",
+        sub_category: "Customer",
+        form_type: "SAP - Master Data - Customer",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -229,11 +229,11 @@ export default function UserIdFormPage() {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                SAP · Master Data · User ID
+                SAP · Master Data · Customer
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Master Data User ID Request
+                Master Data Customer Request
               </h1>
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function UserIdFormPage() {
             <FormRenderer
               type="SAP"
               category="Master Data"
-              subCategory="User ID"
+              subCategory="Customer"
               formData={formData}
               setFormData={setFormData}
               mode="create"

@@ -3,16 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { showNotification } from "../../utils/notification";
 
 import { approvalApi } from "../../api/approval";
-import FormRenderer from "../../components/forms-sap-masterdata/FormRenderer";
+import FormRenderer from "../../components/sap-masterdata/FormRenderer";
 import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
-import { getApprovalFormLogic } from "../../config/approval/forms";
-import { createCustomerActions } from "../../config/approval/forms/CustomerApproval";
-import { createVendorActions } from "../../config/approval/forms/VendorApproval";
-import { createMaterialActions } from "../../config/approval/forms/MaterialApproval";
-import { createGLActions } from "../../config/approval/forms/GLApproval";
-import { createUserIdActions } from "../../config/approval/forms/UserIdApproval";
+import { getApprovalFormLogic } from "../../config/approval";
+import { createCustomerActions } from "../../config/approval/CustomerApproval";
+import { createVendorActions } from "../../config/approval/VendorApproval";
+import { createMaterialActions } from "../../config/approval/MaterialApproval";
+import { createGLActions } from "../../config/approval/GLApproval";
+import { createUserIdActions } from "../../config/approval/UserIdApproval";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -663,7 +663,8 @@ function ApprovalDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} · {submission.sub_category}
+                {submission.type} · {submission.category} ·{" "}
+                {submission.sub_category}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
