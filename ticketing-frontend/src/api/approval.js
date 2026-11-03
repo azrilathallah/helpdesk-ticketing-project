@@ -37,13 +37,15 @@ export const approvalApi = {
       notes,
     }),
 
-  resolve: (id, code = "", notes = "", isVendor = false, isMaterial = false) =>
+  resolve: (id, code = "", notes = "", isVendor = false, isMaterial = false, isUserId = false) =>
     api.post(`/approvals/${id}/resolve`, {
       ...(isMaterial
         ? { material_code: code }
         : isVendor
           ? { vendor_code: code }
-          : { customer_code: code }),
+          : isUserId
+            ? { userId_code: code }
+            : { customer_code: code }),
       notes,
     }),
 

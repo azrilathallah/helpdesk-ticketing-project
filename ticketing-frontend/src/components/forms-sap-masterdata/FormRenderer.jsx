@@ -2,7 +2,7 @@ import CustomerFormFields from "./customer/CustomerFormFields";
 import VendorFormFields from "./vendor/VendorFormFields";
 import MaterialFormFields from "./material/MaterialFormFields";
 import GLFormFields from "./gl/GLFormFields";
-import UserIDFormFields from "./user-id/UserIDFormFields";
+import UserIdFormFields from "./user-id/UserIdFormFields";
 
 export default function FormRenderer({
   type,
@@ -20,7 +20,7 @@ export default function FormRenderer({
   onCustomerCodeChange,
   onVendorCodeChange,
   onMaterialCodeChange,
-  onUserIDCodeChange,
+  onUserIdCodeChange,
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -99,9 +99,9 @@ export default function FormRenderer({
     normalizedSubCategory === "user id"
   ) {
     return (
-      <UserIDFormFields
+      <UserIdFormFields
         {...commonProps}
-        onUserIDCodeChange={onUserIDCodeChange}
+        onUserIdCodeChange={onUserIdCodeChange}
       />
     );
   }

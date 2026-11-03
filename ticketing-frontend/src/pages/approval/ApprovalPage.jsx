@@ -12,6 +12,7 @@ import { createCustomerActions } from "../../config/approval/forms/CustomerAppro
 import { createVendorActions } from "../../config/approval/forms/VendorApproval";
 import { createMaterialActions } from "../../config/approval/forms/MaterialApproval";
 import { createGLActions } from "../../config/approval/forms/GLApproval";
+import { createUserIdActions } from "../../config/approval/forms/UserIdApproval";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -373,7 +374,7 @@ function ApprovalDetailPage({ id }) {
     String(submission?.sub_category || "").toLowerCase() === "material";
   const isGLSubmission =
     String(submission?.sub_category || "").toLowerCase() === "gl";
-  const isUserIDSubmission =
+  const isUserIdSubmission =
     String(submission?.sub_category || "").toLowerCase() === "user id";
 
   const formLogic = getApprovalFormLogic(submission);
@@ -535,7 +536,7 @@ function ApprovalDetailPage({ id }) {
     isVendorSubmission,
     isMaterialSubmission,
     isGLSubmission,
-    isUserIDSubmsission,
+    isUserIdSubmission,
     submission,
     processing,
     setProcessing,
@@ -559,11 +560,13 @@ function ApprovalDetailPage({ id }) {
   const vendorActions = createVendorActions(actionContext);
   const materialActions = createMaterialActions(actionContext);
   const glActions = createGLActions(actionContext);
+  const userIdActions = createUserIdActions(actionContext);
 
   const { renderCustomerActionButtons } = customerActions;
   const { renderVendorActionButtons } = vendorActions;
   const { renderMaterialActionButtons } = materialActions;
   const { renderGLActionButtons } = glActions;
+  const { renderUserIdActionButtons } = userIdActions;
 
   /* =========================================================
      LOADING / ERROR
@@ -593,7 +596,7 @@ function ApprovalDetailPage({ id }) {
 
   /* =========================================================
      APPROVAL HISTORY
-========================================================= */
+  ========================================================= */
 
   const visibleHistory = (submission.approval_history || []).filter(
     (item) =>
@@ -603,7 +606,6 @@ function ApprovalDetailPage({ id }) {
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
         "ACC_DEPT_HEAD_REVISION",
-        "ACCOUNTING_HEAD_REVISION",
         "DIV_HEAD_REVISION",
         "ACCOUNTING_REVISION",
         "TAX_REVISION",
@@ -618,13 +620,7 @@ function ApprovalDetailPage({ id }) {
     if (item.step === "ACCOUNTING_HEAD_APPROVE")
       return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
-    if (
-      [
-        "ACC_DEPT_HEAD_REVISION",
-        "ACCOUNTING_HEAD_REVISION",
-        "DIV_HEAD_REVISION",
-      ].includes(item.step)
-    ) {
+    if (["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step)) {
       return "Requestor Revision";
     }
     if (item.step === "ACCOUNTING_REVISION") return "Accounting Revision";
@@ -640,7 +636,6 @@ function ApprovalDetailPage({ id }) {
     ["REJECTED", "CANCELLED"].includes(item.action) ||
     [
       "ACC_DEPT_HEAD_REVISION",
-      "ACCOUNTING_HEAD_REVISION",
       "DIV_HEAD_REVISION",
       "ACCOUNTING_REVISION",
       "TAX_REVISION",
@@ -728,6 +723,7 @@ function ApprovalDetailPage({ id }) {
             {isVendorSubmission && renderVendorActionButtons()}
             {isMaterialSubmission && renderMaterialActionButtons()}
             {isGLSubmission && renderGLActionButtons()}
+            {isUserIdSubmission && renderUserIdActionButtons()}
           </form>
         </div>
       </section>

@@ -7,7 +7,7 @@ export const DEFAULT_USERID_FORM = {
   companyCode: "1200",
   phone: "",
   requestType: "New",
-  userIDCode: "",
+  userIdCode: "",
   purposeOfUse: "",
 
   accessSapServer: "",
@@ -19,7 +19,8 @@ export const DEFAULT_USERID_FORM = {
       request: "",
       activityRole: "",
       otherUsers: "",
-      validFromTo: "",
+      validFrom: "",
+      validTo: "",
     },
   ],
 };
@@ -35,11 +36,15 @@ const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
 const requiredClass = "text-red-600";
 
-function isEditable({ mode, readOnly }) {
+function isEditable({ mode, readOnly, approvalRole, field }) {
   if (readOnly) return false;
   if (mode === "create") return true;
   if (mode === "submission") return false;
   if (mode !== "approval") return false;
+
+  if (approvalRole === "pic") {
+    return field === "userIdCode";
+  }
 
   return false;
 }
@@ -72,7 +77,8 @@ const EMPTY_NOTES = {
   request: "",
   activityRole: "",
   otherUsers: "",
-  validFromTo: "",
+  validFrom: "",
+  validTo: "",
 };
 
 export function NotesTable({
@@ -132,9 +138,7 @@ export function NotesTable({
               </th>
               <th className="w-48 border-b border-slate-200 px-3 py-3">
                 Request
-                <p className="text-[10px] text-slate-400">
-                  (Filled by User)
-                </p>
+                <p className="text-[10px] text-slate-400">(Filled by User)</p>
               </th>
               <th className="border-b border-slate-200 px-3 py-3">
                 Activity & Role to Add
@@ -203,18 +207,56 @@ export function NotesTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.validFromTo || ""}
-                    onChange={(event) =>
-                      updateRow(index, "validFromTo", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Valid From/To ${index + 1}`}
-                  />
+                <td className="min-w-44 px-2 py-2">
+                  <div className="flex flex-col gap-2">
+                    {/* Valid From */}
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`valid-from-${index}`}
+                        className="w-10 shrink-0 text-xs font-medium text-slate-600"
+                      >
+                        From :
+                      </label>
+
+                      <input
+                        id={`valid-from-${index}`}
+                        type="date"
+                        className={inputClass}
+                        value={row.validFrom || ""}
+                        onChange={(event) =>
+                          updateRow(index, "validFrom", event.target.value)
+                        }
+                        required={required && !disabled}
+                        disabled={disabled}
+                        aria-label={`Valid From ${index + 1}`}
+                        max={row.validTo || undefined}
+                      />
+                    </div>
+
+                    {/* Valid To */}
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`valid-to-${index}`}
+                        className="w-10 shrink-0 text-xs font-medium text-slate-600"
+                      >
+                        To :
+                      </label>
+
+                      <input
+                        id={`valid-to-${index}`}
+                        type="date"
+                        className={inputClass}
+                        value={row.validTo || ""}
+                        onChange={(event) =>
+                          updateRow(index, "validTo", event.target.value)
+                        }
+                        required={required && !disabled}
+                        disabled={disabled}
+                        aria-label={`Valid To ${index + 1}`}
+                        min={row.validFrom || undefined}
+                      />
+                    </div>
+                  </div>
                 </td>
 
                 {!disabled && (
@@ -224,9 +266,7 @@ export function NotesTable({
                       onClick={() => removeRow(index)}
                       disabled={rows.length === 1}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
-                      title={
-                        rows.length === 1 ? "At least one note" : "Delete"
-                      }
+                      title={rows.length === 1 ? "At least one note" : "Delete"}
                       aria-label={`Delete ${index + 1}`}
                     >
                       <Trash2 size={17} strokeWidth={2} />
@@ -246,7 +286,7 @@ export function NotesTable({
    USER ID FORM
 ========================================================= */
 
-export default function UserIDFormFields({
+export default function UserIdFormFields({
   formData,
   setFormData,
   mode = "submission",
@@ -256,7 +296,7 @@ export default function UserIDFormFields({
   attachments = [],
   setAttachments,
   existingAttachments = [],
-  onUserIDCodeChange,
+  onUserIdCodeChange,
 }) {
   const form = {
     ...DEFAULT_USERID_FORM,
@@ -326,21 +366,21 @@ export default function UserIDFormFields({
         {isNewRequest && !isPIC ? (
           <ReadOnlyField
             label="User ID Code"
-            value={form.customerCode || "-"}
+            value={form.userIdCode || "-"}
           />
         ) : (
           <Field label="User ID Code" required={isPIC || isCreateMode}>
             <input
               type="text"
               className={inputClass}
-              value={form.userIDCode || ""}
+              value={form.userIdCode || ""}
               onChange={(event) => {
                 const value = event.target.value;
-                update("userIDCode", value);
-                onUserIDCodeChange?.(value);
+                update("userIdCode", value);
+                onUserIdCodeChange?.(value);
               }}
               required={isPIC || isCreateMode}
-              disabled={!editable("userIDCode")}
+              disabled={!editable("userIdCode")}
             />
           </Field>
         )}

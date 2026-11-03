@@ -454,6 +454,10 @@ function SubmissionDetailPage({ id }) {
 
   if (!submission) return null;
 
+  /* =========================================================
+     APPROVAL HISTORY
+  ========================================================= */
+
   const visibleHistory = (submission.approval_history || []).filter(
     (item) =>
       [
@@ -462,7 +466,6 @@ function SubmissionDetailPage({ id }) {
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
         "ACC_DEPT_HEAD_REVISION",
-        "ACCOUNTING_HEAD_REVISION",
         "DIV_HEAD_REVISION",
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
@@ -478,7 +481,6 @@ function SubmissionDetailPage({ id }) {
     if (
       [
         "ACC_DEPT_HEAD_REVISION",
-        "ACCOUNTING_HEAD_REVISION",
         "DIV_HEAD_REVISION",
       ].includes(item.step)
     ) {
@@ -495,7 +497,6 @@ function SubmissionDetailPage({ id }) {
     ["REJECTED", "CANCELLED"].includes(item.action) ||
     [
       "ACC_DEPT_HEAD_REVISION",
-      "ACCOUNTING_HEAD_REVISION",
       "DIV_HEAD_REVISION",
     ].includes(item.step);
 
@@ -516,8 +517,7 @@ function SubmissionDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} ·{" "}
-                {submission.sub_category}
+                {submission.type} · {submission.category} · {submission.sub_category}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">

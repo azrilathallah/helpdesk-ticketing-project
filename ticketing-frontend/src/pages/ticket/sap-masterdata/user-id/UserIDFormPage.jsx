@@ -6,12 +6,12 @@ import { useAuth } from "../../../../context/AuthContext";
 import { submissionApi } from "../../../../api/submission";
 
 import FormRenderer from "../../../../components/forms-sap-masterdata/FormRenderer";
-import { DEFAULT_USERID_FORM } from "../../../../components/forms-sap-masterdata/user-id/UserIDFormFields";
+import { DEFAULT_USERID_FORM } from "../../../../components/forms-sap-masterdata/user-id/UserIdFormFields";
 
 import { getUserValue } from "../../../../config/UserValue";
 import { validateAttachments } from "../../../../components/forms-sap-masterdata/AttachmentField";
 
-export default function UserIDFormPage() {
+export default function UserIdFormPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -132,7 +132,7 @@ export default function UserIDFormPage() {
         return;
       }
 
-      if (formData.requestType !== "New" && !formData.userIDCode) {
+      if (formData.requestType !== "New" && !formData.userIdCode) {
         return;
       }
     }
