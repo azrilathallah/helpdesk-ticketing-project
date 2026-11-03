@@ -171,10 +171,10 @@ export function PaymentTransactionsTable({
               <th className="border-b border-slate-200 px-3 py-2">
                 Beneficiary
               </th>
-              <th className="w-28 border-b border-slate-200 px-3 py-2">
+              <th className="w-24 border-b border-slate-200 px-3 py-2">
                 Currency
               </th>
-              <th className="border-b border-slate-200 px-3 py-2">
+              <th className="w-32 border-b border-slate-200 px-3 py-2">
                 Swift Code
               </th>
               {!disabled && (

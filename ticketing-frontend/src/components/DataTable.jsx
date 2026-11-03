@@ -324,8 +324,6 @@ export default function DataTable({
                 }}
                 className={`${inputClass} pl-9`}
               />
-
-              
             </div>
 
             {/* Type Filter (Submission) */}
@@ -683,10 +681,14 @@ export default function DataTable({
                   const pages = [];
                   const from = Math.max(
                     1,
-                    Math.min(currentPage - 2, totalPages - 4),
+                    Math.min(currentPage - 1, totalPages - 2),
                   );
-                  const to = Math.min(totalPages, from + 4);
-                  for (let i = from; i <= to; i += 1) pages.push(i);
+                  const to = Math.min(totalPages, from + 2);
+
+                  for (let i = from; i <= to; i += 1) {
+                    pages.push(i);
+                  }
+
                   return pages.map((p) => (
                     <button
                       key={p}

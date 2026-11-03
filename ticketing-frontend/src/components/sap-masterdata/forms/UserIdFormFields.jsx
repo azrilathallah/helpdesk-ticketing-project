@@ -136,7 +136,7 @@ export function NotesTable({
               <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
                 No.
               </th>
-              <th className="w-48 border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-3">
                 Request
                 <p className="text-[10px] text-slate-400">(Filled by User)</p>
               </th>
