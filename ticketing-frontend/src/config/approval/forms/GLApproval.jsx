@@ -70,13 +70,7 @@ export function createGLActions(context) {
           break;
 
         case "resolve":
-          response = await approvalApi.resolve(
-            submission.id,
-            "",
-            "",
-            false,
-            false,
-          );
+          response = await approvalApi.resolve(submission.id);
 
           showNotification({
             icon: "success",

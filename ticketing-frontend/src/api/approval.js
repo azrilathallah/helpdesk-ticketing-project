@@ -37,17 +37,24 @@ export const approvalApi = {
       notes,
     }),
 
-  resolve: (id, code = "", notes = "", isVendor = false, isMaterial = false, isUserId = false) =>
-    api.post(`/approvals/${id}/resolve`, {
-      ...(isMaterial
-        ? { material_code: code }
-        : isVendor
-          ? { vendor_code: code }
-          : isUserId
-            ? { userId_code: code }
-            : { customer_code: code }),
+  resolve: (id, { code = "", notes = "", type = "customer" } = {}) => {
+    const codeFields = {
+      customer: "customer_code",
+      vendor: "vendor_code",
+      material: "material_code",
+      userId: "userId_code",
+    };
+
+    const payload = {
       notes,
-    }),
+    };
+
+    if (codeFields[type]) {
+      payload[codeFields[type]] = code;
+    }
+
+    return api.post(`/approvals/${id}/resolve`, payload);
+  },
 
   cancel: (id, notes = "") =>
     api.post(`/approvals/${id}/cancel`, {

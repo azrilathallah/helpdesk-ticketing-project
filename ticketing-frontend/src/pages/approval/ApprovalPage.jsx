@@ -663,8 +663,7 @@ function ApprovalDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} ·{" "}
-                {submission.sub_category}
+                {submission.type} · {submission.category} · {submission.sub_category}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">

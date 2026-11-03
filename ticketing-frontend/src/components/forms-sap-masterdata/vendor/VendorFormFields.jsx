@@ -206,7 +206,7 @@ export function PaymentTransactionsTable({
 
                 <td className="px-2 py-2">
                   <input
-                    type="text"
+                    type="number"
                     className={inputClass}
                     value={row.bankAccountNumber || ""}
                     onChange={(event) =>
@@ -420,7 +420,7 @@ export default function VendorFormFields({
 
         <Field label="Postal Code" required={isCreateMode}>
           <input
-            type="text"
+            type="number"
             className={inputClass}
             value={form.postalCode || ""}
             onChange={(event) => update("postalCode", event.target.value)}

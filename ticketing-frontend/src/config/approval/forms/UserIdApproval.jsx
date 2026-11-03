@@ -84,14 +84,10 @@ export function createUserIdActions(context) {
             return;
           }
 
-          response = await approvalApi.resolve(
-            submission.id,
-            result.code,
-            "",
-            result.isVendor,
-            result.isMaterial,
-            result.isUserId,
-          );
+          response = await approvalApi.resolve(submission.id, {
+            code: result.code,
+            type: "userId",
+          });
 
           showNotification({
             icon: "success",

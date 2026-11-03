@@ -227,13 +227,10 @@ export function createVendorActions(context) {
             return;
           }
 
-          response = await approvalApi.resolve(
-            submission.id,
-            result.code,
-            "",
-            result.isVendor,
-            result.isMaterial,
-          );
+          response = await approvalApi.resolve(submission.id, {
+            code: result.code,
+            type: "vendor",
+          });
 
           showNotification({
             icon: "success",

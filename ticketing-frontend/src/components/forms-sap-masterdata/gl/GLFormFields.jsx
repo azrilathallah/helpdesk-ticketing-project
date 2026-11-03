@@ -448,7 +448,7 @@ export default function GLFormFields({
 
         <Field label="Bank Account Number">
           <input
-            type="text"
+            type="number"
             className={inputClass}
             value={form.bankAccountNumber || ""}
             onChange={(event) =>

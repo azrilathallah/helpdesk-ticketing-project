@@ -315,7 +315,7 @@ export default function CustomerFormFields({
 
           <Field label="Kode Pos" required={isCreateMode}>
             <input
-              type="text"
+              type="number"
               className={inputClass}
               value={form.postalCode || ""}
               onChange={(event) => update("postalCode", event.target.value)}
