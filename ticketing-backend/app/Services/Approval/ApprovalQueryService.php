@@ -4,6 +4,7 @@ namespace App\Services\Approval;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
+use App\Services\SubmissionAttachmentService;
 use Illuminate\Http\Request;
 
 class ApprovalQueryService
@@ -53,7 +54,7 @@ class ApprovalQueryService
 
         if ($detail) {
             $data['form_data'] = $submission->form_data;
-            $data['attachments'] = $submission->attachments ?? [];
+            $data['attachments'] = SubmissionAttachmentService::present($submission, 'approvals');
             $data['approval_history'] = $submission->approvals
                 ->map(fn(SubmissionApproval $approval) => [
                     'id' => $approval->id,

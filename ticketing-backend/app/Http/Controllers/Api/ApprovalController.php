@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Submission;
 use App\Services\Approval\ApprovalFormServiceResolver;
 use App\Services\Approval\ApprovalQueryService;
+use App\Services\SubmissionAttachmentService;
 use Illuminate\Http\Request;
 
 class ApprovalController extends Controller
@@ -19,6 +20,11 @@ class ApprovalController extends Controller
     public function show(Submission $submission)
     {
         return $this->queries->show($submission);
+    }
+
+    public function attachment(Submission $submission, int $index)
+    {
+        return SubmissionAttachmentService::response($submission, $index);
     }
 
     private function formService(Submission $submission)

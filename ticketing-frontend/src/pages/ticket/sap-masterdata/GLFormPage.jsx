@@ -10,6 +10,7 @@ import { DEFAULT_GL_FORM } from "../../../components/sap-masterdata/forms/GLForm
 
 import { getUserValue } from "../../../config/UserValue";
 import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { appendAttachments } from "../../../utils/attachment";
 
 export default function GLFormPage() {
   const navigate = useNavigate();
@@ -74,6 +75,8 @@ export default function GLFormPage() {
           navigate("/submission");
           return;
         }
+
+        setAttachments(submission.attachments || []);
 
         const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
 
@@ -145,9 +148,7 @@ export default function GLFormPage() {
 
       multipart.append("data", JSON.stringify(payload));
 
-      attachments.forEach((file) => {
-        multipart.append("attachments[]", file);
-      });
+      appendAttachments(multipart, attachments);
 
       let response;
 
@@ -275,6 +276,7 @@ export default function GLFormPage() {
               requestor={requestor}
               attachments={attachments}
               setAttachments={setAttachments}
+              existingAttachments={attachments}
             />
 
             <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">

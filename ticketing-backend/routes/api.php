@@ -35,6 +35,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'show'
     ]);
 
+    Route::get('/submissions/{submission}/attachments/{index}', [
+        SubmissionController::class,
+        'attachment'
+    ])->whereNumber('index');
+
     Route::post('/submissions/{submission}', [
         SubmissionController::class,
         'update'
@@ -61,6 +66,11 @@ Route::middleware('auth:sanctum')->group(function () {
         ApprovalController::class,
         'show'
     ]);
+
+    Route::get('/approvals/{submission}/attachments/{index}', [
+        ApprovalController::class,
+        'attachment'
+    ])->whereNumber('index');
 
     Route::post('/approvals/{submission}/approve-acc-depthead', [
         ApprovalController::class,

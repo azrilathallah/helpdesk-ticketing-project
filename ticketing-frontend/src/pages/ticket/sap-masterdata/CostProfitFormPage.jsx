@@ -8,6 +8,7 @@ import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
 import { DEFAULT_COSTPROFIT_FORM } from "../../../components/sap-masterdata/forms/CostProfitFormFields";
 
 import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { appendAttachments } from "../../../utils/attachment";
 
 export default function CostProfitFormPage() {
   const navigate = useNavigate();
@@ -62,6 +63,8 @@ export default function CostProfitFormPage() {
           navigate("/submission");
           return;
         }
+
+        setAttachments(submission.attachments || []);
 
         const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
 
@@ -133,9 +136,7 @@ export default function CostProfitFormPage() {
 
       multipart.append("data", JSON.stringify(payload));
 
-      attachments.forEach((file) => {
-        multipart.append("attachments[]", file);
-      });
+      appendAttachments(multipart, attachments);
 
       let response;
 
@@ -262,6 +263,7 @@ export default function CostProfitFormPage() {
               readOnly={readOnly}
               attachments={attachments}
               setAttachments={setAttachments}
+              existingAttachments={attachments}
             />
 
             <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">

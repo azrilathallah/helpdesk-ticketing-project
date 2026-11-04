@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\SubmissionApproval;
+use App\Services\SubmissionAttachmentService;
 
 class SubmissionController extends Controller
 {
+    private const MAX_ATTACHMENTS = 1;
+
     /**
      * GET /submissions
      */
@@ -111,6 +115,22 @@ class SubmissionController extends Controller
     }
 
     /**
+     * GET /submissions/{submission}/attachments/{index}
+     */
+    public function attachment(
+        Request $request,
+        Submission $submission,
+        int $index
+    ) {
+        $this->ensureOwner($request, $submission);
+
+        return SubmissionAttachmentService::response(
+            $submission,
+            $index
+        );
+    }
+
+    /**
      * POST /submissions
      */
     public function store(Request $request)
@@ -180,11 +200,6 @@ class SubmissionController extends Controller
                 'sub_category' => $data['sub_category'] ?? null,
                 'form_type' => $data['form_type'],
 
-                /*
-                * Jika requestor langsung submit:
-                * SUBMITTED -> status awal approval sesuai form
-                * (GL: REVIEW_ACC_DEPT_HEAD, lainnya: REVIEW_DIV_HEAD)
-                */
                 'status' => $isSubmitted
                     ? Submission::initialStatusFor($data['sub_category'] ?? null)
                     : Submission::STATUS_DRAFT,
@@ -257,6 +272,28 @@ class SubmissionController extends Controller
 
         $data = $this->validatePayload($request);
 
+        $existingAttachments = array_values($submission->attachments ?? []);
+        $keepIndexes = $this->keepAttachmentIndexes($request, count($existingAttachments));
+
+        $keptAttachments = [];
+        $removedAttachments = [];
+
+        foreach ($existingAttachments as $index => $file) {
+            if (in_array($index, $keepIndexes, true)) {
+                $keptAttachments[] = $file;
+            } else {
+                $removedAttachments[] = $file;
+            }
+        }
+
+        $newFileCount = count($request->file('attachments', []));
+
+        if (count($keptAttachments) + $newFileCount > self::MAX_ATTACHMENTS) {
+            throw ValidationException::withMessages([
+                'attachments' => 'Only one file is allowed. Please remove the current file before uploading a new one.',
+            ]);
+        }
+
         $wasRevision = $submission->status === Submission::STATUS_REVISION_REQUESTOR;
 
         $submission->update([
@@ -275,26 +312,15 @@ class SubmissionController extends Controller
             $data['form_data'],
         ]);
 
-        /*
-         * Tambahkan attachment baru jika ada.
-         */
-        if ($request->hasFile('attachments')) {
-            $existing =
-                $submission->attachments ?? [];
-
-            $newFiles =
-                $this->storeFiles(
-                    $request,
-                    $submission
-                );
-
-            $submission->attachments =
-                array_merge(
-                    $existing,
-                    $newFiles
-                );
+        if ($removedAttachments || $newFileCount > 0) {
+            $submission->attachments = array_merge(
+                $keptAttachments,
+                $this->storeFiles($request, $submission)
+            );
 
             $submission->save();
+
+            $this->deleteStoredFiles($removedAttachments);
         }
 
         /*
@@ -359,11 +385,18 @@ class SubmissionController extends Controller
             'attachments' => [
                 'sometimes',
                 'array',
+                'max:' . self::MAX_ATTACHMENTS,
             ],
 
             'attachments.*' => [
                 'file',
                 'max:10240',
+            ],
+
+            'keep_attachments' => [
+                'sometimes',
+                'nullable',
+                'json',
             ],
         ]);
 
@@ -496,6 +529,38 @@ class SubmissionController extends Controller
             ->all();
     }
 
+    private function keepAttachmentIndexes(
+        Request $request,
+        int $existingCount
+    ): array {
+        if (!$request->has('keep_attachments')) {
+            return range(0, max($existingCount - 1, -1));
+        }
+
+        $indexes = json_decode(
+            (string) $request->input('keep_attachments'),
+            true
+        );
+
+        return collect(is_array($indexes) ? $indexes : [])
+            ->filter(fn($index) => is_int($index) && $index >= 0 && $index < $existingCount)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function deleteStoredFiles(array $files): void
+    {
+        $paths = collect($files)
+            ->pluck('path')
+            ->filter()
+            ->all();
+
+        if ($paths) {
+            Storage::disk('local')->delete($paths);
+        }
+    }
+
     /**
      * POST /submissions/{submission}/cancel
      */
@@ -539,6 +604,7 @@ class SubmissionController extends Controller
             'data' => $this->transform($submission->fresh(['requestor']), true),
         ]);
     }
+    
     private function ensureOwner(
         Request $request,
         Submission $submission
@@ -620,7 +686,10 @@ class SubmissionController extends Controller
                 $submission->form_data;
 
             $data['attachments'] =
-                $submission->attachments ?? [];
+                SubmissionAttachmentService::present(
+                    $submission,
+                    'submissions'
+                );
 
             $data['approval_history'] =
                 $submission->approvals

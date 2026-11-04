@@ -10,6 +10,7 @@ import { DEFAULT_USERID_FORM } from "../../../components/sap-masterdata/forms/Us
 
 import { getUserValue } from "../../../config/UserValue";
 import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { appendAttachments } from "../../../utils/attachment";
 
 export default function UserIdFormPage() {
   const navigate = useNavigate();
@@ -76,6 +77,8 @@ export default function UserIdFormPage() {
           navigate("/submission");
           return;
         }
+
+        setAttachments(submission.attachments || []);
 
         const editableStatuses = ["DRAFT", "REVISION_REQUESTOR"];
 
@@ -155,9 +158,7 @@ export default function UserIdFormPage() {
 
       multipart.append("data", JSON.stringify(payload));
 
-      attachments.forEach((file) => {
-        multipart.append("attachments[]", file);
-      });
+      appendAttachments(multipart, attachments);
 
       let response;
 
@@ -285,6 +286,7 @@ export default function UserIdFormPage() {
               requestor={requestor}
               attachments={attachments}
               setAttachments={setAttachments}
+              existingAttachments={attachments}
             />
 
             <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
