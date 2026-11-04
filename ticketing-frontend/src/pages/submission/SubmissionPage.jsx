@@ -277,6 +277,17 @@ function SubmissionList() {
         );
         return;
       }
+
+      if (
+        submission.type === "SAP" &&
+        submission.category === "Master Data" &&
+        submission.sub_category === "Cost Center and Profit Center"
+      ) {
+        navigate(
+          `/create-ticket/sap-masterdata/costprofit-form?submission=${submission.id}`,
+        );
+        return;
+      }
     }
 
     navigate(`/submission/${submission.id}`);
@@ -465,8 +476,6 @@ function SubmissionDetailPage({ id }) {
         "DIV_HEAD_APPROVE",
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
-        "ACC_DEPT_HEAD_REVISION",
-        "DIV_HEAD_REVISION",
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
   );
@@ -478,9 +487,6 @@ function SubmissionDetailPage({ id }) {
     if (item.step === "ACCOUNTING_HEAD_APPROVE")
       return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
-    if (["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step)) {
-      return "Requestor Revision";
-    }
     if (item.action === "SOLVED") return "Ticket Solved";
     if (item.action === "REJECTED") return "Ticket Rejected";
     if (item.action === "CANCELLED") return "Ticket Cancelled";
@@ -489,8 +495,7 @@ function SubmissionDetailPage({ id }) {
   };
 
   const isNegativeHistoryItem = (item) =>
-    ["REJECTED", "CANCELLED"].includes(item.action) ||
-    ["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step);
+    ["REJECTED", "CANCELLED"].includes(item.action)
 
   return (
     <main className="mx-auto w-full space-y-5">

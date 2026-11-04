@@ -3,6 +3,7 @@ import VendorFormFields from "./forms/VendorFormFields";
 import MaterialFormFields from "./forms/MaterialFormFields";
 import GLFormFields from "./forms/GLFormFields";
 import UserIdFormFields from "./forms/UserIdFormFields";
+import CostProfitFormFields from "./forms/CostProfitFormFields";
 
 export default function FormRenderer({
   type,
@@ -104,5 +105,13 @@ export default function FormRenderer({
         onUserIdCodeChange={onUserIdCodeChange}
       />
     );
+  }
+
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "cost center and profit center"
+  ) {
+    return <CostProfitFormFields {...commonProps} />;
   }
 }

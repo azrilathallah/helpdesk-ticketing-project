@@ -107,9 +107,9 @@ export function createGLActions(context) {
   const renderGLActionButtons = () => {
     if (!isGLSubmission || !submission) return null;
 
-    const status = submission.status;
+    const currentStatus = submission.status;
 
-    if (status === "REVIEW_ACC_DEPT_HEAD") {
+    if (currentStatus === "REVIEW_ACC_DEPT_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -140,7 +140,7 @@ export function createGLActions(context) {
       );
     }
 
-    if (status === "APPROVED_ACC_DEPT_HEAD") {
+    if (currentStatus === "APPROVED_ACC_DEPT_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -163,7 +163,7 @@ export function createGLActions(context) {
       );
     }
 
-    if (status === "APPROVED_ACCOUNTING_HEAD") {
+    if (currentStatus === "APPROVED_ACCOUNTING_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -186,7 +186,7 @@ export function createGLActions(context) {
       );
     }
 
-    if (status === "APPROVED_DIV_HEAD") {
+    if (["APPROVED_DIV_HEAD", "WAITING_PIC"].includes(currentStatus)) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button

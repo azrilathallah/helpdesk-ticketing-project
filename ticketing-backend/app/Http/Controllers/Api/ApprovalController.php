@@ -24,7 +24,7 @@ class ApprovalController extends Controller
     private function formService(Submission $submission)
     {
         $service = ApprovalFormServiceResolver::for($submission);
-        abort_if($service === null, 422, 'Sub category submission tidak dikenali.');
+        abort_if($service === null, 422, 'Unrecognized submission');
         return $service;
     }
 

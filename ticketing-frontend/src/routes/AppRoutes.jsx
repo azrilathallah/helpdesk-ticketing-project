@@ -10,6 +10,7 @@ import VendorFormPage from '../pages/ticket/sap-masterdata/VendorFormPage';
 import MaterialFormPage from '../pages/ticket/sap-masterdata/MaterialFormPage';
 import GLFormPage from '../pages/ticket/sap-masterdata/GLFormPage';
 import UserIdFormPage from '../pages/ticket/sap-masterdata/UserIdFormPage';
+import CostProfitFormPage from '../pages/ticket/sap-masterdata/CostProfitFormPage';
 
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';
@@ -35,6 +36,7 @@ export default function AppRoutes() {
         <Route path="/create-ticket/sap-masterdata/material-form" element={<MaterialFormPage />} />
         <Route path="/create-ticket/sap-masterdata/gl-form" element={<GLFormPage />} />
         <Route path="/create-ticket/sap-masterdata/userid-form" element={<UserIdFormPage />} />
+        <Route path="/create-ticket/sap-masterdata/costprofit-form" element={<CostProfitFormPage />} />
 
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={ <SubmissionPage /> } />

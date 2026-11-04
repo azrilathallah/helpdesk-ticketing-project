@@ -56,11 +56,9 @@ export default function GLFormPage() {
         setRevisionNotes(
           (submission?.approval_history || []).filter(
             (item) =>
-              item.step === "DIV_HEAD_REVISION" ||
-              item.step === "ACC_DEPT_HEAD_REVISION" ||
-              (item.step === "ACCOUNTING_HEAD_REVISION" &&
-                item.action === "REVISION_REQUESTED" &&
-                item.notes?.trim()),
+              item.step === "ACC_DEPT_HEAD_REVISION" &&
+              item.action === "REVISION_REQUESTED" &&
+              item.notes?.trim(),
           ),
         );
 

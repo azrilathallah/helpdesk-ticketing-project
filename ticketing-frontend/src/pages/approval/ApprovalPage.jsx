@@ -8,11 +8,13 @@ import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval";
+
 import { createCustomerActions } from "../../config/approval/CustomerApproval";
 import { createVendorActions } from "../../config/approval/VendorApproval";
 import { createMaterialActions } from "../../config/approval/MaterialApproval";
 import { createGLActions } from "../../config/approval/GLApproval";
 import { createUserIdActions } from "../../config/approval/UserIdApproval";
+import { createCostProfitActions } from "../../config/approval/CostProfitApproval";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -376,6 +378,8 @@ function ApprovalDetailPage({ id }) {
     String(submission?.sub_category || "").toLowerCase() === "gl";
   const isUserIdSubmission =
     String(submission?.sub_category || "").toLowerCase() === "user id";
+  const isCostProfitSubmission =
+    String(submission?.sub_category || "").toLowerCase() === "cost center and profit center";
 
   const formLogic = getApprovalFormLogic(submission);
   const materialType = formLogic?.getMaterialType
@@ -537,6 +541,7 @@ function ApprovalDetailPage({ id }) {
     isMaterialSubmission,
     isGLSubmission,
     isUserIdSubmission,
+    isCostProfitSubmission,
     submission,
     processing,
     setProcessing,
@@ -561,12 +566,14 @@ function ApprovalDetailPage({ id }) {
   const materialActions = createMaterialActions(actionContext);
   const glActions = createGLActions(actionContext);
   const userIdActions = createUserIdActions(actionContext);
+  const costProfitActions = createCostProfitActions(actionContext);
 
   const { renderCustomerActionButtons } = customerActions;
   const { renderVendorActionButtons } = vendorActions;
   const { renderMaterialActionButtons } = materialActions;
   const { renderGLActionButtons } = glActions;
   const { renderUserIdActionButtons } = userIdActions;
+  const { renderCostProfitActionButtons } = costProfitActions;
 
   /* =========================================================
      LOADING / ERROR
@@ -724,6 +731,7 @@ function ApprovalDetailPage({ id }) {
             {isMaterialSubmission && renderMaterialActionButtons()}
             {isGLSubmission && renderGLActionButtons()}
             {isUserIdSubmission && renderUserIdActionButtons()}
+            {isCostProfitSubmission && renderCostProfitActionButtons()}
           </form>
         </div>
       </section>

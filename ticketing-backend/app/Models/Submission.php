@@ -73,9 +73,11 @@ class Submission extends Model
      */
     public static function initialStatusFor(?string $subCategory): string
     {
-        return strtolower(trim((string) $subCategory)) === 'gl'
-            ? self::STATUS_REVIEW_ACC_DEPT_HEAD
-            : self::STATUS_REVIEW_DIV_HEAD;
+        return match (strtolower(trim((string) $subCategory))) {
+            'gl' => self::STATUS_REVIEW_ACC_DEPT_HEAD,
+            'cost center and profit center' => self::STATUS_REVIEW_ACCOUNTING_HEAD,
+            default => self::STATUS_REVIEW_DIV_HEAD,
+        };
     }
 
     /**
@@ -83,9 +85,11 @@ class Submission extends Model
      */
     public static function initialStepFor(?string $subCategory): string
     {
-        return self::initialStatusFor($subCategory) === self::STATUS_REVIEW_ACC_DEPT_HEAD
-            ? 'ACC_DEPT_HEAD_REVIEW'
-            : 'DIV_HEAD_REVIEW';
+        return match (self::initialStatusFor($subCategory)) {
+            self::STATUS_REVIEW_ACC_DEPT_HEAD => 'ACC_DEPT_HEAD_REVIEW',
+            self::STATUS_REVIEW_ACCOUNTING_HEAD => 'ACCOUNTING_HEAD_REVIEW',
+            default => 'DIV_HEAD_REVIEW',
+        };
     }
 
     public static function activeStatuses(): array

@@ -250,6 +250,11 @@ export default function CreateTicketPage() {
           return;
         }
 
+        if (selection.subCategory === "Cost Center and Profit Center") {
+          navigate("/create-ticket/sap-masterdata/costprofit-form");
+          return;
+        }
+
         console.log("Form belum dibuat:", selection.subCategory);
         return;
       }

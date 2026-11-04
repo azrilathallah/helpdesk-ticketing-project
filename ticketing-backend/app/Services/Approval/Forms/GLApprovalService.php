@@ -188,17 +188,20 @@ class GLApprovalService
             ['notes.required' => 'Revision notes is required.']
         );
 
-        if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
-            return response()->json([
-                'message' => 'Revision can only be given by Accounting Department Head.'
-            ], 422);
-        }
-
-        $flow = [
-            'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-            'step' => 'ACC_DEPT_HEAD_REVISION',
-            'message' => 'The request has been returned to the Requester for revision.'
+        $flowMap = [
+            Submission::STATUS_REVIEW_ACC_DEPT_HEAD => [
+                'next_status' => Submission::STATUS_REVISION_REQUESTOR,
+                'step' => 'ACC_DEPT_HEAD_REVISION',
+                'message' => 'The request has been returned to the Requester for revision.'
+            ]
         ];
+
+        $flow = $flowMap[$submission->status] ?? null;
+
+        if (!$flow)
+            return response()->json([
+                'message' => 'No revisions can be made to this request status.'
+            ], 422);
 
         DB::transaction(function () use (
             $request,

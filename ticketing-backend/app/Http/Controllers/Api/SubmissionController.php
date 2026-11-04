@@ -319,9 +319,11 @@ class SubmissionController extends Controller
             ]);
         }
 
-        $firstApprover = $submission->status === Submission::STATUS_REVIEW_ACC_DEPT_HEAD
-            ? 'Accounting Department Head'
-            : 'Division Head';
+        $firstApprover = match ($submission->status) {
+            Submission::STATUS_REVIEW_ACC_DEPT_HEAD => 'Accounting Department Head',
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD => 'Accounting Head',
+            default => 'Division Head',
+        };
 
         return response()->json([
             'message' => $data['status'] === 'SUBMITTED'
