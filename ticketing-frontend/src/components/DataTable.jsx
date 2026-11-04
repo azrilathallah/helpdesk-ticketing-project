@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -215,6 +216,10 @@ export default function DataTable({
           const time = new Date(item.submitted_at || item.created_at).getTime();
           return Number.isNaN(time) ? 0 : time;
         }
+        case "updated": {
+          const time = new Date(item.updated_at || item.created_at).getTime();
+          return Number.isNaN(time) ? 0 : time;
+        }
         case "status":
           return getStatusConfig(item.status).label || "";
         default:
@@ -272,6 +277,7 @@ export default function DataTable({
         { label: "Request", key: "request" },
         { label: "Requestor", key: "requestor" },
         { label: "Created", key: "created" },
+        { label: "Updated", key: "updated" },
         { label: "Status", key: "status" },
         { label: "Actions", key: null },
       ]
@@ -279,6 +285,7 @@ export default function DataTable({
         { label: "Number", key: "number" },
         { label: "Request", key: "request" },
         { label: "Created", key: "created" },
+        { label: "Updated", key: "updated" },
         { label: "Status", key: "status" },
         { label: "Actions", key: null },
       ];
@@ -456,7 +463,7 @@ export default function DataTable({
                         className={`border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg ${
                           heading.key
                             ? "cursor-pointer select-none transition hover:bg-slate-100 hover:text-slate-800"
-                            : ""
+                            : "w-1 whitespace-nowrap text-center"
                         }`}
                       >
                         <div className="inline-flex items-center gap-1.5">
@@ -492,159 +499,199 @@ export default function DataTable({
                 </thead>
 
                 <tbody>
-                  {displayedSubmissions.map((submission) => (
-                    <tr
-                      key={submission.id}
-                      onClick={() => onOpen?.(submission)}
-                      className="cursor-pointer transition hover:bg-blue-50/40"
-                    >
-                      <td className="border-b border-slate-100 p-3">
-                        <span className="text-xs font-semibold text-blue-700">
-                          {submission.number || "-"}
-                        </span>
-                      </td>
+                  {displayedSubmissions.map((submission) => {
+                    const isEditable = [
+                      "DRAFT",
+                      "REVISION_REQUESTOR",
+                    ].includes(submission.status);
 
-                      <td className="border-b border-slate-100 p-3">
-                        <p className="text-xs font-medium text-slate-800">
-                          {submission.form_type ||
-                            `${submission.category || ""} ${submission.sub_category || ""}`}
-                        </p>
-                      </td>
-
-                      {isApproval && (
-                        <td className="border-b border-slate-100 p-3 text-xs text-slate-600">
-                          {submission.requestor?.name || "-"}
+                    return (
+                      <tr
+                        key={submission.id}
+                        onClick={() => onOpen?.(submission)}
+                        className="cursor-pointer transition hover:bg-blue-50/40"
+                      >
+                        <td className="border-b border-slate-100 p-3">
+                          <span className="text-xs font-semibold text-blue-700">
+                            {submission.number || "-"}
+                          </span>
                         </td>
-                      )}
 
-                      <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
-                        {formatDate(
-                          submission.submitted_at || submission.created_at,
+                        <td className="border-b border-slate-100 p-3">
+                          <p className="text-xs font-medium text-slate-800">
+                            {submission.form_type ||
+                              `${submission.category || ""} ${submission.sub_category || ""}`}
+                          </p>
+                        </td>
+
+                        {isApproval && (
+                          <td className="border-b border-slate-100 p-3 text-xs text-slate-600">
+                            {submission.requestor?.name || "-"}
+                          </td>
                         )}
-                      </td>
 
-                      <td className="border-b border-slate-100 p-3">
-                        <StatusBadge status={submission.status} />
-                      </td>
+                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
+                          {formatDate(
+                            submission.submitted_at || submission.created_at,
+                          )}
+                        </td>
 
-                      <td className="border-b border-slate-100 p-3">
-                        {isApproval ? (
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              onOpen?.(submission);
-                            }}
-                            className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                          >
-                            Review
-                            <span aria-hidden="true">→</span>
-                          </button>
-                        ) : (
-                          <div className="flex flex-wrap items-center gap-2">
+                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
+                          {formatDate(submission.updated_at)}
+                        </td>
+
+                        <td className="border-b border-slate-100 p-3">
+                          <StatusBadge status={submission.status} />
+                        </td>
+
+                        <td className="w-1 whitespace-nowrap border-b border-slate-100 p-3 text-center">
+                          {isApproval ? (
                             <button
                               type="button"
+                              title="Review"
+                              aria-label="Review"
                               onClick={(event) => {
                                 event.stopPropagation();
                                 onOpen?.(submission);
                               }}
-                              className="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
                             >
-                              {["DRAFT", "REVISION_REQUESTOR"].includes(
-                                submission.status,
-                              )
-                                ? "Edit"
-                                : "View"}
-                              <span aria-hidden="true">→</span>
+                              <Eye className="h-3.5 w-3.5" />
                             </button>
-
-                            {onCancel && canCancel(submission.status) && (
+                          ) : (
+                            <div className="inline-flex items-center justify-center gap-1.5">
                               <button
                                 type="button"
-                                onClick={(event) => onCancel(submission, event)}
-                                className="rounded-sm border border-red-200 bg-white px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                                title={isEditable ? "Edit" : "View"}
+                                aria-label={isEditable ? "Edit" : "View"}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  onOpen?.(submission);
+                                }}
+                                className={
+                                  isEditable
+                                    ? "inline-flex h-7 w-7 items-center justify-center rounded-md border border-amber-200 bg-amber-50 text-amber-600 transition hover:border-amber-300 hover:bg-amber-100 hover:text-amber-700"
+                                    : "inline-flex h-7 w-7 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
+                                }
                               >
-                                Cancel
+                                {isEditable ? (
+                                  <Pencil className="h-3.5 w-3.5" />
+                                ) : (
+                                  <Eye className="h-3.5 w-3.5" />
+                                )}
                               </button>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+
+                              {onCancel && canCancel(submission.status) && (
+                                <button
+                                  type="button"
+                                  title="Cancel / Delete"
+                                  aria-label="Cancel / Delete"
+                                  onClick={(event) =>
+                                    onCancel(submission, event)
+                                  }
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600 transition hover:border-red-300 hover:bg-red-100 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Cards */}
             <div className="grid grid-cols-1 md:hidden">
-              {displayedSubmissions.map((submission) => (
-                <article
-                  key={submission.id}
-                  className="border border-slate-300 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="wrap-break-word text-sm font-semibold text-blue-700">
-                        {submission.number || "-"}
-                      </p>
-                      <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
-                        {submission.form_type ||
-                          `${submission.category || ""} ${submission.sub_category || ""}`}
-                      </h3>
+              {displayedSubmissions.map((submission) => {
+                const isEditable = ["DRAFT", "REVISION_REQUESTOR"].includes(
+                  submission.status,
+                );
+
+                return (
+                  <article
+                    key={submission.id}
+                    className="border border-slate-300 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
+                          {submission.number || "-"}
+                        </p>
+                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
+                          {submission.form_type ||
+                            `${submission.category || ""} ${submission.sub_category || ""}`}
+                        </h3>
+                      </div>
+                      <StatusBadge status={submission.status} />
                     </div>
-                    <StatusBadge status={submission.status} />
-                  </div>
 
-                  <div className="mt-1 space-y-1 text-xs text-slate-500">
-                    {isApproval && (
-                      <p>Requestor: {submission.requestor?.name || "-"}</p>
-                    )}
-                    <p>
-                      Created:{" "}
-                      {formatDate(
-                        submission.submitted_at || submission.created_at,
+                    <div className="mt-1 space-y-1 text-xs text-slate-500">
+                      {isApproval && (
+                        <p>Requestor: {submission.requestor?.name || "-"}</p>
                       )}
-                    </p>
-                  </div>
+                      <p>
+                        Created:{" "}
+                        {formatDate(
+                          submission.submitted_at || submission.created_at,
+                        )}
+                      </p>
+                      <p>Updated: {formatDate(submission.updated_at)}</p>
+                    </div>
 
-                  <div className="mt-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-300 pt-3">
-                    {isApproval ? (
-                      <button
-                        type="button"
-                        onClick={() => onOpen?.(submission)}
-                        className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        Review
-                      </button>
-                    ) : (
-                      <>
+                    <div className="mt-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-300 pt-3">
+                      {isApproval ? (
                         <button
                           type="button"
+                          title="Review"
+                          aria-label="Review"
                           onClick={() => onOpen?.(submission)}
-                          className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
                         >
-                          {["DRAFT", "REVISION_REQUESTOR"].includes(
-                            submission.status,
-                          )
-                            ? "Edit Submission"
-                            : "View Details"}
+                          <Eye className="h-4 w-4" />
                         </button>
-
-                        {onCancel && canCancel(submission.status) && (
+                      ) : (
+                        <>
                           <button
                             type="button"
-                            onClick={(event) => onCancel(submission, event)}
-                            className="rounded-lg border border-red-200 px-2.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            title={isEditable ? "Edit Submission" : "View Details"}
+                            aria-label={
+                              isEditable ? "Edit Submission" : "View Details"
+                            }
+                            onClick={() => onOpen?.(submission)}
+                            className={
+                              isEditable
+                                ? "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-600 transition hover:bg-amber-100"
+                                : "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                            }
                           >
-                            Cancel
+                            {isEditable ? (
+                              <Pencil className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                           </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </article>
-              ))}
+
+                          {onCancel && canCancel(submission.status) && (
+                            <button
+                              type="button"
+                              title="Cancel / Delete"
+                              aria-label="Cancel / Delete"
+                              onClick={(event) => onCancel(submission, event)}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
 
             {/* Pagination */}

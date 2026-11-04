@@ -572,7 +572,6 @@ class SubmissionController extends Controller
             Submission::STATUS_TICKET_SOLVED,
             Submission::STATUS_TICKET_CANCELLED,
             Submission::STATUS_TICKET_REJECTED,
-            Submission::STATUS_DRAFT,
         ];
 
         if (in_array($submission->status, $terminalStatuses, true)) {
