@@ -265,15 +265,6 @@ export default function CreateTicketPage() {
 
   const handleSubmit = () => {
     console.log("Submitting:", selection);
-
-    // alert(
-    //   `Tiket Berhasil Dibuat!\n\n` +
-    //     `Tipe: ${selection.type}\n` +
-    //     `Kategori: ${selection.category}\n` +
-    //     `Sub: ${selection.subCategory || "-"}\n` +
-    //     `Module: ${selection.module || "-"}\n` +
-    //     `Desc: ${selection.description || "-"}`,
-    // );
   };
 
   const selectType = (type) => {
