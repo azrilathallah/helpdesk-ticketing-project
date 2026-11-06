@@ -15,16 +15,16 @@ class CostProfitApprovalService
     protected function allowedResolveStatuses(): array
     {
         return [
-            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
+            Submission::STATUS_APPROVED_DIV_HEAD,
             Submission::STATUS_WAITING_PIC
         ];
     }
 
-    public function approveAccountingHead(Request $request, Submission $submission)
+    public function approveDivHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
+        if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
         }
 
@@ -35,20 +35,20 @@ class CostProfitApprovalService
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => 'ACCOUNTING_HEAD_APPROVE',
+                'step' => 'DIV_HEAD_APPROVE',
                 'action' => 'APPROVED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
                 'created_at' => now(),
             ]);
 
-            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
+            $submission->status = Submission::STATUS_APPROVED_DIV_HEAD;
             $submission->save();
         });
 
         return $this->query->responseFor(
             $submission,
-            'The request was successfully approved by the Accounting Head.'
+            'The request was successfully approved by the Division Head.'
         );
     }
 
@@ -87,9 +87,7 @@ class CostProfitApprovalService
     public function reject(Request $request, Submission $submission)
     {
         if (!in_array($submission->status, [
-            Submission::STATUS_REVIEW_ACC_DEPT_HEAD,
-            Submission::STATUS_APPROVED_ACC_DEPT_HEAD,
-            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
+            Submission::STATUS_REVIEW_DIV_HEAD,
         ], true))
             return response()->json([
                 'message' => 'The request cannot be rejected at this stage.'
@@ -128,9 +126,9 @@ class CostProfitApprovalService
         );
 
         $flowMap = [
-            Submission::STATUS_REVIEW_ACCOUNTING_HEAD => [
+            Submission::STATUS_REVIEW_DIV_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'ACCOUNTING_REVISION',
+                'step' => 'DIV_HEAD_REVISION',
                 'message' => 'The request has been returned to the Requester for revision.'
             ]
         ];

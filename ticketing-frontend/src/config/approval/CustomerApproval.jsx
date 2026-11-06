@@ -46,10 +46,10 @@ export const customerApproval = {
 
   getAccountingPayload(formData) {
     const payload = {
-      accountGroup: formData.accountGroup || "",
-      reconAccount: formData.reconAccount || "",
-      sortKey: formData.sortKey || "",
-      toleranceGroup: formData.toleranceGroup || "",
+      accountGroup: formData.accountGroup,
+      reconAccount: formData.reconAccount,
+      sortKey: formData.sortKey,
+      toleranceGroup: formData.toleranceGroup,
     };
     if (
       !payload.accountGroup ||
@@ -96,7 +96,7 @@ export const customerApproval = {
   getResolveInfo(formData, submission) {
     const requestType =
       submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.customerCode || "").trim();
+    const code = String(formData.customerCode).trim();
     if (requestType === "New" && !code)
       return { error: "The Customer Code is required." };
     return { code, isVendor: false, isMaterial: false };
@@ -241,9 +241,7 @@ export function createCustomerActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
         }
 
         default:
@@ -258,6 +256,7 @@ export function createCustomerActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 

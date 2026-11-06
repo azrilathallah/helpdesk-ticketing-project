@@ -10,9 +10,9 @@ export const costProfitApproval = {
 
   getRole(status) {
     switch (status) {
-      case "REVIEW_ACCOUNTING_HEAD":
-        return "accounting";
-      case "APPROVED_ACCOUNTING_HEAD":
+      case "REVIEW_DIV_HEAD":
+        return "division_head";
+      case "APPROVED_DIV_HEAD":
       case "WAITING_PIC":
         return "pic";
       default:
@@ -53,11 +53,12 @@ export function createCostProfitActions(context) {
       let response;
 
       switch (action) {
-        case "approve-accounting":
-          response = await approvalApi.approveAccountingHead(submission.id, "");
+        case "approve-divhead": {
+          response = await approvalApi.approveDivHead(submission.id, "");
           break;
+        }
 
-        case "resolve":
+        case "resolve": {
           response = await approvalApi.resolve(submission.id);
 
           showNotification({
@@ -67,9 +68,8 @@ export function createCostProfitActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
+        }
 
         default:
           return;
@@ -83,6 +83,7 @@ export function createCostProfitActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 
@@ -97,7 +98,7 @@ export function createCostProfitActions(context) {
 
     const currentStatus = submission.status;
 
-    if (currentStatus === "REVIEW_ACCOUNTING_HEAD") {
+    if (currentStatus === "REVIEW_DIV_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -108,6 +109,7 @@ export function createCostProfitActions(context) {
           >
             Reject
           </button>
+
           <button
             type="button"
             className={revisionButton}
@@ -116,10 +118,11 @@ export function createCostProfitActions(context) {
           >
             Revision
           </button>
+
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleCostProfitAction("approve-accounting")}
+            onClick={() => handleCostProfitAction("approve-divhead")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Approve"}
@@ -128,7 +131,7 @@ export function createCostProfitActions(context) {
       );
     }
 
-    if (["APPROVED_ACCOUNTING_HEAD", "WAITING_PIC"].includes(currentStatus)) {
+    if (["APPROVED_DIV_HEAD", "WAITING_PIC"].includes(currentStatus)) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button

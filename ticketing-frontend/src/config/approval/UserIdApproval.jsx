@@ -23,7 +23,7 @@ export const userIdApproval = {
   getResolveInfo(formData, submission) {
     const requestType =
       submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.userIdCode || "").trim();
+    const code = String(formData.userIdCode).trim();
     if (requestType === "New" && !code)
       return { error: "The User ID Code is required." };
     return { code, isVendor: false, isMaterial: false, isUserId: true };
@@ -96,9 +96,7 @@ export function createUserIdActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
         }
 
         default:
@@ -113,6 +111,7 @@ export function createUserIdActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 

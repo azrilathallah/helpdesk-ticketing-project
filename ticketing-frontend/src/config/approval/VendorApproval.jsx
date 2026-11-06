@@ -44,8 +44,8 @@ export const vendorApproval = {
 
   getAccountingPayload(formData) {
     const payload = {
-      accountGroup: formData.accountGroup || "",
-      reconAccount: formData.reconAccount || "",
+      accountGroup: formData.accountGroup,
+      reconAccount: formData.reconAccount,
       paymentMethod: Array.isArray(formData.paymentMethod)
         ? formData.paymentMethod
         : [],
@@ -94,7 +94,7 @@ export const vendorApproval = {
   getResolveInfo(formData, submission) {
     const requestType =
       submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.vendorCode || "").trim();
+    const code = String(formData.vendorCode).trim();
     if (requestType === "New" && !code)
       return { error: "The Vendor Code is required." };
     return { code, isVendor: true, isMaterial: false };
@@ -239,9 +239,7 @@ export function createVendorActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
         }
 
         default:
@@ -256,6 +254,7 @@ export function createVendorActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 

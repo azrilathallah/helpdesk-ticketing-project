@@ -59,13 +59,13 @@ class Submission extends Model
             ->orderBy('created_at', 'asc');
     }
 
-    public function isEditableByRequestor(): bool
-    {
-        return in_array($this->status, [
-            self::STATUS_DRAFT,
-            self::STATUS_REVISION_REQUESTOR,
-        ], true);
-    }
+    // public function isEditableByRequestor(): bool
+    // {
+    //     return in_array($this->status, [
+    //         self::STATUS_DRAFT,
+    //         self::STATUS_REVISION_REQUESTOR,
+    //     ], true);
+    // }
 
     /**
      * Status awal saat requestor submit, berdasarkan sub category form.
@@ -75,7 +75,6 @@ class Submission extends Model
     {
         return match (strtolower(trim((string) $subCategory))) {
             'gl' => self::STATUS_REVIEW_ACC_DEPT_HEAD,
-            'cost center and profit center' => self::STATUS_REVIEW_ACCOUNTING_HEAD,
             default => self::STATUS_REVIEW_DIV_HEAD,
         };
     }
@@ -83,14 +82,14 @@ class Submission extends Model
     /**
      * Step approval history untuk status awal.
      */
-    public static function initialStepFor(?string $subCategory): string
-    {
-        return match (self::initialStatusFor($subCategory)) {
-            self::STATUS_REVIEW_ACC_DEPT_HEAD => 'ACC_DEPT_HEAD_REVIEW',
-            self::STATUS_REVIEW_ACCOUNTING_HEAD => 'ACCOUNTING_HEAD_REVIEW',
-            default => 'DIV_HEAD_REVIEW',
-        };
-    }
+    // public static function initialStepFor(?string $subCategory): string
+    // {
+    //     return match (self::initialStatusFor($subCategory)) {
+    //         self::STATUS_REVIEW_ACC_DEPT_HEAD => 'ACC_DEPT_HEAD_REVIEW',
+    //         self::STATUS_REVIEW_ACCOUNTING_HEAD => 'ACCOUNTING_HEAD_REVIEW',
+    //         default => 'DIV_HEAD_REVIEW',
+    //     };
+    // }
 
     public static function activeStatuses(): array
     {

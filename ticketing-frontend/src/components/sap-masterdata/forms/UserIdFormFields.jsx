@@ -56,7 +56,7 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 export function Section({ number, title, children }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:px-4">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-semibold text-white">
           {number}
         </span>
@@ -133,23 +133,23 @@ export function NotesTable({
         <table className="w-full min-w-200 border-collapse text-left text-sm">
           <thead className="bg-slate-50 text-xs tracking-wide text-slate-600">
             <tr>
-              <th className="w-12 border-b border-slate-200 px-3 py-3 text-center">
+              <th className="w-12 border-b border-slate-200 px-3 py-2 text-center">
                 No.
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Request
                 <p className="text-[10px] text-slate-400">(Filled by User)</p>
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Activity & Role to Add
                 <p className="text-[10px] text-slate-400">
                   (Filled by Basis/Funtional)
                 </p>
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Other users with this role
               </th>
-              <th className="border-b border-slate-200 px-3 py-3">
+              <th className="border-b border-slate-200 px-3 py-2">
                 Valid From/To
               </th>
               {!disabled && (
@@ -161,15 +161,13 @@ export function NotesTable({
           <tbody className="divide-y divide-slate-100">
             {rows.map((row, index) => (
               <tr key={index} className="bg-white hover:bg-slate-50">
-                <td className="px-3 py-3 text-center text-slate-500">
-                  {index + 1}
-                </td>
+                <td className="p-3 text-center text-slate-500">{index + 1}</td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.request || ""}
+                    value={row.request}
                     onChange={(event) =>
                       updateRow(index, "request", event.target.value)
                     }
@@ -179,11 +177,11 @@ export function NotesTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.activityRole || ""}
+                    value={row.activityRole}
                     onChange={(event) =>
                       updateRow(index, "activityRole", event.target.value)
                     }
@@ -193,11 +191,11 @@ export function NotesTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.otherUsers || ""}
+                    value={row.otherUsers}
                     onChange={(event) =>
                       updateRow(index, "otherUsers", event.target.value)
                     }
@@ -207,7 +205,7 @@ export function NotesTable({
                   />
                 </td>
 
-                <td className="min-w-44 px-2 py-2">
+                <td className="min-w-44 p-2">
                   <div className="flex flex-col gap-2">
                     {/* Valid From */}
                     <div className="flex items-center gap-2">
@@ -222,7 +220,7 @@ export function NotesTable({
                         id={`valid-from-${index}`}
                         type="date"
                         className={inputClass}
-                        value={row.validFrom || ""}
+                        value={row.validFrom}
                         onChange={(event) =>
                           updateRow(index, "validFrom", event.target.value)
                         }
@@ -246,7 +244,7 @@ export function NotesTable({
                         id={`valid-to-${index}`}
                         type="date"
                         className={inputClass}
-                        value={row.validTo || ""}
+                        value={row.validTo}
                         onChange={(event) =>
                           updateRow(index, "validTo", event.target.value)
                         }
@@ -260,7 +258,7 @@ export function NotesTable({
                 </td>
 
                 {!disabled && (
-                  <td className="px-2 py-2 text-center">
+                  <td className="p-2 text-center">
                     <button
                       type="button"
                       onClick={() => removeRow(index)}
@@ -347,7 +345,7 @@ export default function UserIdFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.phone || ""}
+              value={form.phone}
               onChange={(event) => update("phone", event.target.value)}
               disabled={!editable("phone")}
             />
@@ -370,7 +368,7 @@ export default function UserIdFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.userIdCode || ""}
+              value={form.userIdCode}
               onChange={(event) => {
                 const value = event.target.value;
                 update("userIdCode", value);
@@ -386,7 +384,7 @@ export default function UserIdFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.purposeOfUse || ""}
+            value={form.purposeOfUse}
             onChange={(event) => update("purposeOfUse", event.target.value)}
             required={isCreateMode}
             disabled={!editable("purposeOfUse")}
@@ -401,7 +399,6 @@ export default function UserIdFormFields({
           groupKey="user-id_access_sap_server"
           value={form.accessSapServer}
           onChange={(value) => update("accessSapServer", value)}
-          required={isCreateMode}
           disabled={!editable("accessSapServer")}
         />
 
@@ -410,7 +407,6 @@ export default function UserIdFormFields({
           groupKey="user-id_priority"
           value={form.priority}
           onChange={(value) => update("priority", value)}
-          required={isCreateMode}
           disabled={!editable("priority")}
         />
 
@@ -418,8 +414,8 @@ export default function UserIdFormFields({
           label="Function Module"
           groupKey="user-id_funtion_module"
           value={form.funtionModule}
+          checkbox
           onChange={(value) => update("funtionModule", value)}
-          required={isCreateMode}
           disabled={!editable("funtionModule")}
         />
       </Section>
@@ -430,7 +426,6 @@ export default function UserIdFormFields({
           label="Notes"
           value={form.notes}
           onChange={(value) => update("notes", value)}
-          required={isCreateMode}
           disabled={!editable("notes")}
         />
       </Section>

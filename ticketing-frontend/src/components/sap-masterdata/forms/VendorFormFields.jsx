@@ -82,7 +82,7 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 export function Section({ number, title, children }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:px-4">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-semibold text-white">
           {number}
         </span>
@@ -178,7 +178,7 @@ export function PaymentTransactionsTable({
                 Swift Code
               </th>
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 px-2 py-2" />
+                <th className="w-14 border-b border-slate-200 px-3 py-2" />
               )}
             </tr>
           </thead>
@@ -186,15 +186,13 @@ export function PaymentTransactionsTable({
           <tbody className="divide-y divide-slate-100">
             {rows.map((row, index) => (
               <tr key={index} className="bg-white hover:bg-slate-50">
-                <td className="px-3 py-3 text-center text-slate-500">
-                  {index + 1}
-                </td>
+                <td className="p-3 text-center text-slate-500">{index + 1}</td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.bankName || ""}
+                    value={row.bankName}
                     onChange={(event) =>
                       updateRow(index, "bankName", event.target.value)
                     }
@@ -204,11 +202,11 @@ export function PaymentTransactionsTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="number"
                     className={inputClass}
-                    value={row.bankAccountNumber || ""}
+                    value={row.bankAccountNumber}
                     onChange={(event) =>
                       updateRow(index, "bankAccountNumber", event.target.value)
                     }
@@ -218,11 +216,11 @@ export function PaymentTransactionsTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.benificiary || ""}
+                    value={row.benificiary}
                     onChange={(event) =>
                       updateRow(index, "benificiary", event.target.value)
                     }
@@ -232,7 +230,7 @@ export function PaymentTransactionsTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <select
                     className={inputClass}
                     value={row.bankCurrency || "IDR"}
@@ -248,11 +246,11 @@ export function PaymentTransactionsTable({
                   </select>
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.swiftCode || ""}
+                    value={row.swiftCode}
                     onChange={(event) =>
                       updateRow(index, "swiftCode", event.target.value)
                     }
@@ -262,7 +260,7 @@ export function PaymentTransactionsTable({
                 </td>
 
                 {!disabled && (
-                  <td className="px-2 py-2 text-center">
+                  <td className="p-2 text-center">
                     <button
                       type="button"
                       onClick={() => removeRow(index)}
@@ -357,7 +355,7 @@ export default function VendorFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.vendorCode || ""}
+              value={form.vendorCode}
               onChange={(event) => {
                 const value = event.target.value;
                 update("vendorCode", value);
@@ -376,7 +374,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.name || ""}
+            value={form.name}
             onChange={(event) => update("name", event.target.value)}
             required={isCreateMode}
             disabled={!editable("name")}
@@ -387,7 +385,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.searchTerm || ""}
+            value={form.searchTerm}
             onChange={(event) => update("searchTerm", event.target.value)}
             disabled={!editable("searchTerm")}
           />
@@ -400,7 +398,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.streetAddress || ""}
+            value={form.streetAddress}
             onChange={(event) => update("streetAddress", event.target.value)}
             required={isCreateMode}
             disabled={!editable("streetAddress")}
@@ -411,7 +409,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.city || ""}
+            value={form.city}
             onChange={(event) => update("city", event.target.value)}
             required={isCreateMode}
             disabled={!editable("city")}
@@ -422,7 +420,7 @@ export default function VendorFormFields({
           <input
             type="number"
             className={inputClass}
-            value={form.postalCode || ""}
+            value={form.postalCode}
             onChange={(event) => update("postalCode", event.target.value)}
             required={isCreateMode}
             disabled={!editable("postalCode")}
@@ -433,7 +431,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.country || ""}
+            value={form.country}
             onChange={(event) => update("country", event.target.value)}
             required={isCreateMode}
             disabled={!editable("country")}
@@ -444,7 +442,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.telephone || ""}
+            value={form.telephone}
             onChange={(event) => update("telephone", event.target.value)}
             disabled={!editable("telephone")}
           />
@@ -454,7 +452,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.fax || ""}
+            value={form.fax}
             onChange={(event) => update("fax", event.target.value)}
             disabled={!editable("fax")}
           />
@@ -464,7 +462,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.contactPerson || ""}
+            value={form.contactPerson}
             onChange={(event) => update("contactPerson", event.target.value)}
             disabled={!editable("contactPerson")}
           />
@@ -474,7 +472,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.npwp || ""}
+            value={form.npwp}
             onChange={(event) => update("npwp", event.target.value)}
             disabled={!editable("npwp")}
           />
@@ -484,7 +482,7 @@ export default function VendorFormFields({
           <input
             type="email"
             className={inputClass}
-            value={form.email || ""}
+            value={form.email}
             onChange={(event) => update("email", event.target.value)}
             required={isCreateMode}
             disabled={!editable("email")}
@@ -495,7 +493,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.businessType || ""}
+            value={form.businessType}
             onChange={(event) => update("businessType", event.target.value)}
             disabled={!editable("businessType")}
           />
@@ -558,15 +556,6 @@ export default function VendorFormFields({
         />
 
         <ChoiceGroup
-          label="Purchase Organization"
-          groupKey="vendor_purchase_organization"
-          value={form.purchaseOrganization}
-          onChange={(value) => update("purchaseOrganization", value)}
-          required={isCreateMode}
-          disabled={!editable("purchaseOrganization")}
-        />
-
-        <ChoiceGroup
           label="Due Date Payment"
           groupKey="vendor_due_date_payment"
           value={form.dueDatePayment}
@@ -591,7 +580,7 @@ export default function VendorFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.salesperson || ""}
+            value={form.salesperson}
             onChange={(event) => update("salesperson", event.target.value)}
             disabled={!editable("salesperson")}
           />

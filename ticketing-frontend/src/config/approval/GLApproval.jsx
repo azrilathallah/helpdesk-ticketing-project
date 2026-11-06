@@ -57,19 +57,22 @@ export function createGLActions(context) {
       let response;
 
       switch (action) {
-        case "approve-acc-depthead":
+        case "approve-acc-depthead": {
           response = await approvalApi.approveAccDeptHead(submission.id, "");
           break;
+        }
 
-        case "approve-accounting":
+        case "approve-accounting": {
           response = await approvalApi.approveAccountingHead(submission.id, "");
           break;
+        }
 
-        case "approve-divhead":
+        case "approve-divhead": {
           response = await approvalApi.approveDivHead(submission.id, "");
           break;
+        }
 
-        case "resolve":
+        case "resolve": {
           response = await approvalApi.resolve(submission.id);
 
           showNotification({
@@ -79,9 +82,8 @@ export function createGLActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
+        }
 
         default:
           return;
@@ -95,6 +97,7 @@ export function createGLActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 
@@ -120,6 +123,7 @@ export function createGLActions(context) {
           >
             Reject
           </button>
+
           <button
             type="button"
             className={revisionButton}
@@ -128,6 +132,7 @@ export function createGLActions(context) {
           >
             Revision
           </button>
+
           <button
             type="button"
             className={primaryButton}
@@ -151,6 +156,7 @@ export function createGLActions(context) {
           >
             Reject
           </button>
+
           <button
             type="button"
             className={primaryButton}
@@ -174,6 +180,7 @@ export function createGLActions(context) {
           >
             Reject
           </button>
+          
           <button
             type="button"
             className={primaryButton}

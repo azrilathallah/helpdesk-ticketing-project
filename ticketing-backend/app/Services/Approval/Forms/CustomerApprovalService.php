@@ -34,7 +34,10 @@ class CustomerApprovalService
 
     protected function allowedResolveStatuses(): array
     {
-        return [Submission::STATUS_APPROVED_TAX_HEAD];
+        return [
+            Submission::STATUS_APPROVED_TAX_HEAD,
+            Submission::STATUS_WAITING_PIC
+        ];
     }
 
     protected function accountingError(Submission $submission): ?string
@@ -129,7 +132,7 @@ class CustomerApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Accounting Head'
             ], 422);
         }
 
@@ -226,7 +229,7 @@ class CustomerApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_TAX_HEAD)
             return response()->json([
-                'message' => 'The request is not in the "Review by Tax Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Tax Head'
             ], 422);
 
         $hasFill = $submission->approvals()

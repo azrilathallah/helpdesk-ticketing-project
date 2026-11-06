@@ -59,7 +59,7 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 export function Section({ number, title, children }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:px-4">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-semibold text-white">
           {number}
         </span>
@@ -143,7 +143,7 @@ export default function MaterialFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.materialCode || ""}
+              value={form.materialCode}
               onChange={(event) => {
                 const value = event.target.value;
                 update("materialCode", value);
@@ -216,7 +216,7 @@ export default function MaterialFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.storageLocation || ""}
+            value={form.storageLocation}
             onChange={(event) => update("storageLocation", event.target.value)}
             required={isCreateMode}
             disabled={!editable("storageLocation")}
@@ -227,7 +227,7 @@ export default function MaterialFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.kodeSPMS || ""}
+            value={form.kodeSPMS}
             onChange={(event) => update("kodeSPMS", event.target.value)}
             required={isCreateMode && isYOMV}
             disabled={!editable("kodeSPMS")}
@@ -241,7 +241,7 @@ export default function MaterialFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.description || ""}
+            value={form.description}
             onChange={(event) => update("description", event.target.value)}
             required={isCreateMode}
             disabled={!editable("description")}
@@ -252,7 +252,7 @@ export default function MaterialFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.baseUnitofMeasure || ""}
+            value={form.baseUnitofMeasure}
             onChange={(event) =>
               update("baseUnitofMeasure", event.target.value)
             }
@@ -324,7 +324,7 @@ export default function MaterialFormFields({
               <input
                 type="text"
                 className={inputClass}
-                value={form.reconAccount || ""}
+                value={form.reconAccount}
                 onChange={(event) => update("reconAccount", event.target.value)}
                 required
               />
@@ -343,7 +343,7 @@ export default function MaterialFormFields({
               <input
                 type="text"
                 className={inputClass}
-                value={form.glAccount || ""}
+                value={form.glAccount}
                 onChange={(event) => update("glAccount", event.target.value)}
                 required
               />

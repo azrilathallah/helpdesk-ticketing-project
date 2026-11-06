@@ -62,7 +62,8 @@ class MaterialApprovalService
     {
         return [
             Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
-            Submission::STATUS_APPROVED_DIV_HEAD
+            Submission::STATUS_APPROVED_DIV_HEAD,
+            Submission::STATUS_WAITING_PIC
         ];
     }
 
@@ -178,7 +179,7 @@ class MaterialApprovalService
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACCOUNTING_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Accounting Head'
             ], 422);
         }
 

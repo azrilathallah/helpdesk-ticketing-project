@@ -9,7 +9,7 @@ export const materialApproval = {
   getDefaultForm: () => DEFAULT_MATERIAL_FORM,
 
   getMaterialType(submission) {
-    return String(submission?.form_data?.materialType || "")
+    return String(submission?.form_data?.materialType)
       .trim()
       .toUpperCase();
   },
@@ -38,21 +38,21 @@ export const materialApproval = {
         ["FILLED", "REFILLED"].includes(item.action),
     );
     if (materialType === "YPRO")
-      return Boolean(String(data.glAccount || "").trim()) && hasHistory;
+      return Boolean(String(data.glAccount).trim()) && hasHistory;
     if (materialType === "ZCOM")
-      return Boolean(String(data.reconAccount || "").trim()) && hasHistory;
+      return Boolean(String(data.reconAccount).trim()) && hasHistory;
     return false;
   },
 
   getAccountingPayload(formData, materialType) {
     if (materialType === "YPRO") {
-      const glAccount = String(formData.glAccount || "").trim();
+      const glAccount = String(formData.glAccount).trim();
       return glAccount
         ? { payload: { glAccount } }
         : { error: "The GL Account field is required." };
     }
     if (materialType === "ZCOM") {
-      const reconAccount = String(formData.reconAccount || "").trim();
+      const reconAccount = String(formData.reconAccount).trim();
       return reconAccount
         ? { payload: { reconAccount } }
         : { error: "The Recon Account field is required." };
@@ -66,7 +66,7 @@ export const materialApproval = {
   getResolveInfo(formData, submission) {
     const requestType =
       submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.materialCode || "").trim();
+    const code = String(formData.materialCode).trim();
     if (requestType === "New" && !code)
       return { error: "The Material Code is required." };
     return { code, isVendor: false, isMaterial: true };
@@ -177,9 +177,7 @@ export function createMaterialActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          navigate("/approval");
-          return;
+          break;
         }
 
         default:
@@ -194,6 +192,7 @@ export function createMaterialActions(context) {
       });
 
       await loadDetail();
+      navigate("/approval");
     } catch (err) {
       console.error(err);
 

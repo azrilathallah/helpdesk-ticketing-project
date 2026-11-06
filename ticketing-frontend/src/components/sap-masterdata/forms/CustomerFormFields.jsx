@@ -80,7 +80,7 @@ function isEditable({ mode, readOnly, approvalRole, field }) {
 export function Section({ number, title, children }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:px-4">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-semibold text-white">
           {number}
         </span>
@@ -160,7 +160,7 @@ export default function CustomerFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.customerCode || ""}
+              value={form.customerCode}
               onChange={(event) => {
                 const value = event.target.value;
                 update("customerCode", value);
@@ -185,7 +185,7 @@ export default function CustomerFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.telephone1 || ""}
+              value={form.telephone1}
               onChange={(event) => update("telephone1", event.target.value)}
               disabled={!editable("telephone1")}
             />
@@ -248,7 +248,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.title || ""}
+            value={form.title}
             onChange={(event) => update("title", event.target.value)}
             required={isCreateMode}
             disabled={!editable("title")}
@@ -259,7 +259,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.customerName || ""}
+            value={form.customerName}
             onChange={(event) => update("customerName", event.target.value)}
             required={isCreateMode}
             disabled={!editable("customerName")}
@@ -270,7 +270,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.searchTerm || ""}
+            value={form.searchTerm}
             onChange={(event) => update("searchTerm", event.target.value)}
             disabled={!editable("searchTerm")}
           />
@@ -283,7 +283,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.invoiceStreet || ""}
+            value={form.invoiceStreet}
             onChange={(event) => update("invoiceStreet", event.target.value)}
             required={isCreateMode}
             disabled={!editable("invoiceStreet")}
@@ -294,7 +294,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.taxStreet || ""}
+            value={form.taxStreet}
             onChange={(event) => update("taxStreet", event.target.value)}
             required={isCreateMode}
             disabled={!editable("taxStreet")}
@@ -306,7 +306,7 @@ export default function CustomerFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.city || ""}
+              value={form.city}
               onChange={(event) => update("city", event.target.value)}
               required={isCreateMode}
               disabled={!editable("city")}
@@ -317,7 +317,7 @@ export default function CustomerFormFields({
             <input
               type="number"
               className={inputClass}
-              value={form.postalCode || ""}
+              value={form.postalCode}
               onChange={(event) => update("postalCode", event.target.value)}
               required={isCreateMode}
               disabled={!editable("postalCode")}
@@ -329,7 +329,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.country || ""}
+            value={form.country}
             onChange={(event) => update("country", event.target.value)}
             required={isCreateMode}
             disabled={!editable("country")}
@@ -340,7 +340,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.region || ""}
+            value={form.region}
             onChange={(event) => update("region", event.target.value)}
             disabled={!editable("region")}
           />
@@ -350,7 +350,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.telephone2 || ""}
+            value={form.telephone2}
             onChange={(event) => update("telephone2", event.target.value)}
             disabled={!editable("telephone2")}
           />
@@ -360,7 +360,7 @@ export default function CustomerFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.fax || ""}
+            value={form.fax}
             onChange={(event) => update("fax", event.target.value)}
             disabled={!editable("fax")}
           />
@@ -371,7 +371,7 @@ export default function CustomerFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.npwp || ""}
+              value={form.npwp}
               onChange={(event) => update("npwp", event.target.value)}
               required={isCreateMode}
               disabled={!editable("npwp")}
@@ -385,7 +385,7 @@ export default function CustomerFormFields({
             <input
               type="date"
               className={inputClass}
-              value={form.npwpregisteredDate || ""}
+              value={form.npwpregisteredDate}
               onChange={(event) =>
                 update("npwpregisteredDate", event.target.value)
               }
@@ -412,7 +412,7 @@ export default function CustomerFormFields({
             <input
               type="text"
               className={inputClass}
-              value={form.reconAccount || ""}
+              value={form.reconAccount}
               onChange={(event) => update("reconAccount", event.target.value)}
               required
             />

@@ -223,7 +223,7 @@ class SubmissionController extends Controller
             if ($isSubmitted) {
                 SubmissionApproval::create([
                     'submission_id' => $submission->id,
-                    'step' => Submission::initialStepFor($submission->sub_category),
+                    'step' => 'REQUESTOR_SUBMITTED',
                     'action' => 'SUBMITTED',
                     'acted_by' => $request->user()->id,
                     'notes' => null,
@@ -335,7 +335,7 @@ class SubmissionController extends Controller
                 'submission_id' => $submission->id,
                 'step' => $wasRevision
                     ? 'REQUESTOR_RESUBMITTED'
-                    : Submission::initialStepFor($submission->sub_category),
+                    : 'REQUESTOR_SUBMITTED',
                 'action' => $wasRevision
                     ? 'RESUBMITTED'
                     : 'SUBMITTED',
@@ -587,7 +587,7 @@ class SubmissionController extends Controller
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => $submission->status,
+                'step' => 'REQUESTOR_CANCEL',
                 'action' => 'CANCELLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes') ?: 'The request was canceled by the requester.',

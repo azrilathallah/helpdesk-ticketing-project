@@ -369,17 +369,17 @@ function ApprovalDetailPage({ id }) {
   }, [id]);
 
   const isCustomerSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "customer";
+    String(submission?.sub_category).toLowerCase() === "customer";
   const isVendorSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "vendor";
+    String(submission?.sub_category).toLowerCase() === "vendor";
   const isMaterialSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "material";
+    String(submission?.sub_category).toLowerCase() === "material";
   const isGLSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "gl";
+    String(submission?.sub_category).toLowerCase() === "gl";
   const isUserIdSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "user id";
+    String(submission?.sub_category).toLowerCase() === "user id";
   const isCostProfitSubmission =
-    String(submission?.sub_category || "").toLowerCase() === "cost center and profit center";
+    String(submission?.sub_category).toLowerCase() === "cost center and profit center";
 
   const formLogic = getApprovalFormLogic(submission);
   const materialType = formLogic?.getMaterialType

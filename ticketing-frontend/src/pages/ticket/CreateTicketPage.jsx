@@ -255,7 +255,6 @@ export default function CreateTicketPage() {
           return;
         }
 
-        console.log("Form belum dibuat:", selection.subCategory);
         return;
       }
 
@@ -507,7 +506,7 @@ export default function CreateTicketPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full">
       <section className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <header className="border-b border-slate-200 px-6 py-4">
           <h1 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">

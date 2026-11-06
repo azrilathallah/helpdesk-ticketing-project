@@ -14,14 +14,17 @@ class GLApprovalService
 
     protected function allowedResolveStatuses(): array
     {
-        return [Submission::STATUS_APPROVED_DIV_HEAD];
+        return [
+            Submission::STATUS_APPROVED_DIV_HEAD,
+            Submission::STATUS_WAITING_PIC
+        ];
     }
 
     public function approveAccDeptHead(Request $request, Submission $submission)
     {
         if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Department Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Accounting Department Head'
             ], 422);
         }
 
@@ -53,7 +56,7 @@ class GLApprovalService
     {
         if ($submission->status !== Submission::STATUS_APPROVED_ACC_DEPT_HEAD) {
             return response()->json([
-                'message' => 'The request is not in the "Review by Accounting Head" status.'
+                'message' => 'The request is not in the correct status to be approved by the Accounting Head'
             ], 422);
         }
 

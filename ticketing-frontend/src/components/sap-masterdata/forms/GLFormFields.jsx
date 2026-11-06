@@ -63,7 +63,7 @@ function isEditable({ mode, readOnly }) {
 export function Section({ number, title, children }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-3 sm:px-4">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 p-3 sm:px-4">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-600 text-xs font-semibold text-white">
           {number}
         </span>
@@ -151,7 +151,7 @@ export function GLAccountTable({
               </th>
               <th className="border-b border-slate-200 px-3 py-2">Long Text</th>
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 px-2 py-2" />
+                <th className="w-14 border-b border-slate-200 px-3 py-2" />
               )}
             </tr>
           </thead>
@@ -159,15 +159,13 @@ export function GLAccountTable({
           <tbody className="divide-y divide-slate-100">
             {rows.map((row, index) => (
               <tr key={index} className="bg-white hover:bg-slate-50">
-                <td className="px-3 py-3 text-center text-slate-500">
-                  {index + 1}
-                </td>
+                <td className="p-3 text-center text-slate-500">{index + 1}</td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.gl || ""}
+                    value={row.gl}
                     onChange={(event) =>
                       updateRow(index, "gl", event.target.value)
                     }
@@ -177,11 +175,11 @@ export function GLAccountTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.shortText || ""}
+                    value={row.shortText}
                     onChange={(event) =>
                       updateRow(index, "shortText", event.target.value)
                     }
@@ -191,11 +189,11 @@ export function GLAccountTable({
                   />
                 </td>
 
-                <td className="px-2 py-2">
+                <td className="p-2">
                   <input
                     type="text"
                     className={inputClass}
-                    value={row.longText || ""}
+                    value={row.longText}
                     onChange={(event) =>
                       updateRow(index, "longText", event.target.value)
                     }
@@ -206,7 +204,7 @@ export function GLAccountTable({
                 </td>
 
                 {!disabled && (
-                  <td className="px-2 py-2 text-center">
+                  <td className="p-2 text-center">
                     <button
                       type="button"
                       onClick={() => removeRow(index)}
@@ -298,7 +296,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.purposeOfUse || ""}
+            value={form.purposeOfUse}
             onChange={(event) => update("purposeOfUse", event.target.value)}
             required={isCreateMode}
             disabled={!editable("purposeOfUse")}
@@ -329,7 +327,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.accountCurrency || ""}
+            value={form.accountCurrency}
             onChange={(event) => update("accountCurrency", event.target.value)}
             disabled={!editable("accountCurrency")}
           />
@@ -387,7 +385,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.sortKey || ""}
+            value={form.sortKey}
             onChange={(event) => update("sortKey", event.target.value)}
             disabled={!editable("sortKey")}
           />
@@ -397,7 +395,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.fieldStatusGroup || ""}
+            value={form.fieldStatusGroup}
             onChange={(event) => update("fieldStatusGroup", event.target.value)}
             disabled={!editable("fieldStatusGroup")}
           />
@@ -418,7 +416,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.bankCountry || ""}
+            value={form.bankCountry}
             onChange={(event) => update("bankCountry", event.target.value)}
             disabled={!editable("bankCountry")}
           />
@@ -428,7 +426,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.bankKey || ""}
+            value={form.bankKey}
             onChange={(event) => update("bankKey", event.target.value)}
             disabled={!editable("bankKey")}
           />
@@ -438,7 +436,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.bankName || ""}
+            value={form.bankName}
             onChange={(event) => update("bankName", event.target.value)}
             disabled={!editable("bankName")}
           />
@@ -448,7 +446,7 @@ export default function GLFormFields({
           <input
             type="number"
             className={inputClass}
-            value={form.bankAccountNumber || ""}
+            value={form.bankAccountNumber}
             onChange={(event) =>
               update("bankAccountNumber", event.target.value)
             }
@@ -460,7 +458,7 @@ export default function GLFormFields({
           <input
             type="text"
             className={inputClass}
-            value={form.currency || ""}
+            value={form.currency}
             onChange={(event) => update("currency", event.target.value)}
             disabled={!editable("currency")}
           />

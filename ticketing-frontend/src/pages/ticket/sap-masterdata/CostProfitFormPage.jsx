@@ -45,7 +45,7 @@ export default function CostProfitFormPage() {
         setRevisionNotes(
           (submission?.approval_history || []).filter(
             (item) =>
-              item.step === "ACCOUNTING_REVISION" &&
+              item.step === "DIV_HEAD_REVISION" &&
               item.action === "REVISION_REQUESTED" &&
               item.notes?.trim(),
           ),
@@ -148,7 +148,7 @@ export default function CostProfitFormPage() {
 
       const saved = response.data?.data;
 
-      if (saved?.status === "REVIEW_ACCOUNTING_HEAD") {
+      if (saved?.status === "REVIEW_DIV_HEAD") {
         showNotification({
           icon: "success",
           title: submissionId ? "Resubmitted" : "Submitted",

@@ -77,7 +77,7 @@ class AuthController extends Controller
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
-                'message' => 'Login berhasil',
+                'message' => 'Login successful',
                 'user'    => [
                     'id'         => $user->id,
                     'name'       => $user->name,
@@ -93,14 +93,14 @@ class AuthController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'message' => 'Email atau password salah.',
+            'message' => 'Invalid email or password.',
         ]);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logout berhasil']);
+        return response()->json(['message' => 'Logout successful']);
     }
 
     public function me(Request $request)
