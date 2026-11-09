@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
 import AttachmentField from "../AttachmentField";
+import { Field } from "../FormField";
 
 export const DEFAULT_COSTPROFIT_FORM = {
   cost: [
@@ -114,8 +115,8 @@ export function CostCenterTable({
 
   return (
     <div className="w-full min-w-0 sm:col-span-2">
-      <div className="mb-2.5 flex flex-wrap items-center justify-end">
-        {!disabled && (
+      {!disabled && (
+        <div className="mb-3 flex flex-wrap items-center justify-end">
           <button
             type="button"
             onClick={addRow}
@@ -124,189 +125,160 @@ export function CostCenterTable({
             <span className="text-xs leading-none">+</span>
             Add Cost Center
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="w-full overflow-x-auto rounded-lg border border-slate-200">
-        <table className="w-full min-w-200 border-collapse text-left text-sm">
-          <thead className="bg-slate-50 text-xs tracking-wide text-slate-600">
-            <tr>
-              <th className="w-12 border-b border-slate-200 px-3 py-2 text-center">
-                No.
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Cost Center
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Short Text
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">Long Text</th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Person Responsible
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Cost Center Category
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Hierarchy Area Cost Center
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Company Code
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Business Area
-              </th>
+      <div className="flex flex-col gap-4">
+        {rows.map((row, index) => (
+          <div
+            key={index}
+            className="overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2">
+              <span className="text-xs font-semibold text-slate-700">
+                #{index + 1}
+              </span>
+
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 p-2" />
+                <button
+                  type="button"
+                  onClick={() => removeRow(index)}
+                  disabled={rows.length === 1}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+                  title={
+                    rows.length === 1 ? "At least one Cost Center" : "Delete"
+                  }
+                  aria-label={`Delete Cost Center ${index + 1}`}
+                >
+                  <Trash2 size={15} strokeWidth={2} />
+                </button>
               )}
-            </tr>
-          </thead>
+            </div>
 
-          <tbody className="divide-y divide-slate-100">
-            {rows.map((row, index) => (
-              <tr key={index} className="bg-white hover:bg-slate-50">
-                <td className="p-3 text-center text-slate-500">{index + 1}</td>
+            <div className="flex flex-col gap-3 p-3 sm:p-4">
+              <Field label="Cost Center" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.costCenter || ""}
+                  onChange={(event) =>
+                    updateRow(index, "costCenter", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Cost Center ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.costCenter}
-                    onChange={(event) =>
-                      updateRow(index, "costCenter", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Cost Center ${index + 1}`}
-                  />
-                </td>
+              <Field label="Short Text" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.shortTextCost ?? row.shortText ?? ""}
+                  onChange={(event) =>
+                    updateRow(index, "shortTextCost", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Short Text ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.shortText}
-                    onChange={(event) =>
-                      updateRow(index, "shortText", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Short Text ${index + 1}`}
-                  />
-                </td>
+              <Field label="Long Text" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.longTextCost ?? row.longText ?? ""}
+                  onChange={(event) =>
+                    updateRow(index, "longTextCost", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Long Text ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.longText}
-                    onChange={(event) =>
-                      updateRow(index, "longText", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Long Text ${index + 1}`}
-                  />
-                </td>
+              <Field label="Person Responsible">
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.personResponsibleCost || ""}
+                  onChange={(event) =>
+                    updateRow(
+                      index,
+                      "personResponsibleCost",
+                      event.target.value,
+                    )
+                  }
+                  disabled={disabled}
+                  aria-label={`Person Responsible ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.personResponsibleCost}
-                    onChange={(event) =>
-                      updateRow(
-                        index,
-                        "personResponsibleCost",
-                        event.target.value,
-                      )
-                    }
-                    disabled={disabled}
-                    aria-label={`Person Responsible ${index + 1}`}
-                  />
-                </td>
+              <Field label="Cost Center Category">
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.costCenterCategory || ""}
+                  onChange={(event) =>
+                    updateRow(index, "costCenterCategory", event.target.value)
+                  }
+                  disabled={disabled}
+                  aria-label={`Cost Center Category ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.costCenterCategory}
-                    onChange={(event) =>
-                      updateRow(index, "costCenterCategory", event.target.value)
-                    }
-                    disabled={disabled}
-                    aria-label={`Cost Center Category ${index + 1}`}
-                  />
-                </td>
+              <Field
+                label="Hierarchy Area Cost Center"
+                required={required && !disabled}
+              >
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.hierarchyAreaCostCenter || ""}
+                  onChange={(event) =>
+                    updateRow(
+                      index,
+                      "hierarchyAreaCostCenter",
+                      event.target.value,
+                    )
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Hierarchy Area Cost Center ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.hierarchyAreaCostCenter}
-                    onChange={(event) =>
-                      updateRow(
-                        index,
-                        "hierarchyAreaCostCenter",
-                        event.target.value,
-                      )
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Hierarchy Area Cost Center ${index + 1}`}
-                  />
-                </td>
+              <Field label="Company Code" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.companyCode || ""}
+                  onChange={(event) =>
+                    updateRow(index, "companyCode", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Company Code ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.companyCode}
-                    onChange={(event) =>
-                      updateRow(index, "companyCode", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Compnay Code ${index + 1}`}
-                  />
-                </td>
-
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.businessArea}
-                    onChange={(event) =>
-                      updateRow(index, "businessArea", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Business Area ${index + 1}`}
-                  />
-                </td>
-
-                {!disabled && (
-                  <td className="p-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => removeRow(index)}
-                      disabled={rows.length === 1}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
-                      title={
-                        rows.length === 1
-                          ? "At least one Cost Center"
-                          : "Delete"
-                      }
-                      aria-label={`Delete ${index + 1}`}
-                    >
-                      <Trash2 size={17} strokeWidth={2} />
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              <Field label="Business Area" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.businessArea || ""}
+                  onChange={(event) =>
+                    updateRow(index, "businessArea", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Business Area ${index + 1}`}
+                />
+              </Field>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -341,8 +313,8 @@ export function ProfitCenterTable({
 
   return (
     <div className="w-full min-w-0 sm:col-span-2">
-      <div className="mb-2.5 flex flex-wrap items-center justify-end">
-        {!disabled && (
+      {!disabled && (
+        <div className="mb-3 flex flex-wrap items-center justify-end">
           <button
             type="button"
             onClick={addRow}
@@ -351,139 +323,123 @@ export function ProfitCenterTable({
             <span className="text-xs leading-none">+</span>
             Add Profit Center
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="w-full overflow-x-auto rounded-lg border border-slate-200">
-        <table className="w-full min-w-200 border-collapse text-left text-sm">
-          <thead className="bg-slate-50 text-xs tracking-wide text-slate-600">
-            <tr>
-              <th className="w-12 border-b border-slate-200 px-3 py-2 text-center">
-                No.
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Profit Center
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Short Text
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">Long Text</th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Person Responsible
-              </th>
-              <th className="border-b border-slate-200 px-3 py-2">
-                Hierarchy Area Profit Center
-              </th>
+      <div className="flex flex-col gap-4">
+        {rows.map((row, index) => (
+          <div
+            key={index}
+            className="overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2">
+              <span className="text-xs font-semibold text-slate-700">
+                #{index + 1}
+              </span>
+
               {!disabled && (
-                <th className="w-14 border-b border-slate-200 p-2" />
+                <button
+                  type="button"
+                  onClick={() => removeRow(index)}
+                  disabled={rows.length === 1}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+                  title={
+                    rows.length === 1 ? "At least one Profit Center" : "Delete"
+                  }
+                  aria-label={`Delete Profit Center ${index + 1}`}
+                >
+                  <Trash2 size={15} strokeWidth={2} />
+                </button>
               )}
-            </tr>
-          </thead>
+            </div>
 
-          <tbody className="divide-y divide-slate-100">
-            {rows.map((row, index) => (
-              <tr key={index} className="bg-white hover:bg-slate-50">
-                <td className="p-3 text-center text-slate-500">{index + 1}</td>
+            <div className="flex flex-col gap-3 p-3 sm:p-4">
+              <Field label="Profit Center" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.profitCenter || ""}
+                  onChange={(event) =>
+                    updateRow(index, "profitCenter", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Profit Center ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.profitCenter}
-                    onChange={(event) =>
-                      updateRow(index, "profitCenter", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Profit Center ${index + 1}`}
-                  />
-                </td>
+              <Field label="Short Text" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.shortTextProfit ?? row.shortText ?? ""}
+                  onChange={(event) =>
+                    updateRow(index, "shortTextProfit", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Short Text ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.shortText}
-                    onChange={(event) =>
-                      updateRow(index, "shortText", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Short Text ${index + 1}`}
-                  />
-                </td>
+              <Field label="Long Text" required={required && !disabled}>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.longTextProfit ?? row.longText ?? ""}
+                  onChange={(event) =>
+                    updateRow(index, "longTextProfit", event.target.value)
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Long Text ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.longText}
-                    onChange={(event) =>
-                      updateRow(index, "longText", event.target.value)
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Long Text ${index + 1}`}
-                  />
-                </td>
+              <Field label="Person Responsible">
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={row.personResponsibleProfit || ""}
+                  onChange={(event) =>
+                    updateRow(
+                      index,
+                      "personResponsibleProfit",
+                      event.target.value,
+                    )
+                  }
+                  disabled={disabled}
+                  aria-label={`Person Responsible ${index + 1}`}
+                />
+              </Field>
 
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.personResponsibleProfit}
-                    onChange={(event) =>
-                      updateRow(
-                        index,
-                        "personResponsibleProfit",
-                        event.target.value,
-                      )
-                    }
-                    disabled={disabled}
-                    aria-label={`Person Responsible ${index + 1}`}
-                  />
-                </td>
-
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className={inputClass}
-                    value={row.hierarchyAreaCostCenter}
-                    onChange={(event) =>
-                      updateRow(
-                        index,
-                        "hierarchyAreaCostCenter",
-                        event.target.value,
-                      )
-                    }
-                    required={required && !disabled}
-                    disabled={disabled}
-                    aria-label={`Hierarchy Area Cost Center ${index + 1}`}
-                  />
-                </td>
-
-                {!disabled && (
-                  <td className="p-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => removeRow(index)}
-                      disabled={rows.length === 1}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
-                      title={
-                        rows.length === 1
-                          ? "At least one Cost Center"
-                          : "Delete"
-                      }
-                      aria-label={`Delete ${index + 1}`}
-                    >
-                      <Trash2 size={17} strokeWidth={2} />
-                    </button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              <Field
+                label="Hierarchy Area Profit Center"
+                required={required && !disabled}
+              >
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={
+                    row.hierarchyAreaProfitCenter ??
+                    row.hierarchyAreaCostCenter ??
+                    ""
+                  }
+                  onChange={(event) =>
+                    updateRow(
+                      index,
+                      "hierarchyAreaProfitCenter",
+                      event.target.value,
+                    )
+                  }
+                  required={required && !disabled}
+                  disabled={disabled}
+                  aria-label={`Hierarchy Area Profit Center ${index + 1}`}
+                />
+              </Field>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
