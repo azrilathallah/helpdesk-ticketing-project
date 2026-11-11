@@ -178,39 +178,6 @@ export default function ChangeRequestFormPage() {
         </header>
 
         <div className="p-4 sm:p-6">
-          {revisionNotes.length > 0 && (
-            <section className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 sm:px-4">
-              <h2 className="text-sm font-semibold text-orange-800">
-                Revision Notes
-              </h2>
-
-              <div className="mt-1 space-y-3">
-                {revisionNotes.map((item, index) => (
-                  <div key={`${item.id ?? item.step}-${index}`}>
-                    <div className="rounded-sm border border-orange-300 bg-white p-2">
-                      <p className="whitespace-pre-wrap wrap-break-word text-xs text-slate-700">
-                        {item.notes}
-                      </p>
-                    </div>
-                    <div className="mt-2 flex flex-wrap items-center justify-between gap-1 px-1">
-                      {item.actor?.name && (
-                        <p className="text-xs text-slate-500">
-                          By: {item.actor.name}
-                        </p>
-                      )}
-
-                      {item.created_at && (
-                        <p className="text-xs text-slate-500">
-                          {new Date(item.created_at).toLocaleString("id-ID")}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
             <ChangeRequestFormSections
               crData={crData}
@@ -246,4 +213,3 @@ export default function ChangeRequestFormPage() {
     </main>
   );
 }
-

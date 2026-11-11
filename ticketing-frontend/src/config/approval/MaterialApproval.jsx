@@ -34,7 +34,7 @@ export const materialApproval = {
     const history = submission?.approval_history || [];
     const hasHistory = history.some(
       (item) =>
-        ["ACCOUNTING_FILL", "ACCOUNTING_REFILLED"].includes(item.step) &&
+        ["ACCOUNTING_FILL", "ACCOUNTING_REFILL"].includes(item.step) &&
         ["FILLED", "REFILLED"].includes(item.action),
     );
     if (materialType === "YPRO")
