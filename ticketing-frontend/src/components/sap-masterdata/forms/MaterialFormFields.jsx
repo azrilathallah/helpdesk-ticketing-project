@@ -67,7 +67,7 @@ export function Section({ number, title, children }) {
         <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 sm:p-4">{children}</div>
+      <div className="flex flex-col gap-2 sm:gap-3 p-3 sm:p-4">{children}</div>
     </section>
   );
 }

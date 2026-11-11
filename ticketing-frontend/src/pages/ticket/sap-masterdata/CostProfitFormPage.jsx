@@ -12,7 +12,7 @@ import { appendAttachments } from "../../../utils/attachment";
 
 export default function CostProfitFormPage() {
   const navigate = useNavigate();
-  
+
   const [searchParams] = useSearchParams();
 
   const submissionId = searchParams.get("submission");
@@ -242,7 +242,13 @@ export default function CostProfitFormPage() {
 
                       {item.created_at && (
                         <p className="text-xs text-slate-500">
-                          {new Date(item.created_at).toLocaleString("id-ID")}
+                          {new Date(item.created_at).toLocaleString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       )}
                     </div>

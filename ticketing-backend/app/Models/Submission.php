@@ -12,6 +12,8 @@ class Submission extends Model
     use HasFactory;
 
     const STATUS_DRAFT = 'DRAFT';
+    const STATUS_REVIEW_REQUESTOR = 'REVIEW_REQUESTOR';
+    const STATUS_APPROVED_REQUESTOR = 'APPROVED_REQUESTOR';
     const STATUS_REVIEW_ACC_DEPT_HEAD = 'REVIEW_ACC_DEPT_HEAD';
     const STATUS_APPROVED_ACC_DEPT_HEAD = 'APPROVED_ACC_DEPT_HEAD';
     const STATUS_REVIEW_DIV_HEAD = 'REVIEW_DIV_HEAD';
@@ -20,6 +22,8 @@ class Submission extends Model
     const STATUS_APPROVED_ACCOUNTING_HEAD = 'APPROVED_ACCOUNTING_HEAD';
     const STATUS_REVIEW_TAX_HEAD = 'REVIEW_TAX_HEAD';
     const STATUS_APPROVED_TAX_HEAD = 'APPROVED_TAX_HEAD';
+    const STATUS_REVIEW_IT_SAP_HEAD = 'REVIEW_IT_SAP_HEAD';
+    const STATUS_APPROVED_IT_SAP_HEAD = 'APPROVED_IT_SAP_HEAD';
     const STATUS_WAITING_PIC = 'WAITING_PIC';
     const STATUS_TICKET_SOLVED = 'TICKET_SOLVED';
     const STATUS_TICKET_CANCELLED = 'TICKET_CANCELLED';
@@ -27,6 +31,7 @@ class Submission extends Model
     const STATUS_REVISION_REQUESTOR = 'REVISION_REQUESTOR';
     const STATUS_REVISION_ACCOUNTING = 'REVISION_ACCOUNTING';
     const STATUS_REVISION_TAX = 'REVISION_TAX';
+    const STATUS_REVISION_PIC = 'REVISION_PIC';
 
     protected $fillable = [
         'requestor_id',
@@ -68,11 +73,15 @@ class Submission extends Model
     // }
 
     /**
-     * Status awal saat requestor submit, berdasarkan sub category form.
-     * GL dimulai dari Accounting Department Head, form lain dari Division Head.
+     * Status awal saat requestor submit, berdasarkan category / sub category form.
+     * SAP Support langsung masuk ke WAITING_PIC, GL dari Accounting Department Head, form lain dari Division Head.
      */
-    public static function initialStatusFor(?string $subCategory): string
+    public static function initialStatusFor(?string $subCategory, ?string $category = null): string
     {
+        if (strtolower(trim((string) $category)) === 'support') {
+            return self::STATUS_WAITING_PIC;
+        }
+
         return match (strtolower(trim((string) $subCategory))) {
             'gl' => self::STATUS_REVIEW_ACC_DEPT_HEAD,
             default => self::STATUS_REVIEW_DIV_HEAD,
@@ -94,6 +103,8 @@ class Submission extends Model
     public static function activeStatuses(): array
     {
         return [
+            self::STATUS_REVIEW_REQUESTOR,
+            self::STATUS_APPROVED_REQUESTOR,
             self::STATUS_REVIEW_ACC_DEPT_HEAD,
             self::STATUS_APPROVED_ACC_DEPT_HEAD,
             self::STATUS_REVIEW_DIV_HEAD,
@@ -102,10 +113,13 @@ class Submission extends Model
             self::STATUS_APPROVED_ACCOUNTING_HEAD,
             self::STATUS_REVIEW_TAX_HEAD,
             self::STATUS_APPROVED_TAX_HEAD,
+            self::STATUS_REVIEW_IT_SAP_HEAD,
+            self::STATUS_APPROVED_IT_SAP_HEAD,
             self::STATUS_WAITING_PIC,
             self::STATUS_REVISION_REQUESTOR,
             self::STATUS_REVISION_ACCOUNTING,
             self::STATUS_REVISION_TAX,
+            self::STATUS_REVISION_PIC,
         ];
     }
 }

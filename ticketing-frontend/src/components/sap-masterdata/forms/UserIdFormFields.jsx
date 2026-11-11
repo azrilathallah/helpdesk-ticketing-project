@@ -64,7 +64,7 @@ export function Section({ number, title, children }) {
         <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 sm:p-4">{children}</div>
+      <div className="flex flex-col gap-2 sm:gap-3 p-3 sm:p-4">{children}</div>
     </section>
   );
 }
@@ -335,7 +335,7 @@ export default function UserIdFormFields({
           disabled={!editable("companyCode")}
         />
 
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <ReadOnlyField label="Name" value={requestor.name} />
           <ReadOnlyField label="NIK" value={requestor.nik} />
           <ReadOnlyField label="Position" value={requestor.position} />

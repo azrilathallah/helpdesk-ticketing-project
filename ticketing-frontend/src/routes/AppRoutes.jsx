@@ -14,6 +14,7 @@ import CostProfitFormPage from '../pages/ticket/sap-masterdata/CostProfitFormPag
 
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';
+import ChangeRequestFormPage from '../pages/approval/ChangeRequestFormPage';
 
 import MainLayout from '../layouts/MainLayout';
 
@@ -39,10 +40,11 @@ export default function AppRoutes() {
         <Route path="/create-ticket/sap-masterdata/costprofit-form" element={<CostProfitFormPage />} />
 
         <Route path="/submission" element={<SubmissionPage />} />
-        <Route path="/submission/:id" element={ <SubmissionPage /> } />
+        <Route path="/submission/:id" element={<SubmissionPage />} />
 
         <Route path="/approval" element={<ApprovalPage />} />
-        <Route path="/approval/:id" element={ <ApprovalPage /> } />
+        <Route path="/approval/:id" element={<ApprovalPage />} />
+        <Route path="/approval/:id/cr-form" element={<ChangeRequestFormPage />} />
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -10,6 +10,14 @@ const STATUS_CONFIG = {
     label: "Draft",
     style: "bg-slate-100 text-slate-700 ring-slate-200",
   },
+  REVIEW_REQUESTOR: {
+    label: "Needs Approval",
+    style: "bg-sky-50 text-sky-700 ring-sky-200",
+  },
+  APPROVED_REQUESTOR: {
+    label: "Approved by Requestor",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   REVIEW_ACC_DEPT_HEAD: {
     label: "Review Accounting Department Head",
     style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
@@ -42,6 +50,14 @@ const STATUS_CONFIG = {
     label: "Approved by Tax Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
+  REVIEW_IT_SAP_HEAD: {
+    label: "Review IT-SAP Head",
+    style: "bg-purple-50 text-purple-700 ring-purple-200",
+  },
+  APPROVED_IT_SAP_HEAD: {
+    label: "Approved by IT-SAP Head",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   WAITING_PIC: {
     label: "Waiting PIC",
     style: "bg-amber-50 text-amber-700 ring-amber-200",
@@ -68,6 +84,10 @@ const STATUS_CONFIG = {
   },
   REVISION_TAX: {
     label: "Needs Revision - Tax",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
+  REVISION_PIC: {
+    label: "Needs Revision - PIC",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
 };
@@ -362,6 +382,9 @@ export default function DataTable({
             >
               <option value="ALL">All Status</option>
               {!isApproval && <option value="DRAFT">Draft</option>}
+              <option value="WAITING_PIC">Waiting PIC</option>
+              <option value="REVIEW_REQUESTOR">Review Requestor</option>
+              <option value="APPROVED_REQUESTOR">Approved by Requestor</option>
               <option value="REVIEW_ACC_DEPT_HEAD">
                 Review Accounting Department Head
               </option>
@@ -380,6 +403,8 @@ export default function DataTable({
               </option>
               <option value="REVIEW_TAX_HEAD">Review Tax Head</option>
               <option value="APPROVED_TAX_HEAD">Approved by Tax Head</option>
+              <option value="REVIEW_IT_SAP_HEAD">Review IT-SAP Head</option>
+              <option value="APPROVED_IT_SAP_HEAD">Approved by IT-SAP Head</option>
               <option value="TICKET_SOLVED">Solved</option>
               <option value="TICKET_CANCELLED">Cancelled</option>
               <option value="TICKET_REJECTED">Rejected</option>
@@ -392,6 +417,7 @@ export default function DataTable({
                     Accounting Revision
                   </option>
                   <option value="REVISION_TAX">Tax Revision</option>
+                  <option value="REVISION_PIC">PIC Revision</option>
                 </>
               )}
             </select>

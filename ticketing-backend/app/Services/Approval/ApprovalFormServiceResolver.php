@@ -9,6 +9,7 @@ use App\Services\Approval\Forms\MaterialApprovalService;
 use App\Services\Approval\Forms\VendorApprovalService;
 use App\Services\Approval\Forms\UserIdApprovalService;
 use App\Services\Approval\Forms\CostProfitApprovalService;
+use App\Services\Approval\Forms\SapSupportApprovalService;
 
 class ApprovalFormServiceResolver
 {
@@ -18,8 +19,13 @@ class ApprovalFormServiceResolver
     GLApprovalService|
     UserIdApprovalService|
     CostProfitApprovalService|
+    SapSupportApprovalService|
     null
     {
+        if (strtolower(trim((string) $submission->category)) === 'support') {
+            return app(SapSupportApprovalService::class);
+        }
+
         return match (strtolower(trim((string) $submission->sub_category))) {
             'customer' => app(CustomerApprovalService::class),
             'vendor' => app(VendorApprovalService::class),

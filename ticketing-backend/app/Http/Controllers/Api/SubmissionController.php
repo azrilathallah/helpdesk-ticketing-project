@@ -54,16 +54,21 @@ class SubmissionController extends Controller
 
         $inProgress = (clone $baseQuery)
             ->whereIn('status', [
+                Submission::STATUS_REVIEW_REQUESTOR,
+                Submission::STATUS_APPROVED_REQUESTOR,
                 Submission::STATUS_APPROVED_ACC_DEPT_HEAD,
                 Submission::STATUS_APPROVED_DIV_HEAD,
                 Submission::STATUS_REVIEW_ACCOUNTING_HEAD,
                 Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
                 Submission::STATUS_REVIEW_TAX_HEAD,
                 Submission::STATUS_APPROVED_TAX_HEAD,
+                Submission::STATUS_REVIEW_IT_SAP_HEAD,
+                Submission::STATUS_APPROVED_IT_SAP_HEAD,
                 Submission::STATUS_WAITING_PIC,
                 Submission::STATUS_REVISION_REQUESTOR,
                 Submission::STATUS_REVISION_ACCOUNTING,
-                Submission::STATUS_REVISION_TAX
+                Submission::STATUS_REVISION_TAX,
+                Submission::STATUS_REVISION_PIC,
             ])
             ->count();
 
@@ -201,7 +206,7 @@ class SubmissionController extends Controller
                 'form_type' => $data['form_type'],
 
                 'status' => $isSubmitted
-                    ? Submission::initialStatusFor($data['sub_category'] ?? null)
+                    ? Submission::initialStatusFor($data['sub_category'] ?? null, $data['category'] ?? null)
                     : Submission::STATUS_DRAFT,
 
                 'form_data' => $data['form_data'],
@@ -223,7 +228,7 @@ class SubmissionController extends Controller
             if ($isSubmitted) {
                 SubmissionApproval::create([
                     'submission_id' => $submission->id,
-                    'step' => 'REQUESTOR_SUBMITTED',
+                    'step' => 'REQUESTOR_SUBMIT',
                     'action' => 'SUBMITTED',
                     'acted_by' => $request->user()->id,
                     'notes' => null,
@@ -327,15 +332,15 @@ class SubmissionController extends Controller
          * Draft -> Submit.
          */
         if ($data['status'] === 'SUBMITTED') {
-            $submission->status = Submission::initialStatusFor($submission->sub_category);
+            $submission->status = Submission::initialStatusFor($submission->sub_category, $submission->category);
             $submission->updated_at = now();
             $submission->save();
 
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => $wasRevision
-                    ? 'REQUESTOR_RESUBMITTED'
-                    : 'REQUESTOR_SUBMITTED',
+                    ? 'REQUESTOR_RESUBMIT'
+                    : 'REQUESTOR_SUBMIT',
                 'action' => $wasRevision
                     ? 'RESUBMITTED'
                     : 'SUBMITTED',
@@ -346,6 +351,7 @@ class SubmissionController extends Controller
         }
 
         $firstApprover = match ($submission->status) {
+            Submission::STATUS_WAITING_PIC => 'SAP Support PIC',
             Submission::STATUS_REVIEW_ACC_DEPT_HEAD => 'Accounting Department Head',
             Submission::STATUS_REVIEW_ACCOUNTING_HEAD => 'Accounting Head',
             default => 'Division Head',

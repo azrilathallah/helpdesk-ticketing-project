@@ -153,7 +153,7 @@ class MaterialApprovalService
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => $wasRevision ? 'ACCOUNTING_REFILLED' : 'ACCOUNTING_FILL',
+                'step' => $wasRevision ? 'ACCOUNTING_REFILL' : 'ACCOUNTING_FILL',
                 'action' => $wasRevision ? 'REFILLED' : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
@@ -190,7 +190,7 @@ class MaterialApprovalService
         }
 
         $hasFill = $submission->approvals()
-            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILLED'])
+            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILL'])
             ->whereIn('action', ['FILLED', 'REFILLED'])
             ->exists();
 

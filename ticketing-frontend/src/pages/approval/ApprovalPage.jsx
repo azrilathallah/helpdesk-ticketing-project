@@ -15,12 +15,21 @@ import { createMaterialActions } from "../../config/approval/MaterialApproval";
 import { createGLActions } from "../../config/approval/GLApproval";
 import { createUserIdActions } from "../../config/approval/UserIdApproval";
 import { createCostProfitActions } from "../../config/approval/CostProfitApproval";
+import { createSapSupportActions } from "../../config/approval/SapSupportApproval";
 
 /* =========================================================
    STATUS CONFIGURATION
 ========================================================= */
 
 const STATUS_CONFIG = {
+  REVIEW_REQUESTOR: {
+    label: "Needs Approval",
+    style: "bg-sky-50 text-sky-700 ring-sky-200",
+  },
+  APPROVED_REQUESTOR: {
+    label: "Approved by Requestor",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   REVIEW_ACC_DEPT_HEAD: {
     label: "Review Accounting Department Head",
     style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
@@ -53,6 +62,14 @@ const STATUS_CONFIG = {
     label: "Approved by Tax Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
+  REVIEW_IT_SAP_HEAD: {
+    label: "Review IT-SAP Head",
+    style: "bg-purple-50 text-purple-700 ring-purple-200",
+  },
+  APPROVED_IT_SAP_HEAD: {
+    label: "Approved by IT-SAP Head",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   WAITING_PIC: {
     label: "Waiting PIC",
     style: "bg-amber-50 text-amber-700 ring-amber-200",
@@ -79,6 +96,10 @@ const STATUS_CONFIG = {
   },
   REVISION_TAX: {
     label: "Needs Revision - Tax",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
+  REVISION_PIC: {
+    label: "Needs Revision - PIC",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
 };
@@ -379,7 +400,10 @@ function ApprovalDetailPage({ id }) {
   const isUserIdSubmission =
     String(submission?.sub_category).toLowerCase() === "user id";
   const isCostProfitSubmission =
-    String(submission?.sub_category).toLowerCase() === "cost center and profit center";
+    String(submission?.sub_category).toLowerCase() ===
+    "cost center and profit center";
+  const isSapSupportSubmission =
+    String(submission?.category).toLowerCase() === "support";
 
   const formLogic = getApprovalFormLogic(submission);
   const materialType = formLogic?.getMaterialType
@@ -402,6 +426,23 @@ function ApprovalDetailPage({ id }) {
     () => formLogic?.getRole(submission?.status, materialType) || null,
     [formLogic, submission?.status, materialType],
   );
+
+  const existingRevisionNotes = useMemo(() => {
+    const revisionStatuses = [
+      "REVISION_PIC",
+      "REVISION_REQUESTOR",
+      "REVISION_ACCOUNTING",
+      "REVISION_TAX",
+    ];
+
+    if (!revisionStatuses.includes(submission?.status)) return [];
+
+    const notes = (submission?.approval_history || []).filter(
+      (item) => item.action === "REVISION_REQUESTED" && item.notes?.trim(),
+    );
+
+    return notes.length > 0 ? [notes[notes.length - 1]] : [];
+  }, [submission?.status, submission?.approval_history]);
 
   /* =========================================================
      ACCOUNTING / TAX SAVED
@@ -542,6 +583,7 @@ function ApprovalDetailPage({ id }) {
     isGLSubmission,
     isUserIdSubmission,
     isCostProfitSubmission,
+    isSapSupportSubmission,
     submission,
     processing,
     setProcessing,
@@ -567,6 +609,7 @@ function ApprovalDetailPage({ id }) {
   const glActions = createGLActions(actionContext);
   const userIdActions = createUserIdActions(actionContext);
   const costProfitActions = createCostProfitActions(actionContext);
+  const sapSupportActions = createSapSupportActions(actionContext);
 
   const { renderCustomerActionButtons } = customerActions;
   const { renderVendorActionButtons } = vendorActions;
@@ -574,6 +617,7 @@ function ApprovalDetailPage({ id }) {
   const { renderGLActionButtons } = glActions;
   const { renderUserIdActionButtons } = userIdActions;
   const { renderCostProfitActionButtons } = costProfitActions;
+  const { renderSapSupportActionButtons } = sapSupportActions;
 
   /* =========================================================
      LOADING / ERROR
@@ -608,30 +652,25 @@ function ApprovalDetailPage({ id }) {
   const visibleHistory = (submission.approval_history || []).filter(
     (item) =>
       [
+        "REQUESTOR_APPROVE",
+        "IT_SAP_HEAD_APPROVE",
         "ACC_DEPT_HEAD_APPROVE",
         "DIV_HEAD_APPROVE",
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
-        "ACC_DEPT_HEAD_REVISION",
-        "DIV_HEAD_REVISION",
-        "ACCOUNTING_REVISION",
-        "TAX_REVISION",
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
   );
 
   const getHistoryLabel = (item) => {
+    if (item.step === "REQUESTOR_APPROVE") return "Approved by Requestor";
+    if (item.step === "IT_SAP_HEAD_APPROVE") return "Approved by IT-SAP Head";
     if (item.step === "ACC_DEPT_HEAD_APPROVE")
       return "Approved by Accounting Department Head";
     if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
     if (item.step === "ACCOUNTING_HEAD_APPROVE")
       return "Approved by Accounting Head";
     if (item.step === "TAX_HEAD_APPROVE") return "Approved by Tax Head";
-    if (["ACC_DEPT_HEAD_REVISION", "DIV_HEAD_REVISION"].includes(item.step)) {
-      return "Requestor Revision";
-    }
-    if (item.step === "ACCOUNTING_REVISION") return "Accounting Revision";
-    if (item.step === "TAX_REVISION") return "Tax Revision";
     if (item.action === "SOLVED") return "Ticket Solved";
     if (item.action === "REJECTED") return "Ticket Rejected";
     if (item.action === "CANCELLED") return "Ticket Cancelled";
@@ -640,13 +679,7 @@ function ApprovalDetailPage({ id }) {
   };
 
   const isNegativeHistoryItem = (item) =>
-    ["REJECTED", "CANCELLED"].includes(item.action) ||
-    [
-      "ACC_DEPT_HEAD_REVISION",
-      "DIV_HEAD_REVISION",
-      "ACCOUNTING_REVISION",
-      "TAX_REVISION",
-    ].includes(item.step);
+    ["REJECTED", "CANCELLED"].includes(item.action);
 
   /* =========================================================
      DETAIL PAGE
@@ -670,12 +703,20 @@ function ApprovalDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} ·{" "}
-                {submission.sub_category}
+                {submission.type} · {submission.category}
+                {submission.sub_category &&
+                String(submission.category).toLowerCase() !== "support"
+                  ? ` · ${submission.sub_category}`
+                  : ""}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                {submission.category} {submission.sub_category} Request
+                {submission.category}
+                {submission.sub_category &&
+                String(submission.category).toLowerCase() !== "support"
+                  ? ` ${submission.sub_category}`
+                  : ""}{" "}
+                Request
               </h1>
 
               <p className="mt-2 text-sm font-semibold text-slate-800">
@@ -711,6 +752,39 @@ function ApprovalDetailPage({ id }) {
 
         {/* Form */}
         <div className="p-4 sm:p-6">
+          {existingRevisionNotes.length > 0 && (
+            <section className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 sm:px-4">
+              <h2 className="text-sm font-semibold text-orange-800">
+                Revision Notes
+              </h2>
+
+              <div className="mt-1 space-y-3">
+                {existingRevisionNotes.map((item, index) => (
+                  <div key={`${item.id ?? item.step}-${index}`}>
+                    <div className="rounded-sm border border-orange-300 bg-white p-2">
+                      <p className="whitespace-pre-wrap wrap-break-word text-xs text-slate-700">
+                        {item.notes}
+                      </p>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-1 px-1">
+                      {item.actor?.name && (
+                        <p className="text-xs text-slate-500">
+                          By: {item.actor.name}
+                        </p>
+                      )}
+
+                      {item.created_at && (
+                        <p className="text-xs text-slate-500">
+                          {formatDate(item.created_at)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <form onSubmit={(event) => event.preventDefault()}>
             <FormRenderer
               type={submission.type}
@@ -720,8 +794,12 @@ function ApprovalDetailPage({ id }) {
               setFormData={setFormData}
               mode="approval"
               approvalRole={approvalRole}
+              status={submission.status}
               requestor={requestor}
               existingAttachments={submission.attachments || []}
+              onOpenCrForm={() =>
+                navigate(`/approval/${submission.id}/cr-form`)
+              }
               processing={processing}
             />
 
@@ -732,6 +810,7 @@ function ApprovalDetailPage({ id }) {
             {isGLSubmission && renderGLActionButtons()}
             {isUserIdSubmission && renderUserIdActionButtons()}
             {isCostProfitSubmission && renderCostProfitActionButtons()}
+            {isSapSupportSubmission && renderSapSupportActionButtons()}
           </form>
         </div>
       </section>

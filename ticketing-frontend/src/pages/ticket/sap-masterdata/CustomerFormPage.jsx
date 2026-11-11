@@ -264,7 +264,13 @@ export default function CustomerFormPage() {
 
                       {item.created_at && (
                         <p className="text-xs text-slate-500">
-                          {new Date(item.created_at).toLocaleString("id-ID")}
+                          {new Date(item.created_at).toLocaleString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       )}
                     </div>

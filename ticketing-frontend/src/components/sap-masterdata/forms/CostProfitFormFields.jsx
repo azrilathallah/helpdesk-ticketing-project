@@ -58,7 +58,7 @@ export function Section({ number, title, children }) {
         <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 sm:p-4">{children}</div>
+      <div className="flex flex-col gap-2 sm:gap-3 p-3 sm:p-4">{children}</div>
     </section>
   );
 }
@@ -155,7 +155,7 @@ export function CostCenterTable({
               )}
             </div>
 
-            <div className="flex flex-col gap-3 p-3 sm:p-4">
+            <div className="flex flex-col gap-2 sm:gap-3 p-3 sm:p-4">
               <Field label="Cost Center" required={required && !disabled}>
                 <input
                   type="text"
@@ -353,7 +353,7 @@ export function ProfitCenterTable({
               )}
             </div>
 
-            <div className="flex flex-col gap-3 p-3 sm:p-4">
+            <div className="flex flex-col gap-2 sm:gap-3 p-3 sm:p-4">
               <Field label="Profit Center" required={required && !disabled}>
                 <input
                   type="text"

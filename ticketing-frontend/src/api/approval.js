@@ -37,7 +37,23 @@ export const approvalApi = {
       notes,
     }),
 
-  resolve: (id, { code = "", notes = "", type = "customer" } = {}) => {
+  submitCr: (id, crData, notes = "") =>
+    api.post(`/approvals/${id}/submit-cr`, {
+      cr_data: crData,
+      notes,
+    }),
+
+  approveRequestor: (id, notes = "") =>
+    api.post(`/approvals/${id}/approve-requestor`, {
+      notes,
+    }),
+
+  approveITSapHead: (id, notes = "") =>
+    api.post(`/approvals/${id}/approve-itsaphead`, {
+      notes,
+    }),
+
+  resolve: (id, { code = "", notes = "", solution = "", type = "customer" } = {}) => {
     const codeFields = {
       customer: "customer_code",
       vendor: "vendor_code",
@@ -48,6 +64,10 @@ export const approvalApi = {
     const payload = {
       notes,
     };
+
+    if (solution) {
+      payload.solution = solution;
+    }
 
     if (codeFields[type]) {
       payload[codeFields[type]] = code;

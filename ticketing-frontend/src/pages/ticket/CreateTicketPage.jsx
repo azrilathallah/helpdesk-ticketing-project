@@ -1,5 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { submissionApi } from "../../api/submission";
+import { showNotification } from "../../utils/notification";
+import AttachmentField, {
+  validateAttachments,
+} from "../../components/sap-masterdata/AttachmentField";
+import { appendAttachments } from "../../utils/attachment";
+import ChoiceGroup from "../../components/sap-masterdata/ChoiceGroup";
+import { Field } from "../../components/sap-masterdata/FormField";
 
 const TYPE_OPTIONS = [
   {
@@ -171,17 +179,8 @@ function OptionCard({ selected, title, description, onClick }) {
   );
 }
 
-function Field({ label, children }) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <label className="text-sm font-semibold text-slate-700">{label}</label>
-      {children}
-    </div>
-  );
-}
-
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
 
 export default function CreateTicketPage() {
   const navigate = useNavigate();
@@ -193,8 +192,11 @@ export default function CreateTicketPage() {
     subCategory: "",
     module: "",
     description: "",
-    attachment: null,
   });
+
+  const [attachments, setAttachments] = useState([]);
+  const [attachmentError, setAttachmentError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const getStepLabels = () => {
     if (selection.type === "SAP" && selection.category === "Master Data") {
@@ -262,11 +264,78 @@ export default function CreateTicketPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return;
+
+    if (selection.type === "SAP" && selection.category === "Support") {
+      if (!selection.description.trim()) return;
+
+      const fileError = validateAttachments(attachments);
+      if (fileError) {
+        setAttachmentError(fileError);
+        return;
+      }
+
+      setAttachmentError("");
+      setSubmitting(true);
+
+      try {
+        const selectedModule = selection.module.trim();
+
+        const payload = {
+          type: "SAP",
+          category: "Support",
+          sub_category: null,
+          form_type: "SAP - Support",
+          status: "SUBMITTED",
+          form_data: {
+            module: selectedModule,
+            description: selection.description.trim(),
+            needCrForm: "No",
+            hasCrForm: false,
+            solution: "",
+          },
+        };
+
+        const multipart = new FormData();
+        multipart.append("data", JSON.stringify(payload));
+        appendAttachments(multipart, attachments);
+
+        const response = await submissionApi.create(multipart);
+        const saved = response.data?.data;
+
+        showNotification({
+          icon: "success",
+          title: "Submitted",
+          html: `
+            Request successfully submitted.
+            <br>
+            <strong>Number: ${saved?.number}</strong>
+          `,
+        });
+
+        navigate("/submission");
+      } catch (error) {
+        console.error(error);
+        showNotification({
+          icon: "error",
+          title: "Failed",
+          text:
+            error.response?.data?.message ||
+            "Failed to submit SAP Support ticket.",
+        });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     console.log("Submitting:", selection);
   };
 
   const selectType = (type) => {
+    setAttachments([]);
+    setAttachmentError("");
     setSelection((previous) => ({
       ...previous,
       type,
@@ -274,27 +343,27 @@ export default function CreateTicketPage() {
       subCategory: "",
       module: "",
       description: "",
-      attachment: null,
     }));
   };
 
   const selectCategory = (category) => {
+    setAttachments([]);
+    setAttachmentError("");
     setSelection((previous) => ({
       ...previous,
       category,
       subCategory: "",
       module: "",
       description: "",
-      attachment: null,
     }));
   };
 
   const handleInputChange = (event) => {
-    const { name, value, files } = event.target;
+    const { name, value } = event.target;
 
     setSelection((previous) => ({
       ...previous,
-      [name]: files ? files[0] : value,
+      [name]: value,
     }));
   };
 
@@ -303,6 +372,7 @@ export default function CreateTicketPage() {
   };
 
   const isNextDisabled = () => {
+    if (submitting) return true;
     if (step === 1 && !selection.type) return true;
     if (step === 2 && !selection.category) return true;
 
@@ -334,7 +404,7 @@ export default function CreateTicketPage() {
       return "Next";
     }
 
-    return "Submit";
+    return submitting ? "Submitting..." : "Submit";
   };
 
   const renderStepContent = () => {
@@ -416,9 +486,7 @@ export default function CreateTicketPage() {
             SAP Master Data
           </h3>
 
-          <p className="mb-4 text-sm text-slate-500">
-            What form do you need?
-          </p>
+          <p className="mb-4 text-sm text-slate-500">What form do you need?</p>
 
           <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
             {subCategories.map((item) => (
@@ -443,47 +511,45 @@ export default function CreateTicketPage() {
         <div className="flex-1 py-4">
           <h3 className="text-lg font-semibold text-slate-900">SAP Support</h3>
 
-          <p className="mb-4 text-sm text-slate-500">
-            What issue do you have?
-          </p>
+          <p className="mb-4 text-sm text-slate-500">What issue do you have?</p>
 
-          <div className="flex flex-col gap-2.5">
-            <Field label="Module">
-              <select
-                name="module"
-                value={selection.module}
-                onChange={handleInputChange}
-                className={inputClass}
-              >
-                <option value="">Select module</option>
-                <option value="SD">SD</option>
-                <option value="MM">MM</option>
-                <option value="HR">HR</option>
-                <option value="PS">PS</option>
-                <option value="FI">FI</option>
-                <option value="CO">CO</option>
-              </select>
-            </Field>
+          <div className="flex flex-col gap-3">
+            <ChoiceGroup
+              select
+              placeholder="Select module"
+              label="Module (Optional)"
+              groupKey="sap-support_module"
+              value={selection.module}
+              onChange={(value) =>
+                setSelection((previous) => ({ ...previous, module: value }))
+              }
+              disabled={submitting}
+            />
 
-            <Field label="Description">
+            <Field label="Description" required>
               <textarea
                 name="description"
                 value={selection.description}
                 onChange={handleInputChange}
-                className={`${inputClass} h-20 resize-y`}
+                className={`${inputClass} resize-y`}
                 placeholder="Describe your issue in detail..."
                 rows={4}
+                disabled={submitting}
+                required
               />
             </Field>
 
-            <Field label="Attachment">
-              <input
-                type="file"
-                name="attachment"
-                onChange={handleInputChange}
-                className="w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-white px-3 py-2 text-sm! text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-blue-700 hover:border-blue-400"
-              />
-            </Field>
+            <AttachmentField
+              label="Attachment"
+              files={attachments}
+              existingFiles={attachments}
+              onChange={(nextFiles) => {
+                setAttachments(nextFiles);
+                setAttachmentError(validateAttachments(nextFiles));
+              }}
+              error={attachmentError}
+              disabled={submitting}
+            />
           </div>
         </div>
       );

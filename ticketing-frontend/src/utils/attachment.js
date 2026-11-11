@@ -115,4 +115,3 @@ export async function openAttachment(file) {
     throw err;
   }
 }
-

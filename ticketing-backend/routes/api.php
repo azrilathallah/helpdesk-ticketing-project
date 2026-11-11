@@ -102,6 +102,21 @@ Route::middleware('auth:sanctum')->group(function () {
         'approveTaxHead'
     ]);
 
+    Route::post('/approvals/{submission}/submit-cr', [
+        ApprovalController::class,
+        'submitCr'
+    ]);
+
+    Route::post('/approvals/{submission}/approve-requestor', [
+        ApprovalController::class,
+        'approveRequestor'
+    ]);
+
+    Route::post('/approvals/{submission}/approve-itsaphead', [
+        ApprovalController::class,
+        'approveITSapHead'
+    ]);
+
     Route::post('/approvals/{submission}/resolve', [
         ApprovalController::class,
         'resolve'

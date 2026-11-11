@@ -108,7 +108,7 @@ class VendorApprovalService
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => $wasRevision ? 'ACCOUNTING_REFILLED' : 'ACCOUNTING_FILL',
+                'step' => $wasRevision ? 'ACCOUNTING_REFILL' : 'ACCOUNTING_FILL',
                 'action' => $wasRevision ? 'REFILLED' : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
@@ -139,7 +139,7 @@ class VendorApprovalService
         }
 
         $hasFill = $submission->approvals()
-            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILLED'])
+            ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILL'])
             ->whereIn('action', ['FILLED', 'REFILLED'])
             ->exists();
 
@@ -206,7 +206,7 @@ class VendorApprovalService
         ) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
-                'step' => $wasRevision ? 'TAX_REFILLED' : 'TAX_FILL',
+                'step' => $wasRevision ? 'TAX_REFILL' : 'TAX_FILL',
                 'action' => $wasRevision ? 'REFILLED' : 'FILLED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
@@ -236,7 +236,7 @@ class VendorApprovalService
             ], 422);
 
         $hasFill = $submission->approvals()
-            ->whereIn('step', ['TAX_FILL', 'TAX_REFILLED'])
+            ->whereIn('step', ['TAX_FILL', 'TAX_REFILL'])
             ->whereIn('action', ['FILLED', 'REFILLED'])
             ->exists();
 

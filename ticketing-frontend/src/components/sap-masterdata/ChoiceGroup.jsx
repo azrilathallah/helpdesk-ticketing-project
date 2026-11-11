@@ -7,6 +7,8 @@ export default function ChoiceGroup({
   value,
   onChange,
   checkbox = false,
+  select = false,
+  placeholder = "",
   disabled = false,
   required = false,
 }) {
@@ -52,6 +54,51 @@ export default function ChoiceGroup({
 
   const checkboxGroupEmpty = checkbox && selectedValues.length === 0;
 
+  if (select) {
+    const selectedCode = String(normalizedValue ?? "");
+    const hasSelectedOption = options.some(
+      (option) => String(option.value) === selectedCode,
+    );
+
+    return (
+      <div className="min-w-0">
+        <label className="mb-1 block text-xs font-semibold text-slate-700">
+          {label}
+          {required && <span className="text-red-600">*</span>}
+        </label>
+
+        <select
+          name={groupKey || label}
+          value={selectedCode}
+          disabled={disabled}
+          required={required && !disabled}
+          onChange={(event) => {
+            if (disabled || !onChange) return;
+            onChange(event.target.value);
+          }}
+          className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+        >
+          <option value="">{placeholder}</option>
+          {selectedCode && !hasSelectedOption && (
+            <option value={selectedCode}>{selectedCode}</option>
+          )}
+          {options.map((option) => {
+            const code = String(option.value);
+            const name =
+              option.label && option.label !== code ? ` - ${option.label}` : "";
+
+            return (
+              <option key={option.id} value={code}>
+                {code}
+                {name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    );
+  }
+
   return (
     <div className="min-w-0">
       <label className="mb-1 block text-xs font-medium text-slate-700">
@@ -60,9 +107,7 @@ export default function ChoiceGroup({
       </label>
 
       <div
-        className={`grid grid-cols-1 sm:grid-cols-2 gap-1.5 ${
-          options.length > 1 ? "grid-cols-2" : ""
-        }`}
+        className="grid grid-cols-2 gap-2"
       >
         {options.map((option, index) => {
           const code = String(option.value);

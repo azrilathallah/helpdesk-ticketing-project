@@ -17,6 +17,14 @@ const STATUS_CONFIG = {
     label: "Draft",
     style: "bg-slate-100 text-slate-700 ring-slate-200",
   },
+  REVIEW_REQUESTOR: {
+    label: "Needs Approval",
+    style: "bg-sky-50 text-sky-700 ring-sky-200",
+  },
+  APPROVED_REQUESTOR: {
+    label: "Approved by Requestor",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   REVIEW_ACC_DEPT_HEAD: {
     label: "Review Accounting Department Head",
     style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
@@ -49,6 +57,14 @@ const STATUS_CONFIG = {
     label: "Approved by Tax Head",
     style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   },
+  REVIEW_IT_SAP_HEAD: {
+    label: "Review IT-SAP Head",
+    style: "bg-purple-50 text-purple-700 ring-purple-200",
+  },
+  APPROVED_IT_SAP_HEAD: {
+    label: "Approved by IT-SAP Head",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  },
   WAITING_PIC: {
     label: "Waiting PIC",
     style: "bg-amber-50 text-amber-700 ring-amber-200",
@@ -75,6 +91,10 @@ const STATUS_CONFIG = {
   },
   REVISION_TAX: {
     label: "Needs Revision - Tax",
+    style: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
+  REVISION_PIC: {
+    label: "Needs Revision - PIC",
     style: "bg-orange-50 text-orange-700 ring-orange-200",
   },
 };
@@ -472,6 +492,8 @@ function SubmissionDetailPage({ id }) {
   const visibleHistory = (submission.approval_history || []).filter(
     (item) =>
       [
+        "REQUESTOR_APPROVE",
+        "IT_SAP_HEAD_APPROVE",
         "ACC_DEPT_HEAD_APPROVE",
         "DIV_HEAD_APPROVE",
         "ACCOUNTING_HEAD_APPROVE",
@@ -481,6 +503,8 @@ function SubmissionDetailPage({ id }) {
   );
 
   const getHistoryLabel = (item) => {
+    if (item.step === "REQUESTOR_APPROVE") return "Approved by Requestor";
+    if (item.step === "IT_SAP_HEAD_APPROVE") return "Approved by IT-SAP Head";
     if (item.step === "ACC_DEPT_HEAD_APPROVE")
       return "Approved by Accounting Department Head";
     if (item.step === "DIV_HEAD_APPROVE") return "Approved by Division Head";
@@ -514,12 +538,20 @@ function SubmissionDetailPage({ id }) {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                {submission.type} · {submission.category} ·{" "}
-                {submission.sub_category}
+                {submission.type} · {submission.category}
+                {submission.sub_category &&
+                String(submission.category).toLowerCase() !== "support"
+                  ? ` · ${submission.sub_category}`
+                  : ""}
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                {submission.category} {submission.sub_category} Request
+                {submission.category}
+                {submission.sub_category &&
+                String(submission.category).toLowerCase() !== "support"
+                  ? ` ${submission.sub_category}`
+                  : ""}{" "}
+                Request
               </h1>
 
               <p className="mt-2 text-sm font-semibold text-slate-800">
@@ -543,6 +575,7 @@ function SubmissionDetailPage({ id }) {
               formData={formData}
               setFormData={setFormData}
               mode="submission"
+              status={submission.status}
               readOnly
               requestor={requestor}
               existingAttachments={submission.attachments || []}

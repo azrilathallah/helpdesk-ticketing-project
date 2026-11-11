@@ -4,6 +4,7 @@ import MaterialFormFields from "./forms/MaterialFormFields";
 import GLFormFields from "./forms/GLFormFields";
 import UserIdFormFields from "./forms/UserIdFormFields";
 import CostProfitFormFields from "./forms/CostProfitFormFields";
+import SapSupportFormFields from "./forms/SapSupportFormFields";
 
 export default function FormRenderer({
   type,
@@ -14,6 +15,7 @@ export default function FormRenderer({
   mode = "submission",
   readOnly = false,
   approvalRole = null,
+  status = "",
   requestor = {},
   attachments = [],
   setAttachments,
@@ -22,6 +24,8 @@ export default function FormRenderer({
   onVendorCodeChange,
   onMaterialCodeChange,
   onUserIdCodeChange,
+  onOpenCrForm,
+  processing = false,
 }) {
   const normalizedType = String(type || "")
     .trim()
@@ -113,5 +117,16 @@ export default function FormRenderer({
     normalizedSubCategory === "cost center and profit center"
   ) {
     return <CostProfitFormFields {...commonProps} />;
+  }
+
+  if (normalizedType === "sap" && normalizedCategory === "support") {
+    return (
+      <SapSupportFormFields
+        {...commonProps}
+        status={status}
+        onOpenCrForm={onOpenCrForm}
+        processing={processing}
+      />
+    );
   }
 }

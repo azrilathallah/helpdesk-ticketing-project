@@ -58,6 +58,18 @@ class ApprovalController extends Controller
     {
         return $this->formService($submission)->approveTaxHead($request, $submission);
     }
+    public function submitCr(Request $request, Submission $submission)
+    {
+        return $this->formService($submission)->submitCr($request, $submission);
+    }
+    public function approveRequestor(Request $request, Submission $submission)
+    {
+        return $this->formService($submission)->approveRequestor($request, $submission);
+    }
+    public function approveITSapHead(Request $request, Submission $submission)
+    {
+        return $this->formService($submission)->approveITSapHead($request, $submission);
+    }
     public function resolve(Request $request, Submission $submission)
     {
         return $this->formService($submission)->resolve($request, $submission);
