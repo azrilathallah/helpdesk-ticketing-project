@@ -9,9 +9,7 @@ export const materialApproval = {
   getDefaultForm: () => DEFAULT_MATERIAL_FORM,
 
   getMaterialType(submission) {
-    return String(submission?.form_data?.materialType)
-      .trim()
-      .toUpperCase();
+    return String(submission?.form_data?.materialType).trim().toUpperCase();
   },
 
   getRole(status, materialType) {
@@ -89,7 +87,6 @@ export function createMaterialActions(context) {
     formData,
     materialType,
     hasAccountingSaved,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -191,7 +188,6 @@ export function createMaterialActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);

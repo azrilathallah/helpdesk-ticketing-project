@@ -117,10 +117,8 @@ export function createCustomerActions(context) {
     setActionError,
     formLogic,
     formData,
-    materialType,
     hasAccountingSaved,
     hasTaxSaved,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -146,10 +144,7 @@ export function createCustomerActions(context) {
         }
 
         case "fill-accounting": {
-          const result = formLogic?.getAccountingPayload(
-            formData,
-            materialType,
-          );
+          const result = formLogic?.getAccountingPayload(formData);
 
           if (!result) {
             setActionError(
@@ -255,7 +250,6 @@ export function createCustomerActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);

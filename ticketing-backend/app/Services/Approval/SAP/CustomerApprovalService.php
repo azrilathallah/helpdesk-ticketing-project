@@ -40,11 +40,6 @@ class CustomerApprovalService
         ];
     }
 
-    protected function accountingError(Submission $submission): ?string
-    {
-        return null;
-    }
-
     public function approveDivHead(Request $request, Submission $submission)
     {
         if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
@@ -145,12 +140,6 @@ class CustomerApprovalService
             return response()->json([
                 'message' => 'Accounting Staff has not filled the data. Cannot be approved.'
             ], 422);
-
-        $error = $this->accountingError($submission);
-
-        if ($error !== null) return response()->json([
-            'message' => $error
-        ], 422);
 
         $request->validate([
             'notes' => 'nullable|string|max:1000'

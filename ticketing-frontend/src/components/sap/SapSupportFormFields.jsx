@@ -82,7 +82,6 @@ export function ChangeRequestFormSections({
 
   return (
     <>
-      {/* SECTION 1: HEADER PERMINTAAN CR */}
       <Section
         number={startSectionNumber}
         title="Change Request Management Form"
@@ -302,7 +301,7 @@ export default function SapSupportFormFields({
         />
       </Section>
 
-      {/* 2. CHANGE REQUEST FORM (JIKA SUDAH DIISI OLEH PIC) */}
+      {/* 2. CHANGE REQUEST FORM (IF FILLED BY PIC) */}
       {form.hasCrForm && (
         <ChangeRequestFormSections
           crData={form.crData}

@@ -37,7 +37,6 @@ export function createGLActions(context) {
     processing,
     setProcessing,
     setActionError,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -96,7 +95,6 @@ export function createGLActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);

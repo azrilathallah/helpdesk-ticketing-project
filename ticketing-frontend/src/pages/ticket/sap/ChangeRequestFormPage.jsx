@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { showNotification } from "../../utils/notification";
-import { approvalApi } from "../../api/approval";
-import { getUserValue } from "../../config/UserValue";
-import { useAuth } from "../../context/AuthContext";
+import { showNotification } from "../../../utils/notification";
+
+import { approvalApi } from "../../../api/approval";
+import { getUserValue } from "../../../config/UserValue";
+import { useAuth } from "../../../context/AuthContext";
+
 import {
   DEFAULT_CR_DATA,
   ChangeRequestFormSections,
-} from "../../components/sap/SapSupportFormFields";
+} from "../../../components/sap/SapSupportFormFields";
 
 export default function ChangeRequestFormPage() {
   const { id } = useParams();
@@ -178,7 +180,7 @@ export default function ChangeRequestFormPage() {
         </header>
 
         <div className="p-4 sm:p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit}>
             <ChangeRequestFormSections
               crData={crData}
               onChangeCrData={setCrData}

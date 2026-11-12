@@ -115,10 +115,8 @@ export function createVendorActions(context) {
     setActionError,
     formLogic,
     formData,
-    materialType,
     hasAccountingSaved,
     hasTaxSaved,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -144,10 +142,7 @@ export function createVendorActions(context) {
         }
 
         case "fill-accounting": {
-          const result = formLogic?.getAccountingPayload(
-            formData,
-            materialType,
-          );
+          const result = formLogic?.getAccountingPayload(formData);
 
           if (!result) {
             setActionError(
@@ -253,7 +248,6 @@ export function createVendorActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);

@@ -69,7 +69,6 @@ export function createSapSupportActions(context) {
     setActionError,
     formLogic,
     formData,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -154,10 +153,7 @@ export function createSapSupportActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-
-          await loadDetail();
-          navigate("/approval");
-          return;
+          break;
         }
 
         default:
@@ -171,10 +167,10 @@ export function createSapSupportActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);
+      
       setActionError(err.response?.data?.message || "The action failed.");
     } finally {
       setProcessing(false);

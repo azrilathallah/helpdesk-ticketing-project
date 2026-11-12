@@ -44,7 +44,6 @@ export function createUserIdActions(context) {
     setActionError,
     formLogic,
     formData,
-    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -110,7 +109,6 @@ export function createUserIdActions(context) {
           response?.data?.message || "The action was successfully completed.",
       });
 
-      await loadDetail();
       navigate("/approval");
     } catch (err) {
       console.error(err);

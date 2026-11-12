@@ -1,50 +1,74 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute';
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 
-import LoginPage from '../pages/auth/LoginPage';
-import DashboardPage from '../pages/dashboard/DashboardPage';
-import CreateTicketPage from '../pages/ticket/CreateTicketPage';
+import LoginPage from "../pages/auth/LoginPage";
+import DashboardPage from "../pages/dashboard/DashboardPage";
+import CreateTicketPage from "../pages/ticket/CreateTicketPage";
 
-import CustomerFormPage from '../pages/ticket/sap/CustomerFormPage';
-import VendorFormPage from '../pages/ticket/sap/VendorFormPage';
-import MaterialFormPage from '../pages/ticket/sap/MaterialFormPage';
-import GLFormPage from '../pages/ticket/sap/GLFormPage';
-import UserIdFormPage from '../pages/ticket/sap/UserIdFormPage';
-import CostProfitFormPage from '../pages/ticket/sap/CostProfitFormPage';
+import CustomerFormPage from "../pages/ticket/sap/CustomerFormPage";
+import VendorFormPage from "../pages/ticket/sap/VendorFormPage";
+import MaterialFormPage from "../pages/ticket/sap/MaterialFormPage";
+import GLFormPage from "../pages/ticket/sap/GLFormPage";
+import UserIdFormPage from "../pages/ticket/sap/UserIdFormPage";
+import CostProfitFormPage from "../pages/ticket/sap/CostProfitFormPage";
+import ChangeRequestFormPage from "../pages/ticket/sap/ChangeRequestFormPage";
 
-import SubmissionPage from '../pages/submission/SubmissionPage';
-import ApprovalPage from '../pages/approval/ApprovalPage';
-import ChangeRequestFormPage from '../pages/approval/ChangeRequestFormPage';
+import SubmissionPage from "../pages/submission/SubmissionPage";
+import ApprovalPage from "../pages/approval/ApprovalPage";
 
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from "../layouts/MainLayout";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route 
-        element={ 
-          <ProtectedRoute> 
-            <MainLayout /> 
-          </ProtectedRoute> 
-        } 
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
-        
-        <Route path="/create-ticket" element={<CreateTicketPage />} /> 
-        <Route path="/create-ticket/sap-masterdata/customer-form" element={<CustomerFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/vendor-form" element={<VendorFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/material-form" element={<MaterialFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/gl-form" element={<GLFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/userid-form" element={<UserIdFormPage />} />
-        <Route path="/create-ticket/sap-masterdata/costprofit-form" element={<CostProfitFormPage />} />
 
+        {/* Ticket SAP */}
+        <Route path="/create-ticket" element={<CreateTicketPage />} />
+        <Route
+          path="/create-ticket/sap-masterdata/customer-form"
+          element={<CustomerFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/vendor-form"
+          element={<VendorFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/material-form"
+          element={<MaterialFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/gl-form"
+          element={<GLFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/userid-form"
+          element={<UserIdFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/costprofit-form"
+          element={<CostProfitFormPage />}
+        />
+
+        {/* Submission */}
         <Route path="/submission" element={<SubmissionPage />} />
         <Route path="/submission/:id" element={<SubmissionPage />} />
 
+        {/* Approval */}
         <Route path="/approval" element={<ApprovalPage />} />
         <Route path="/approval/:id" element={<ApprovalPage />} />
-        <Route path="/approval/:id/cr-form" element={<ChangeRequestFormPage />} />
+        <Route
+          path="/approval/:id/cr-form"
+          element={<ChangeRequestFormPage />}
+        />
       </Route>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
