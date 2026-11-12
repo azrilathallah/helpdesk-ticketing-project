@@ -147,12 +147,14 @@ function formatDate(date) {
 
 function PageLoading({ message = "Loading..." }) {
   return (
-    <div className="flex min-h-64 items-center justify-center bg-white p-8">
-      <div className="text-center">
-        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-        <p className="text-sm text-slate-500">{message}</p>
+    <main className="mx-auto w-full space-y-5">
+      <div className="flex min-h-64 items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+          <p className="text-sm text-slate-500">{message}</p>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -624,11 +626,7 @@ function ApprovalDetailPage({ id }) {
   ========================================================= */
 
   if (loading) {
-    return (
-      <main className="mx-auto w-full space-y-5">
-        <PageLoading message="Loading request detail..." />
-      </main>
-    );
+    return <PageLoading message="Loading request detail..." />;
   }
 
   if (error) {
