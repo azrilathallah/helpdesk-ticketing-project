@@ -1,12 +1,12 @@
-import { showNotification } from "../../utils/notification";
-import { DEFAULT_VENDOR_FORM } from "../../components/sap-masterdata/forms/VendorFormFields";
+import { showNotification } from "../../../utils/notification";
+import { DEFAULT_CUSTOMER_FORM } from "../../../components/sap/CustomerFormFields";
 
 /* =========================================================
-   VENDOR APPROVAL CONFIGURATION
+   CUSTOMER APPROVAL CONFIGURATION
 ========================================================= */
 
-export const vendorApproval = {
-  getDefaultForm: () => DEFAULT_VENDOR_FORM,
+export const customerApproval = {
+  getDefaultForm: () => DEFAULT_CUSTOMER_FORM,
 
   getRole(status) {
     switch (status) {
@@ -34,11 +34,13 @@ export const vendorApproval = {
         ["ACCOUNTING_FILL", "ACCOUNTING_REFILL"].includes(item.step) &&
         ["FILLED", "REFILLED"].includes(item.action),
     );
-    const hasPaymentMethod =
-      Array.isArray(data.paymentMethod) && data.paymentMethod.length > 0;
     return (
-      (Boolean(data.accountGroup && data.reconAccount) && hasPaymentMethod) ||
-      hasHistory
+      Boolean(
+        data.accountGroup &&
+        data.reconAccount &&
+        data.sortKey &&
+        data.toleranceGroup,
+      ) || hasHistory
     );
   },
 
@@ -46,14 +48,14 @@ export const vendorApproval = {
     const payload = {
       accountGroup: formData.accountGroup,
       reconAccount: formData.reconAccount,
-      paymentMethod: Array.isArray(formData.paymentMethod)
-        ? formData.paymentMethod
-        : [],
+      sortKey: formData.sortKey,
+      toleranceGroup: formData.toleranceGroup,
     };
     if (
       !payload.accountGroup ||
       !payload.reconAccount ||
-      payload.paymentMethod.length === 0
+      !payload.sortKey ||
+      !payload.toleranceGroup
     ) {
       return {
         error: "All Accounting fields must be filled in before saving.",
@@ -94,21 +96,21 @@ export const vendorApproval = {
   getResolveInfo(formData, submission) {
     const requestType =
       submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.vendorCode).trim();
+    const code = String(formData.customerCode).trim();
     if (requestType === "New" && !code)
-      return { error: "The Vendor Code is required." };
-    return { code, isVendor: true, isMaterial: false };
+      return { error: "The Customer Code is required." };
+    return { code, isVendor: false, isMaterial: false };
   },
 };
 
 /* =========================================================
-   VENDOR APPROVAL ACTIONS
+   CUSTOMER APPROVAL ACTIONS
 ========================================================= */
 
-export function createVendorActions(context) {
+export function createCustomerActions(context) {
   const {
     approvalApi,
-    isVendorSubmission,
+    isCustomerSubmission,
     submission,
     processing,
     setProcessing,
@@ -127,8 +129,8 @@ export function createVendorActions(context) {
     openRevisionModal,
   } = context;
 
-  const handleVendorAction = async (action) => {
-    if (!isVendorSubmission) return;
+  const handleCustomerAction = async (action) => {
+    if (!isCustomerSubmission) return;
     if (!submission || processing) return;
 
     try {
@@ -229,7 +231,7 @@ export function createVendorActions(context) {
 
           response = await approvalApi.resolve(submission.id, {
             code: result.code,
-            type: "vendor",
+            type: "customer",
           });
 
           showNotification({
@@ -264,8 +266,8 @@ export function createVendorActions(context) {
     }
   };
 
-  const renderVendorActionButtons = () => {
-    if (!isVendorSubmission || !submission) return null;
+  const renderCustomerActionButtons = () => {
+    if (!isCustomerSubmission || !submission) return null;
 
     const currentStatus = submission.status;
 
@@ -293,7 +295,7 @@ export function createVendorActions(context) {
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleVendorAction("approve-divhead")}
+            onClick={() => handleCustomerAction("approve-divhead")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Approve"}
@@ -317,7 +319,7 @@ export function createVendorActions(context) {
             <button
               type="submit"
               className={primaryButton}
-              onClick={() => handleVendorAction("fill-accounting")}
+              onClick={() => handleCustomerAction("fill-accounting")}
               disabled={processing}
             >
               {processing ? "Saving..." : "Save"}
@@ -347,7 +349,7 @@ export function createVendorActions(context) {
               <button
                 type="button"
                 className={primaryButton}
-                onClick={() => handleVendorAction("approve-accounting")}
+                onClick={() => handleCustomerAction("approve-accounting")}
                 disabled={processing || !hasAccountingSaved}
               >
                 {processing ? "Processing..." : "Approve"}
@@ -371,7 +373,7 @@ export function createVendorActions(context) {
             <button
               type="submit"
               className={primaryButton}
-              onClick={() => handleVendorAction("fill-tax")}
+              onClick={() => handleCustomerAction("fill-tax")}
               disabled={processing}
             >
               {processing ? "Saving..." : "Save"}
@@ -401,7 +403,7 @@ export function createVendorActions(context) {
               <button
                 type="button"
                 className={primaryButton}
-                onClick={() => handleVendorAction("approve-tax")}
+                onClick={() => handleCustomerAction("approve-tax")}
                 disabled={processing || !hasTaxSaved}
               >
                 {processing ? "Processing..." : "Approve"}
@@ -418,7 +420,7 @@ export function createVendorActions(context) {
           <button
             type="submit"
             className={primaryButton}
-            onClick={() => handleVendorAction("resolve")}
+            onClick={() => handleCustomerAction("resolve")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Resolve"}
@@ -430,5 +432,5 @@ export function createVendorActions(context) {
     return null;
   };
 
-  return { handleVendorAction, renderVendorActionButtons };
+  return { handleCustomerAction, renderCustomerActionButtons };
 }

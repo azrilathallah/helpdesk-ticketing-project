@@ -5,7 +5,6 @@ namespace App\Services\Approval;
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
 use App\Services\SubmissionAttachmentService;
-use Illuminate\Http\Request;
 
 class ApprovalQueryService
 {

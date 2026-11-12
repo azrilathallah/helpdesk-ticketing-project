@@ -3,13 +3,13 @@
 namespace App\Services\Approval;
 
 use App\Models\Submission;
-use App\Services\Approval\Forms\CustomerApprovalService;
-use App\Services\Approval\Forms\GLApprovalService;
-use App\Services\Approval\Forms\MaterialApprovalService;
-use App\Services\Approval\Forms\VendorApprovalService;
-use App\Services\Approval\Forms\UserIdApprovalService;
-use App\Services\Approval\Forms\CostProfitApprovalService;
-use App\Services\Approval\Forms\SapSupportApprovalService;
+use App\Services\Approval\SAP\CustomerApprovalService;
+use App\Services\Approval\SAP\GLApprovalService;
+use App\Services\Approval\SAP\MaterialApprovalService;
+use App\Services\Approval\SAP\VendorApprovalService;
+use App\Services\Approval\SAP\UserIdApprovalService;
+use App\Services\Approval\SAP\CostProfitApprovalService;
+use App\Services\Approval\SAP\SapSupportApprovalService;
 
 class ApprovalFormServiceResolver
 {

@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { showNotification } from "../../../utils/notification";
 
+import { useAuth } from "../../../context/AuthContext";
 import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
-import { DEFAULT_VENDOR_FORM } from "../../../components/sap-masterdata/forms/VendorFormFields";
+import FormRenderer from "../../../components/FormRenderer";
+import { DEFAULT_CUSTOMER_FORM } from "../../../components/sap/CustomerFormFields";
 
-import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { getUserValue } from "../../../config/UserValue";
+import { validateAttachments } from "../../../components/AttachmentField";
 import { appendAttachments } from "../../../utils/attachment";
 
-export default function VendorFormPage() {
+export default function CustomerFormPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [searchParams] = useSearchParams();
 
@@ -21,13 +24,24 @@ export default function VendorFormPage() {
 
   const [readOnly, setReadOnly] = useState(false);
 
-  const [formData, setFormData] = useState(DEFAULT_VENDOR_FORM);
+  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
 
   const [revisionNotes, setRevisionNotes] = useState([]);
 
   const [attachments, setAttachments] = useState([]);
 
   const [submitMode, setSubmitMode] = useState("");
+
+  const requestor = useMemo(
+    () => ({
+      name: getUserValue(user, ["name", "nama"]),
+      position: getUserValue(user, ["position"]),
+      division: getUserValue(user, ["division"]),
+      department: getUserValue(user, ["department"]),
+      email: getUserValue(user, ["email"]),
+    }),
+    [user],
+  );
 
   useEffect(() => {
     if (!submissionId) {
@@ -52,13 +66,13 @@ export default function VendorFormPage() {
         );
 
         if (!submission) {
-          throw new Error("Request not found");
+          throw new Error("Request not found.");
         }
 
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "Vendor"
+          submission.sub_category !== "Customer"
         ) {
           navigate("/submission");
           return;
@@ -71,7 +85,7 @@ export default function VendorFormPage() {
         setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
-          ...DEFAULT_VENDOR_FORM,
+          ...DEFAULT_CUSTOMER_FORM,
           ...(submission.form_data || {}),
         });
       } catch (error) {
@@ -80,7 +94,7 @@ export default function VendorFormPage() {
         showNotification({
           icon: "error",
           title: "Failed",
-          text: error.response?.data?.message || "Failed to load request.",
+          text: error.response?.data?.message || "Failed to load Request.",
         });
 
         navigate("/submission");
@@ -121,7 +135,7 @@ export default function VendorFormPage() {
         return;
       }
 
-      if (formData.requestType !== "New" && !formData.vendorCode) {
+      if (formData.requestType !== "New" && !formData.customerCode) {
         return;
       }
     }
@@ -132,8 +146,8 @@ export default function VendorFormPage() {
       const payload = {
         type: "SAP",
         category: "Master Data",
-        sub_category: "Vendor",
-        form_type: "SAP - Master Data - Vendor",
+        sub_category: "Customer",
+        form_type: "SAP - Master Data - Customer",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -216,11 +230,11 @@ export default function VendorFormPage() {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                SAP · Master Data · Vendor
+                SAP · Master Data · Customer
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Master Data Vendor Request
+                Master Data Customer Request
               </h1>
             </div>
           </div>
@@ -270,11 +284,12 @@ export default function VendorFormPage() {
             <FormRenderer
               type="SAP"
               category="Master Data"
-              subCategory="Vendor"
+              subCategory="Customer"
               formData={formData}
               setFormData={setFormData}
               mode="create"
               readOnly={readOnly}
+              requestor={requestor}
               attachments={attachments}
               setAttachments={setAttachments}
               existingAttachments={attachments}

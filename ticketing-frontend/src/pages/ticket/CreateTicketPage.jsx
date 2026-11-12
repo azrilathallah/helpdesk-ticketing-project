@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { submissionApi } from "../../api/submission";
 import { showNotification } from "../../utils/notification";
 import AttachmentField, {
   validateAttachments,
-} from "../../components/sap-masterdata/AttachmentField";
+} from "../../components/AttachmentField";
 import { appendAttachments } from "../../utils/attachment";
-import ChoiceGroup from "../../components/sap-masterdata/ChoiceGroup";
-import { Field } from "../../components/sap-masterdata/FormField";
+import ChoiceGroup from "../../components/ChoiceGroup";
+import { Field } from "../../components/FormField";
 
 const TYPE_OPTIONS = [
   {

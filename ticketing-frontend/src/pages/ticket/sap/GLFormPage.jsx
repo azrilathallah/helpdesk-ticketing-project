@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { showNotification } from "../../../utils/notification";
 
+import { useAuth } from "../../../context/AuthContext";
 import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
-import { DEFAULT_MATERIAL_FORM } from "../../../components/sap-masterdata/forms/MaterialFormFields";
+import FormRenderer from "../../../components/FormRenderer";
+import { DEFAULT_GL_FORM } from "../../../components/sap/GLFormFields";
 
-import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { getUserValue } from "../../../config/UserValue";
+import { validateAttachments } from "../../../components/AttachmentField";
 import { appendAttachments } from "../../../utils/attachment";
 
-export default function MaterialFormPage() {
+export default function GLFormPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [searchParams] = useSearchParams();
 
@@ -21,13 +24,22 @@ export default function MaterialFormPage() {
 
   const [readOnly, setReadOnly] = useState(false);
 
-  const [formData, setFormData] = useState(DEFAULT_MATERIAL_FORM);
+  const [formData, setFormData] = useState(DEFAULT_GL_FORM);
 
   const [revisionNotes, setRevisionNotes] = useState([]);
 
   const [attachments, setAttachments] = useState([]);
 
   const [submitMode, setSubmitMode] = useState("");
+
+  const requestor = useMemo(
+    () => ({
+      name: getUserValue(user, ["name", "nama"]),
+      position: getUserValue(user, ["position"]),
+      department: getUserValue(user, ["department"]),
+    }),
+    [user],
+  );
 
   useEffect(() => {
     if (!submissionId) {
@@ -45,7 +57,7 @@ export default function MaterialFormPage() {
         setRevisionNotes(
           (submission?.approval_history || []).filter(
             (item) =>
-              item.step === "DIV_HEAD_REVISION" &&
+              item.step === "ACC_DEPT_HEAD_REVISION" &&
               item.action === "REVISION_REQUESTED" &&
               item.notes?.trim(),
           ),
@@ -58,7 +70,7 @@ export default function MaterialFormPage() {
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "Material"
+          submission.sub_category !== "GL"
         ) {
           navigate("/submission");
           return;
@@ -71,7 +83,7 @@ export default function MaterialFormPage() {
         setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
-          ...DEFAULT_MATERIAL_FORM,
+          ...DEFAULT_GL_FORM,
           ...(submission.form_data || {}),
         });
       } catch (error) {
@@ -116,14 +128,6 @@ export default function MaterialFormPage() {
       if (!formElement.reportValidity()) {
         return;
       }
-
-      if (!formData.requestType) {
-        return;
-      }
-
-      if (formData.requestType !== "New" && !formData.vendorCode) {
-        return;
-      }
     }
 
     setSubmitMode(mode);
@@ -132,8 +136,8 @@ export default function MaterialFormPage() {
       const payload = {
         type: "SAP",
         category: "Master Data",
-        sub_category: "Material",
-        form_type: "SAP - Master Data - Material",
+        sub_category: "GL",
+        form_type: "SAP - Master Data - GL",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -156,7 +160,7 @@ export default function MaterialFormPage() {
 
       const saved = response.data?.data;
 
-      if (saved?.status === "REVIEW_DIV_HEAD") {
+      if (saved?.status === "REVIEW_ACC_DEPT_HEAD") {
         showNotification({
           icon: "success",
           title: submissionId ? "Resubmitted" : "Submitted",
@@ -216,11 +220,11 @@ export default function MaterialFormPage() {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                SAP · Master Data · Material
+                SAP · Master Data · GL
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Master Data Material Request
+                Master Data GL Account Request
               </h1>
             </div>
           </div>
@@ -270,11 +274,12 @@ export default function MaterialFormPage() {
             <FormRenderer
               type="SAP"
               category="Master Data"
-              subCategory="Material"
+              subCategory="GL"
               formData={formData}
               setFormData={setFormData}
               mode="create"
               readOnly={readOnly}
+              requestor={requestor}
               attachments={attachments}
               setAttachments={setAttachments}
               existingAttachments={attachments}

@@ -5,12 +5,12 @@ import LoginPage from '../pages/auth/LoginPage';
 import DashboardPage from '../pages/dashboard/DashboardPage';
 import CreateTicketPage from '../pages/ticket/CreateTicketPage';
 
-import CustomerFormPage from '../pages/ticket/sap-masterdata/CustomerFormPage';
-import VendorFormPage from '../pages/ticket/sap-masterdata/VendorFormPage';
-import MaterialFormPage from '../pages/ticket/sap-masterdata/MaterialFormPage';
-import GLFormPage from '../pages/ticket/sap-masterdata/GLFormPage';
-import UserIdFormPage from '../pages/ticket/sap-masterdata/UserIdFormPage';
-import CostProfitFormPage from '../pages/ticket/sap-masterdata/CostProfitFormPage';
+import CustomerFormPage from '../pages/ticket/sap/CustomerFormPage';
+import VendorFormPage from '../pages/ticket/sap/VendorFormPage';
+import MaterialFormPage from '../pages/ticket/sap/MaterialFormPage';
+import GLFormPage from '../pages/ticket/sap/GLFormPage';
+import UserIdFormPage from '../pages/ticket/sap/UserIdFormPage';
+import CostProfitFormPage from '../pages/ticket/sap/CostProfitFormPage';
 
 import SubmissionPage from '../pages/submission/SubmissionPage';
 import ApprovalPage from '../pages/approval/ApprovalPage';

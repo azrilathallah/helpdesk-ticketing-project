@@ -1,16 +1,20 @@
-import { showNotification } from "../../utils/notification";
-import { DEFAULT_COSTPROFIT_FORM } from "../../components/sap-masterdata/forms/CostProfitFormFields";
+import { showNotification } from "../../../utils/notification";
+import { DEFAULT_GL_FORM } from "../../../components/sap/GLFormFields";
 
 /* =========================================================
-   COST PROFIT APPROVAL CONFIGURATION
+   GL APPROVAL CONFIGURATION
 ========================================================= */
 
-export const costProfitApproval = {
-  getDefaultForm: () => DEFAULT_COSTPROFIT_FORM,
+export const glApproval = {
+  getDefaultForm: () => DEFAULT_GL_FORM,
 
   getRole(status) {
     switch (status) {
-      case "REVIEW_DIV_HEAD":
+      case "REVIEW_ACC_DEPT_HEAD":
+        return "accounting_dept_head";
+      case "APPROVED_ACC_DEPT_HEAD":
+        return "accounting";
+      case "APPROVED_ACCOUNTING_HEAD":
         return "division_head";
       case "APPROVED_DIV_HEAD":
       case "WAITING_PIC":
@@ -22,13 +26,13 @@ export const costProfitApproval = {
 };
 
 /* =========================================================
-   COST PROFIT APPROVAL ACTIONS
+   GL APPROVAL ACTIONS
 ========================================================= */
 
-export function createCostProfitActions(context) {
+export function createGLActions(context) {
   const {
     approvalApi,
-    isCostProfitSubmission,
+    isGLSubmission,
     submission,
     processing,
     setProcessing,
@@ -42,8 +46,8 @@ export function createCostProfitActions(context) {
     openRevisionModal,
   } = context;
 
-  const handleCostProfitAction = async (action) => {
-    if (!isCostProfitSubmission) return;
+  const handleGLAction = async (action) => {
+    if (!isGLSubmission) return;
     if (!submission || processing) return;
 
     try {
@@ -53,6 +57,16 @@ export function createCostProfitActions(context) {
       let response;
 
       switch (action) {
+        case "approve-acc-depthead": {
+          response = await approvalApi.approveAccDeptHead(submission.id, "");
+          break;
+        }
+
+        case "approve-accounting": {
+          response = await approvalApi.approveAccountingHead(submission.id, "");
+          break;
+        }
+
         case "approve-divhead": {
           response = await approvalApi.approveDivHead(submission.id, "");
           break;
@@ -93,12 +107,12 @@ export function createCostProfitActions(context) {
     }
   };
 
-  const renderCostProfitActionButtons = () => {
-    if (!isCostProfitSubmission || !submission) return null;
+  const renderGLActionButtons = () => {
+    if (!isGLSubmission || !submission) return null;
 
     const currentStatus = submission.status;
 
-    if (currentStatus === "REVIEW_DIV_HEAD") {
+    if (currentStatus === "REVIEW_ACC_DEPT_HEAD") {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
@@ -122,7 +136,55 @@ export function createCostProfitActions(context) {
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleCostProfitAction("approve-divhead")}
+            onClick={() => handleGLAction("approve-acc-depthead")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Approve"}
+          </button>
+        </div>
+      );
+    }
+
+    if (currentStatus === "APPROVED_ACC_DEPT_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="button"
+            className={rejectButton}
+            onClick={openRejectModal}
+            disabled={processing}
+          >
+            Reject
+          </button>
+
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => handleGLAction("approve-accounting")}
+            disabled={processing}
+          >
+            {processing ? "Processing..." : "Approve"}
+          </button>
+        </div>
+      );
+    }
+
+    if (currentStatus === "APPROVED_ACCOUNTING_HEAD") {
+      return (
+        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+          <button
+            type="button"
+            className={rejectButton}
+            onClick={openRejectModal}
+            disabled={processing}
+          >
+            Reject
+          </button>
+
+          <button
+            type="button"
+            className={primaryButton}
+            onClick={() => handleGLAction("approve-divhead")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Approve"}
@@ -137,7 +199,7 @@ export function createCostProfitActions(context) {
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleCostProfitAction("resolve")}
+            onClick={() => handleGLAction("resolve")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Resolve"}
@@ -149,5 +211,5 @@ export function createCostProfitActions(context) {
     return null;
   };
 
-  return { handleCostProfitAction, renderCostProfitActionButtons };
+  return { handleGLAction, renderGLActionButtons };
 }

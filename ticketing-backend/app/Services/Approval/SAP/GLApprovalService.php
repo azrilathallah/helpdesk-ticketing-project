@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Approval\Forms;
+namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
@@ -8,17 +8,9 @@ use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UserIdApprovalService
+class GLApprovalService
 {
     public function __construct(private ApprovalQueryService $query) {}
-
-    protected function resolveCodeFields(): array
-    {
-        return [
-            'request' => 'userId_code',
-            'form' => 'userIdCode'
-        ];
-    }
 
     protected function allowedResolveStatuses(): array
     {
@@ -28,9 +20,73 @@ class UserIdApprovalService
         ];
     }
 
+    public function approveAccDeptHead(Request $request, Submission $submission)
+    {
+        if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
+            return response()->json([
+                'message' => 'The request is not in the correct status to be approved by the Accounting Department Head'
+            ], 422);
+        }
+
+        $request->validate([
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        DB::transaction(function () use ($request, $submission) {
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => 'ACC_DEPT_HEAD_APPROVE',
+                'action' => 'APPROVED',
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes'),
+                'created_at' => now(),
+            ]);
+
+            $submission->status = Submission::STATUS_APPROVED_ACC_DEPT_HEAD;
+            $submission->save();
+        });
+
+        return $this->query->responseFor(
+            $submission,
+            'The request was successfully approved by the Accounting Department Head.'
+        );
+    }
+
+    public function approveAccountingHead(Request $request, Submission $submission)
+    {
+        if ($submission->status !== Submission::STATUS_APPROVED_ACC_DEPT_HEAD) {
+            return response()->json([
+                'message' => 'The request is not in the correct status to be approved by the Accounting Head'
+            ], 422);
+        }
+
+        $request->validate([
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        DB::transaction(function () use ($request, $submission) {
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => 'ACCOUNTING_HEAD_APPROVE',
+                'action' => 'APPROVED',
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes'),
+                'created_at' => now(),
+            ]);
+
+            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
+            $submission->save();
+        });
+
+        return $this->query->responseFor(
+            $submission,
+            'The request was successfully approved by the Accounting Head.'
+        );
+    }
+
     public function approveDivHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
+        if ($submission->status !== Submission::STATUS_APPROVED_ACCOUNTING_HEAD) {
             return response()->json([
                 'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
@@ -67,43 +123,25 @@ class UserIdApprovalService
                 'message' => 'The request is not in the PIC processing stage.'
             ], 422);
 
-        $formData = $submission->form_data ?? [];
-        $isNew = ($formData['requestType'] ?? '') === 'New';
-        $fields = $this->resolveCodeFields();
-        $rules = ['notes' => 'nullable|string|max:1000'];
+        $request->validate([
+            'notes' => 'nullable|string|max:1000'
+        ]);
 
-        if ($isNew)
-            $rules[$fields['request']] = 'required|string|max:50';
-
-        $request->validate($rules);
-
-        DB::transaction(function () use (
-            $request,
-            $submission,
-            $isNew,
-            $fields
-        ) {
-            $stepData = [];
-            if ($isNew) {
-                $code = trim((string) $request->input($fields['request']));
-                $stepData[$fields['form']] = $code;
-                $data = $submission->form_data ?? [];
-                $data[$fields['form']] = $code;
-                $submission->form_data = $data;
-            }
+        DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'PIC_PROCESS',
                 'action' => 'SOLVED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
-                'step_data' => $stepData ?: null,
+                'step_data' => null,
                 'created_at' => now(),
             ]);
 
             $submission->status = Submission::STATUS_TICKET_SOLVED;
             $submission->save();
         });
+
         return $this->query->responseFor(
             $submission,
             'The request was succesfully resolved.'
@@ -113,7 +151,9 @@ class UserIdApprovalService
     public function reject(Request $request, Submission $submission)
     {
         if (!in_array($submission->status, [
-            Submission::STATUS_REVIEW_DIV_HEAD,
+            Submission::STATUS_REVIEW_ACC_DEPT_HEAD,
+            Submission::STATUS_APPROVED_ACC_DEPT_HEAD,
+            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
         ], true))
             return response()->json([
                 'message' => 'The request cannot be rejected at this stage.'
@@ -137,6 +177,7 @@ class UserIdApprovalService
             $submission->status = Submission::STATUS_TICKET_REJECTED;
             $submission->save();
         });
+
         return $this->query->responseFor(
             $submission,
             'The request was succesfully rejected.'
@@ -151,9 +192,9 @@ class UserIdApprovalService
         );
 
         $flowMap = [
-            Submission::STATUS_REVIEW_DIV_HEAD => [
+            Submission::STATUS_REVIEW_ACC_DEPT_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'DIV_HEAD_REVISION',
+                'step' => 'ACC_DEPT_HEAD_REVISION',
                 'message' => 'The request has been returned to the Requester for revision.'
             ]
         ];

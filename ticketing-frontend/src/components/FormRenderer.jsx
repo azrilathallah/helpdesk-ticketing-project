@@ -1,10 +1,10 @@
-import CustomerFormFields from "./forms/CustomerFormFields";
-import VendorFormFields from "./forms/VendorFormFields";
-import MaterialFormFields from "./forms/MaterialFormFields";
-import GLFormFields from "./forms/GLFormFields";
-import UserIdFormFields from "./forms/UserIdFormFields";
-import CostProfitFormFields from "./forms/CostProfitFormFields";
-import SapSupportFormFields from "./forms/SapSupportFormFields";
+import CustomerFormFields from "./sap/CustomerFormFields";
+import VendorFormFields from "./sap/VendorFormFields";
+import MaterialFormFields from "./sap/MaterialFormFields";
+import GLFormFields from "./sap/GLFormFields";
+import UserIdFormFields from "./sap/UserIdFormFields";
+import CostProfitFormFields from "./sap/CostProfitFormFields";
+import SapSupportFormFields from "./sap/SapSupportFormFields";
 
 export default function FormRenderer({
   type,

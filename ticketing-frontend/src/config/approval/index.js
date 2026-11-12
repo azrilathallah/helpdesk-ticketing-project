@@ -1,10 +1,10 @@
-import { customerApproval } from "./CustomerApproval";
-import { vendorApproval } from "./VendorApproval";
-import { materialApproval } from "./MaterialApproval";
-import { glApproval } from "./GLApproval";
-import { userIdApproval } from "./UserIdApproval";
-import { costProfitApproval } from "./CostProfitApproval";
-import { sapSupportApproval } from "./SapSupportApproval";
+import { customerApproval } from "./sap/CustomerApproval";
+import { vendorApproval } from "./sap/VendorApproval";
+import { materialApproval } from "./sap/MaterialApproval";
+import { glApproval } from "./sap/GLApproval";
+import { userIdApproval } from "./sap/UserIdApproval";
+import { costProfitApproval } from "./sap/CostProfitApproval";
+import { sapSupportApproval } from "./sap/SapSupportApproval";
 
 export const approvalFormLogic = {
   customer: customerApproval,

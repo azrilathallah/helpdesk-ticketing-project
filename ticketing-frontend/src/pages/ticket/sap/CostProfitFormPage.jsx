@@ -1,20 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { showNotification } from "../../../utils/notification";
 
-import { useAuth } from "../../../context/AuthContext";
 import { submissionApi } from "../../../api/submission";
 
-import FormRenderer from "../../../components/sap-masterdata/FormRenderer";
-import { DEFAULT_CUSTOMER_FORM } from "../../../components/sap-masterdata/forms/CustomerFormFields";
+import FormRenderer from "../../../components/FormRenderer";
+import { DEFAULT_COSTPROFIT_FORM } from "../../../components/sap/CostProfitFormFields";
 
-import { getUserValue } from "../../../config/UserValue";
-import { validateAttachments } from "../../../components/sap-masterdata/AttachmentField";
+import { validateAttachments } from "../../../components/AttachmentField";
 import { appendAttachments } from "../../../utils/attachment";
 
-export default function CustomerFormPage() {
+export default function CostProfitFormPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [searchParams] = useSearchParams();
 
@@ -24,24 +21,13 @@ export default function CustomerFormPage() {
 
   const [readOnly, setReadOnly] = useState(false);
 
-  const [formData, setFormData] = useState(DEFAULT_CUSTOMER_FORM);
+  const [formData, setFormData] = useState(DEFAULT_COSTPROFIT_FORM);
 
   const [revisionNotes, setRevisionNotes] = useState([]);
 
   const [attachments, setAttachments] = useState([]);
 
   const [submitMode, setSubmitMode] = useState("");
-
-  const requestor = useMemo(
-    () => ({
-      name: getUserValue(user, ["name", "nama"]),
-      position: getUserValue(user, ["position"]),
-      division: getUserValue(user, ["division"]),
-      department: getUserValue(user, ["department"]),
-      email: getUserValue(user, ["email"]),
-    }),
-    [user],
-  );
 
   useEffect(() => {
     if (!submissionId) {
@@ -72,7 +58,7 @@ export default function CustomerFormPage() {
         if (
           submission.type !== "SAP" ||
           submission.category !== "Master Data" ||
-          submission.sub_category !== "Customer"
+          submission.sub_category !== "Cost Center and Profit Center"
         ) {
           navigate("/submission");
           return;
@@ -85,7 +71,7 @@ export default function CustomerFormPage() {
         setReadOnly(!editableStatuses.includes(submission.status));
 
         setFormData({
-          ...DEFAULT_CUSTOMER_FORM,
+          ...DEFAULT_COSTPROFIT_FORM,
           ...(submission.form_data || {}),
         });
       } catch (error) {
@@ -94,7 +80,7 @@ export default function CustomerFormPage() {
         showNotification({
           icon: "error",
           title: "Failed",
-          text: error.response?.data?.message || "Failed to load Request.",
+          text: error.response?.data?.message || "Failed to load request.",
         });
 
         navigate("/submission");
@@ -130,14 +116,6 @@ export default function CustomerFormPage() {
       if (!formElement.reportValidity()) {
         return;
       }
-
-      if (!formData.requestType) {
-        return;
-      }
-
-      if (formData.requestType !== "New" && !formData.customerCode) {
-        return;
-      }
     }
 
     setSubmitMode(mode);
@@ -146,8 +124,8 @@ export default function CustomerFormPage() {
       const payload = {
         type: "SAP",
         category: "Master Data",
-        sub_category: "Customer",
-        form_type: "SAP - Master Data - Customer",
+        sub_category: "Cost Center and Profit Center",
+        form_type: "SAP - Master Data - Cost Profit",
         status: mode === "submit" ? "SUBMITTED" : "DRAFT",
         form_data: {
           ...formData,
@@ -230,11 +208,11 @@ export default function CustomerFormPage() {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-                SAP · Master Data · Customer
+                SAP · Master Data · Cost Center and Profit Center
               </p>
 
               <h1 className="mt-2 wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Master Data Customer Request
+                Master Data Cost Center and Profit Center Request
               </h1>
             </div>
           </div>
@@ -284,12 +262,11 @@ export default function CustomerFormPage() {
             <FormRenderer
               type="SAP"
               category="Master Data"
-              subCategory="Customer"
+              subCategory="Cost Center and Profit Center"
               formData={formData}
               setFormData={setFormData}
               mode="create"
               readOnly={readOnly}
-              requestor={requestor}
               attachments={attachments}
               setAttachments={setAttachments}
               existingAttachments={attachments}

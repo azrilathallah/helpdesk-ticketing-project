@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { showNotification, showConfirmation } from "../../utils/notification";
 
 import { submissionApi } from "../../api/submission";
-import FormRenderer from "../../components/sap-masterdata/FormRenderer";
+import FormRenderer from "../../components/FormRenderer";
 import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";

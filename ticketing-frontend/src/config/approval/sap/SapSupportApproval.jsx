@@ -1,5 +1,5 @@
-import { showNotification } from "../../utils/notification";
-import { DEFAULT_SAP_SUPPORT_FORM } from "../../components/sap-masterdata/forms/SapSupportFormFields";
+import { showNotification } from "../../../utils/notification";
+import { DEFAULT_SAP_SUPPORT_FORM } from "../../../components/sap/SapSupportFormFields";
 
 /* =========================================================
    SAP SUPPORT APPROVAL CONFIGURATION

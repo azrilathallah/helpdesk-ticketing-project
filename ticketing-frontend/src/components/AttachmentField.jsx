@@ -14,8 +14,8 @@ import {
   isNewAttachment,
   isPreviewable,
   openAttachment,
-} from "../../utils/attachment";
-import { showConfirmation, showNotification } from "../../utils/notification";
+} from "../utils/attachment";
+import { showConfirmation, showNotification } from "../utils/notification";
 
 const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
 
@@ -256,9 +256,7 @@ export default function AttachmentField({
         <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3">
           <Paperclip className="h-4 w-4 text-slate-400" />
           <div>
-            <p className="text-xs text-slate-500">
-              No file was uploaded.
-            </p>
+            <p className="text-xs text-slate-500">No file was uploaded.</p>
           </div>
         </div>
       )}

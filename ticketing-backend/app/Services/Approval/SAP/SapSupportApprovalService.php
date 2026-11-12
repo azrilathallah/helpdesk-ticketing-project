@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Approval\Forms;
+namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { showNotification } from "../../utils/notification";
 import { approvalApi } from "../../api/approval";
@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   DEFAULT_CR_DATA,
   ChangeRequestFormSections,
-} from "../../components/sap-masterdata/forms/SapSupportFormFields";
+} from "../../components/sap/SapSupportFormFields";
 
 export default function ChangeRequestFormPage() {
   const { id } = useParams();

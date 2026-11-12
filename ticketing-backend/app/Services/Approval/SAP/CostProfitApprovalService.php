@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Approval\Forms;
+namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
@@ -8,7 +8,7 @@ use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class GLApprovalService
+class CostProfitApprovalService
 {
     public function __construct(private ApprovalQueryService $query) {}
 
@@ -20,73 +20,9 @@ class GLApprovalService
         ];
     }
 
-    public function approveAccDeptHead(Request $request, Submission $submission)
-    {
-        if ($submission->status !== Submission::STATUS_REVIEW_ACC_DEPT_HEAD) {
-            return response()->json([
-                'message' => 'The request is not in the correct status to be approved by the Accounting Department Head'
-            ], 422);
-        }
-
-        $request->validate([
-            'notes' => 'nullable|string|max:1000'
-        ]);
-
-        DB::transaction(function () use ($request, $submission) {
-            SubmissionApproval::create([
-                'submission_id' => $submission->id,
-                'step' => 'ACC_DEPT_HEAD_APPROVE',
-                'action' => 'APPROVED',
-                'acted_by' => $request->user()->id,
-                'notes' => $request->input('notes'),
-                'created_at' => now(),
-            ]);
-
-            $submission->status = Submission::STATUS_APPROVED_ACC_DEPT_HEAD;
-            $submission->save();
-        });
-
-        return $this->query->responseFor(
-            $submission,
-            'The request was successfully approved by the Accounting Department Head.'
-        );
-    }
-
-    public function approveAccountingHead(Request $request, Submission $submission)
-    {
-        if ($submission->status !== Submission::STATUS_APPROVED_ACC_DEPT_HEAD) {
-            return response()->json([
-                'message' => 'The request is not in the correct status to be approved by the Accounting Head'
-            ], 422);
-        }
-
-        $request->validate([
-            'notes' => 'nullable|string|max:1000'
-        ]);
-
-        DB::transaction(function () use ($request, $submission) {
-            SubmissionApproval::create([
-                'submission_id' => $submission->id,
-                'step' => 'ACCOUNTING_HEAD_APPROVE',
-                'action' => 'APPROVED',
-                'acted_by' => $request->user()->id,
-                'notes' => $request->input('notes'),
-                'created_at' => now(),
-            ]);
-
-            $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
-            $submission->save();
-        });
-
-        return $this->query->responseFor(
-            $submission,
-            'The request was successfully approved by the Accounting Head.'
-        );
-    }
-
     public function approveDivHead(Request $request, Submission $submission)
     {
-        if ($submission->status !== Submission::STATUS_APPROVED_ACCOUNTING_HEAD) {
+        if ($submission->status !== Submission::STATUS_REVIEW_DIV_HEAD) {
             return response()->json([
                 'message' => 'The request is not in the correct status to be approved by the Division Head.'
             ], 422);
@@ -151,9 +87,7 @@ class GLApprovalService
     public function reject(Request $request, Submission $submission)
     {
         if (!in_array($submission->status, [
-            Submission::STATUS_REVIEW_ACC_DEPT_HEAD,
-            Submission::STATUS_APPROVED_ACC_DEPT_HEAD,
-            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
+            Submission::STATUS_REVIEW_DIV_HEAD,
         ], true))
             return response()->json([
                 'message' => 'The request cannot be rejected at this stage.'
@@ -192,9 +126,9 @@ class GLApprovalService
         );
 
         $flowMap = [
-            Submission::STATUS_REVIEW_ACC_DEPT_HEAD => [
+            Submission::STATUS_REVIEW_DIV_HEAD => [
                 'next_status' => Submission::STATUS_REVISION_REQUESTOR,
-                'step' => 'ACC_DEPT_HEAD_REVISION',
+                'step' => 'DIV_HEAD_REVISION',
                 'message' => 'The request has been returned to the Requester for revision.'
             ]
         ];

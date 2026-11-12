@@ -1,21 +1,21 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { showNotification } from "../../utils/notification";
 
 import { approvalApi } from "../../api/approval";
-import FormRenderer from "../../components/sap-masterdata/FormRenderer";
+import FormRenderer from "../../components/FormRenderer";
 import DataTable from "../../components/DataTable";
 
 import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval";
 
-import { createCustomerActions } from "../../config/approval/CustomerApproval";
-import { createVendorActions } from "../../config/approval/VendorApproval";
-import { createMaterialActions } from "../../config/approval/MaterialApproval";
-import { createGLActions } from "../../config/approval/GLApproval";
-import { createUserIdActions } from "../../config/approval/UserIdApproval";
-import { createCostProfitActions } from "../../config/approval/CostProfitApproval";
-import { createSapSupportActions } from "../../config/approval/SapSupportApproval";
+import { createCustomerActions } from "../../config/approval/sap/CustomerApproval";
+import { createVendorActions } from "../../config/approval/sap/VendorApproval";
+import { createMaterialActions } from "../../config/approval/sap/MaterialApproval";
+import { createGLActions } from "../../config/approval/sap/GLApproval";
+import { createUserIdActions } from "../../config/approval/sap/UserIdApproval";
+import { createCostProfitActions } from "../../config/approval/sap/CostProfitApproval";
+import { createSapSupportActions } from "../../config/approval/sap/SapSupportApproval";
 
 /* =========================================================
    STATUS CONFIGURATION

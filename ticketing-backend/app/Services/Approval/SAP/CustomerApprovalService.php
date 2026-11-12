@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Approval\Forms;
+namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
@@ -8,79 +8,40 @@ use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MaterialApprovalService
+class CustomerApprovalService
 {
     public function __construct(private ApprovalQueryService $query) {}
 
-    protected function isMaterial(Submission $submission): bool
-    {
-        return strtolower(trim((string) $submission->sub_category)) === 'material';
-    }
-
-    protected function materialType(Submission $submission): string
-    {
-        return strtoupper(
-            trim(
-                (string)
-                (($submission->form_data ?? [])['materialType'] ?? '')
-            )
-        );
-    }
-
     protected function accountingRules(Submission $submission): array
     {
-        $type = $this->materialType($submission);
-
-        if ($type === 'YPRO') {
-            return [
-                'accounting_data' => 'required|array',
-                'accounting_data.glAccount' => 'required|string|max:100',
-                'notes' => 'nullable|string|max:1000',
-            ];
-        }
-
-        if ($type === 'ZCOM') {
-            return [
-                'accounting_data' => 'required|array',
-                'accounting_data.reconAccount' => 'required|string|max:100',
-                'notes' => 'nullable|string|max:1000',
-            ];
-        }
-
-        return [];
+        return [
+            'accounting_data' => 'required|array',
+            'accounting_data.accountGroup' => 'required|string',
+            'accounting_data.reconAccount' => 'required|string',
+            'accounting_data.sortKey' => 'required|string',
+            'accounting_data.toleranceGroup' => 'required|string',
+            'notes' => 'nullable|string|max:1000'
+        ];
     }
 
     protected function resolveCodeFields(): array
     {
         return [
-            'request' => 'material_code',
-            'form' => 'materialCode'
+            'request' => 'customer_code',
+            'form' => 'customerCode'
         ];
     }
 
     protected function allowedResolveStatuses(): array
     {
         return [
-            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
-            Submission::STATUS_APPROVED_DIV_HEAD,
+            Submission::STATUS_APPROVED_TAX_HEAD,
             Submission::STATUS_WAITING_PIC
         ];
     }
 
     protected function accountingError(Submission $submission): ?string
     {
-        $type = $this->materialType($submission);
-        $data = $submission->form_data ?? [];
-
-        if (!in_array($type, ['YPRO', 'ZCOM'], true))
-            return 'This material type does not require approval from the Accounting Head.';
-
-        if ($type === 'YPRO' && trim((string) ($data['glAccount'] ?? '')) === '')
-            return 'The GL Account must be filled out by the accounting staff.';
-
-        if ($type === 'ZCOM' && trim((string) ($data['reconAccount'] ?? '')) === '')
-            return 'The Recon Account must be filled out by the accounting staff.';
-
         return null;
     }
 
@@ -92,9 +53,7 @@ class MaterialApprovalService
             ], 422);
         }
 
-        $request->validate([
-            'notes' => 'nullable|string|max:1000'
-        ]);
+        $request->validate(['notes' => 'nullable|string|max:1000']);
 
         DB::transaction(function () use ($request, $submission) {
             SubmissionApproval::create([
@@ -118,12 +77,6 @@ class MaterialApprovalService
 
     public function fillAccounting(Request $request, Submission $submission)
     {
-        if ($this->isMaterial($submission) && !in_array($this->materialType($submission), ['YPRO', 'ZCOM'], true)) {
-            return response()->json([
-                'message' => 'Accounting Staff entries are required only for YPRO and ZCOM material types.'
-            ], 422);
-        }
-
         if (!in_array($submission->status, [
             Submission::STATUS_APPROVED_DIV_HEAD,
             Submission::STATUS_REVISION_ACCOUNTING
@@ -183,12 +136,6 @@ class MaterialApprovalService
             ], 422);
         }
 
-        if ($this->isMaterial($submission) && !in_array($this->materialType($submission), ['YPRO', 'ZCOM'], true)) {
-            return response()->json([
-                'message' => 'This material type does not require approval from the Accounting Head.'
-            ], 422);
-        }
-
         $hasFill = $submission->approvals()
             ->whereIn('step', ['ACCOUNTING_FILL', 'ACCOUNTING_REFILL'])
             ->whereIn('action', ['FILLED', 'REFILLED'])
@@ -201,10 +148,9 @@ class MaterialApprovalService
 
         $error = $this->accountingError($submission);
 
-        if ($error !== null)
-            return response()->json([
-                'message' => $error
-            ], 422);
+        if ($error !== null) return response()->json([
+            'message' => $error
+        ], 422);
 
         $request->validate([
             'notes' => 'nullable|string|max:1000'
@@ -223,9 +169,98 @@ class MaterialApprovalService
             $submission->status = Submission::STATUS_APPROVED_ACCOUNTING_HEAD;
             $submission->save();
         });
+
         return $this->query->responseFor(
             $submission,
             'The request was successfully approved by the Accounting Head.'
+        );
+    }
+
+    public function fillTax(Request $request, Submission $submission)
+    {
+        if (!in_array($submission->status, [
+            Submission::STATUS_APPROVED_ACCOUNTING_HEAD,
+            Submission::STATUS_REVISION_TAX
+        ], true)) {
+            return response()->json([
+                'message' => 'The request is not in the Tax processing stage.'
+            ], 422);
+        }
+
+        $request->validate([
+            'tax_data' => 'required|array',
+            'tax_data.witholdingTax' => 'required|array',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+        $taxData = $request->input('tax_data');
+        $wasRevision = $submission->status === Submission::STATUS_REVISION_TAX;
+
+        DB::transaction(function () use (
+            $request,
+            $submission,
+            $taxData,
+            $wasRevision
+        ) {
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => $wasRevision ? 'TAX_REFILL' : 'TAX_FILL',
+                'action' => $wasRevision ? 'REFILLED' : 'FILLED',
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes'),
+                'step_data' => $taxData,
+                'created_at' => now(),
+            ]);
+
+            $submission->form_data = array_merge(
+                $submission->form_data ?? [],
+                $taxData
+            );
+            $submission->status = Submission::STATUS_REVIEW_TAX_HEAD;
+            $submission->save();
+        });
+
+        return $this->query->responseFor(
+            $submission,
+            'Tax data was successfully saved.'
+        );
+    }
+
+    public function approveTaxHead(Request $request, Submission $submission)
+    {
+        if ($submission->status !== Submission::STATUS_REVIEW_TAX_HEAD)
+            return response()->json([
+                'message' => 'The request is not in the correct status to be approved by the Tax Head'
+            ], 422);
+
+        $hasFill = $submission->approvals()
+            ->whereIn('step', ['TAX_FILL', 'TAX_REFILL'])
+            ->whereIn('action', ['FILLED', 'REFILLED'])
+            ->exists();
+
+        if (!$hasFill)
+            return response()->json([
+                'message' => 'Tax Staff has not filled the data. Cannot be approved.'
+            ], 422);
+
+        $request->validate(['notes' => 'nullable|string|max:1000']);
+
+        DB::transaction(function () use ($request, $submission) {
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => 'TAX_HEAD_APPROVE',
+                'action' => 'APPROVED',
+                'acted_by' => $request->user()->id,
+                'notes' => $request->input('notes'),
+                'created_at' => now(),
+            ]);
+
+            $submission->status = Submission::STATUS_APPROVED_TAX_HEAD;
+            $submission->save();
+        });
+
+        return $this->query->responseFor(
+            $submission,
+            'The request was successfully approved by the Tax Head.'
         );
     }
 
@@ -260,6 +295,7 @@ class MaterialApprovalService
                 $data[$fields['form']] = $code;
                 $submission->form_data = $data;
             }
+
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'PIC_PROCESS',
@@ -273,9 +309,10 @@ class MaterialApprovalService
             $submission->status = Submission::STATUS_TICKET_SOLVED;
             $submission->save();
         });
+
         return $this->query->responseFor(
             $submission,
-            'The request was succesfully resolved.'
+            'The request was succesfully resolved'
         );
     }
 
@@ -283,7 +320,8 @@ class MaterialApprovalService
     {
         if (!in_array($submission->status, [
             Submission::STATUS_REVIEW_DIV_HEAD,
-            Submission::STATUS_REVIEW_ACCOUNTING_HEAD
+            Submission::STATUS_REVIEW_ACCOUNTING_HEAD,
+            Submission::STATUS_REVIEW_TAX_HEAD
         ], true))
             return response()->json([
                 'message' => 'The request cannot be rejected at this stage.'
@@ -307,6 +345,7 @@ class MaterialApprovalService
             $submission->status = Submission::STATUS_TICKET_REJECTED;
             $submission->save();
         });
+
         return $this->query->responseFor(
             $submission,
             'The request was succesfully rejected.'
@@ -331,14 +370,18 @@ class MaterialApprovalService
                 'step' => 'ACCOUNTING_REVISION',
                 'message' => 'The request has been returned to the Accounting Staff for revision.'
             ],
+            Submission::STATUS_REVIEW_TAX_HEAD => [
+                'next_status' => Submission::STATUS_REVISION_TAX,
+                'step' => 'TAX_REVISION',
+                'message' => 'The request has been returned to the Tax Staff for revision.'
+            ],
         ];
 
         $flow = $flowMap[$submission->status] ?? null;
 
-        if (!$flow)
-            return response()->json([
-                'message' => 'No revisions can be made to this request status.'
-            ], 422);
+        if (!$flow) return response()->json([
+            'message' => 'No revisions can be made to this request status.'
+        ], 422);
 
         DB::transaction(function () use (
             $request,

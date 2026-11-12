@@ -83,7 +83,10 @@ export function ChangeRequestFormSections({
   return (
     <>
       {/* SECTION 1: HEADER PERMINTAAN CR */}
-      <Section number={startSectionNumber} title="Change Request Management Form">
+      <Section
+        number={startSectionNumber}
+        title="Change Request Management Form"
+      >
         <Field label="Request Title" required={!disabled}>
           <input
             type="text"
@@ -315,10 +318,7 @@ export default function SapSupportFormFields({
         Boolean(form.solution) ||
         status === "TICKET_SOLVED") && (
         <Section number={nextSection()} title="PIC Resolution">
-          <Field
-            label="Solution"
-            required={canEditSolution}
-          >
+          <Field label="Solution" required={canEditSolution}>
             <textarea
               rows={3}
               className={`${inputClass} resize-y`}

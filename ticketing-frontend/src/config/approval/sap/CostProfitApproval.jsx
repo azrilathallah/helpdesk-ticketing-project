@@ -1,12 +1,12 @@
-import { showNotification } from "../../utils/notification";
-import { DEFAULT_USERID_FORM } from "../../components/sap-masterdata/forms/UserIdFormFields";
+import { showNotification } from "../../../utils/notification";
+import { DEFAULT_COSTPROFIT_FORM } from "../../../components/sap/CostProfitFormFields";
 
 /* =========================================================
-   USER ID APPROVAL CONFIGURATION
+   COST PROFIT APPROVAL CONFIGURATION
 ========================================================= */
 
-export const userIdApproval = {
-  getDefaultForm: () => DEFAULT_USERID_FORM,
+export const costProfitApproval = {
+  getDefaultForm: () => DEFAULT_COSTPROFIT_FORM,
 
   getRole(status) {
     switch (status) {
@@ -19,31 +19,20 @@ export const userIdApproval = {
         return null;
     }
   },
-
-  getResolveInfo(formData, submission) {
-    const requestType =
-      submission?.form_data?.requestType || formData.requestType;
-    const code = String(formData.userIdCode).trim();
-    if (requestType === "New" && !code)
-      return { error: "The User ID Code is required." };
-    return { code, isVendor: false, isMaterial: false, isUserId: true };
-  },
 };
 
 /* =========================================================
-   USER ID APPROVAL ACTIONS
+   COST PROFIT APPROVAL ACTIONS
 ========================================================= */
 
-export function createUserIdActions(context) {
+export function createCostProfitActions(context) {
   const {
     approvalApi,
-    isUserIdSubmission,
+    isCostProfitSubmission,
     submission,
     processing,
     setProcessing,
     setActionError,
-    formLogic,
-    formData,
     loadDetail,
     navigate,
     primaryButton,
@@ -53,8 +42,8 @@ export function createUserIdActions(context) {
     openRevisionModal,
   } = context;
 
-  const handleUserIdAction = async (action) => {
-    if (!isUserIdSubmission) return;
+  const handleCostProfitAction = async (action) => {
+    if (!isCostProfitSubmission) return;
     if (!submission || processing) return;
 
     try {
@@ -70,24 +59,7 @@ export function createUserIdActions(context) {
         }
 
         case "resolve": {
-          const result = formLogic?.getResolveInfo(formData, submission);
-
-          if (!result) {
-            setActionError(
-              "The resolve rule for this form has not been configured.",
-            );
-            return;
-          }
-
-          if (result.error) {
-            setActionError(result.error);
-            return;
-          }
-
-          response = await approvalApi.resolve(submission.id, {
-            code: result.code,
-            type: "userId",
-          });
+          response = await approvalApi.resolve(submission.id);
 
           showNotification({
             icon: "success",
@@ -121,8 +93,8 @@ export function createUserIdActions(context) {
     }
   };
 
-  const renderUserIdActionButtons = () => {
-    if (!isUserIdSubmission || !submission) return null;
+  const renderCostProfitActionButtons = () => {
+    if (!isCostProfitSubmission || !submission) return null;
 
     const currentStatus = submission.status;
 
@@ -150,7 +122,7 @@ export function createUserIdActions(context) {
           <button
             type="button"
             className={primaryButton}
-            onClick={() => handleUserIdAction("approve-divhead")}
+            onClick={() => handleCostProfitAction("approve-divhead")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Approve"}
@@ -163,9 +135,9 @@ export function createUserIdActions(context) {
       return (
         <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
           <button
-            type="submit"
+            type="button"
             className={primaryButton}
-            onClick={() => handleUserIdAction("resolve")}
+            onClick={() => handleCostProfitAction("resolve")}
             disabled={processing}
           >
             {processing ? "Processing..." : "Resolve"}
@@ -177,5 +149,5 @@ export function createUserIdActions(context) {
     return null;
   };
 
-  return { handleUserIdAction, renderUserIdActionButtons };
+  return { handleCostProfitAction, renderCostProfitActionButtons };
 }

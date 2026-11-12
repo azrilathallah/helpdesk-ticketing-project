@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Approval\Forms;
+namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
@@ -8,9 +8,17 @@ use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CostProfitApprovalService
+class UserIdApprovalService
 {
     public function __construct(private ApprovalQueryService $query) {}
+
+    protected function resolveCodeFields(): array
+    {
+        return [
+            'request' => 'userId_code',
+            'form' => 'userIdCode'
+        ];
+    }
 
     protected function allowedResolveStatuses(): array
     {
@@ -59,25 +67,43 @@ class CostProfitApprovalService
                 'message' => 'The request is not in the PIC processing stage.'
             ], 422);
 
-        $request->validate([
-            'notes' => 'nullable|string|max:1000'
-        ]);
+        $formData = $submission->form_data ?? [];
+        $isNew = ($formData['requestType'] ?? '') === 'New';
+        $fields = $this->resolveCodeFields();
+        $rules = ['notes' => 'nullable|string|max:1000'];
 
-        DB::transaction(function () use ($request, $submission) {
+        if ($isNew)
+            $rules[$fields['request']] = 'required|string|max:50';
+
+        $request->validate($rules);
+
+        DB::transaction(function () use (
+            $request,
+            $submission,
+            $isNew,
+            $fields
+        ) {
+            $stepData = [];
+            if ($isNew) {
+                $code = trim((string) $request->input($fields['request']));
+                $stepData[$fields['form']] = $code;
+                $data = $submission->form_data ?? [];
+                $data[$fields['form']] = $code;
+                $submission->form_data = $data;
+            }
             SubmissionApproval::create([
                 'submission_id' => $submission->id,
                 'step' => 'PIC_PROCESS',
                 'action' => 'SOLVED',
                 'acted_by' => $request->user()->id,
                 'notes' => $request->input('notes'),
-                'step_data' => null,
+                'step_data' => $stepData ?: null,
                 'created_at' => now(),
             ]);
 
             $submission->status = Submission::STATUS_TICKET_SOLVED;
             $submission->save();
         });
-
         return $this->query->responseFor(
             $submission,
             'The request was succesfully resolved.'
@@ -111,7 +137,6 @@ class CostProfitApprovalService
             $submission->status = Submission::STATUS_TICKET_REJECTED;
             $submission->save();
         });
-
         return $this->query->responseFor(
             $submission,
             'The request was succesfully rejected.'
