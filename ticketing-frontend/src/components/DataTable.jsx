@@ -452,11 +452,11 @@ export default function DataTable({
         )}
 
         {!loading && !error && filteredSubmissions.length === 0 && (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-14 text-center">
+          <div className="rounded-b-xl bg-white px-5 py-18 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-slate-200">
               📄
             </div>
-            <h3 className="mt-4 font-semibold text-slate-900">
+            <h3 className="mt-3 font-semibold text-slate-900">
               {submissions.length === 0
                 ? isApproval
                   ? "No approvals yet"
@@ -465,7 +465,7 @@ export default function DataTable({
                   ? "No matching approvals"
                   : "No matching submissions"}
             </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+            <p className="mx-auto max-w-md text-sm text-slate-500">
               {submissions.length === 0
                 ? isApproval
                   ? "There are no requests available for your approval."
