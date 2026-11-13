@@ -252,6 +252,11 @@ export default function CreateTicketPage() {
           return;
         }
 
+        if (selection.subCategory === "WBS") {
+          navigate("/create-ticket/sap-masterdata/wbs-form");
+          return;
+        }
+
         if (selection.subCategory === "Cost Center and Profit Center") {
           navigate("/create-ticket/sap-masterdata/costprofit-form");
           return;

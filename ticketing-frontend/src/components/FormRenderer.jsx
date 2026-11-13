@@ -4,6 +4,7 @@ import MaterialFormFields from "./sap/MaterialFormFields";
 import GLFormFields from "./sap/GLFormFields";
 import UserIdFormFields from "./sap/UserIdFormFields";
 import CostProfitFormFields from "./sap/CostProfitFormFields";
+import WbsFormFields from "./sap/WbsFormFields";
 import SapSupportFormFields from "./sap/SapSupportFormFields";
 
 export default function FormRenderer({
@@ -117,6 +118,14 @@ export default function FormRenderer({
     normalizedSubCategory === "cost center and profit center"
   ) {
     return <CostProfitFormFields {...commonProps} />;
+  }
+
+  if (
+    normalizedType === "sap" &&
+    normalizedCategory === "master data" &&
+    normalizedSubCategory === "wbs"
+  ) {
+    return <WbsFormFields {...commonProps} />;
   }
 
   if (normalizedType === "sap" && normalizedCategory === "support") {

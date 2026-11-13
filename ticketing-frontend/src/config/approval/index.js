@@ -4,6 +4,7 @@ import { materialApproval } from "./sap/MaterialApproval";
 import { glApproval } from "./sap/GLApproval";
 import { userIdApproval } from "./sap/UserIdApproval";
 import { costProfitApproval } from "./sap/CostProfitApproval";
+import { wbsApproval } from "./sap/WbsApproval";
 import { sapSupportApproval } from "./sap/SapSupportApproval";
 
 export const approvalFormLogic = {
@@ -13,6 +14,7 @@ export const approvalFormLogic = {
   gl: glApproval,
   "user id": userIdApproval,
   "cost center and profit center": costProfitApproval,
+  wbs: wbsApproval,
   support: sapSupportApproval,
 };
 

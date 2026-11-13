@@ -15,6 +15,7 @@ import { createMaterialActions } from "../../config/approval/sap/MaterialApprova
 import { createGLActions } from "../../config/approval/sap/GLApproval";
 import { createUserIdActions } from "../../config/approval/sap/UserIdApproval";
 import { createCostProfitActions } from "../../config/approval/sap/CostProfitApproval";
+import { createWbsActions } from "../../config/approval/sap/WbsApproval";
 import { createSapSupportActions } from "../../config/approval/sap/SapSupportApproval";
 
 /* =========================================================
@@ -404,6 +405,8 @@ function ApprovalDetailPage({ id }) {
   const isCostProfitSubmission =
     String(submission?.sub_category).toLowerCase() ===
     "cost center and profit center";
+  const isWbsSubmission =
+    String(submission?.sub_category).toLowerCase() === "wbs";
   const isSapSupportSubmission =
     String(submission?.category).toLowerCase() === "support";
 
@@ -585,6 +588,7 @@ function ApprovalDetailPage({ id }) {
     isGLSubmission,
     isUserIdSubmission,
     isCostProfitSubmission,
+    isWbsSubmission,
     isSapSupportSubmission,
     submission,
     processing,
@@ -611,6 +615,7 @@ function ApprovalDetailPage({ id }) {
   const glActions = createGLActions(actionContext);
   const userIdActions = createUserIdActions(actionContext);
   const costProfitActions = createCostProfitActions(actionContext);
+  const wbsActions = createWbsActions(actionContext);
   const sapSupportActions = createSapSupportActions(actionContext);
 
   const { renderCustomerActionButtons } = customerActions;
@@ -619,6 +624,7 @@ function ApprovalDetailPage({ id }) {
   const { renderGLActionButtons } = glActions;
   const { renderUserIdActionButtons } = userIdActions;
   const { renderCostProfitActionButtons } = costProfitActions;
+  const { renderWbsActionButtons } = wbsActions;
   const { renderSapSupportActionButtons } = sapSupportActions;
 
   /* =========================================================
@@ -808,6 +814,7 @@ function ApprovalDetailPage({ id }) {
             {isGLSubmission && renderGLActionButtons()}
             {isUserIdSubmission && renderUserIdActionButtons()}
             {isCostProfitSubmission && renderCostProfitActionButtons()}
+            {isWbsSubmission && renderWbsActionButtons()}
             {isSapSupportSubmission && renderSapSupportActionButtons()}
           </form>
         </div>

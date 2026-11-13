@@ -84,6 +84,7 @@ class Submission extends Model
 
         return match (strtolower(trim((string) $subCategory))) {
             'gl' => self::STATUS_REVIEW_ACC_DEPT_HEAD,
+            'wbs' => self::STATUS_WAITING_PIC,
             default => self::STATUS_REVIEW_DIV_HEAD,
         };
     }

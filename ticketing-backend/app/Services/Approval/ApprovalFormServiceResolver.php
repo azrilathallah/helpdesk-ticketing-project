@@ -9,6 +9,7 @@ use App\Services\Approval\SAP\MaterialApprovalService;
 use App\Services\Approval\SAP\VendorApprovalService;
 use App\Services\Approval\SAP\UserIdApprovalService;
 use App\Services\Approval\SAP\CostProfitApprovalService;
+use App\Services\Approval\SAP\WbsApprovalService;
 use App\Services\Approval\SAP\SapSupportApprovalService;
 
 class ApprovalFormServiceResolver
@@ -19,6 +20,7 @@ class ApprovalFormServiceResolver
     GLApprovalService|
     UserIdApprovalService|
     CostProfitApprovalService|
+    WbsApprovalService|
     SapSupportApprovalService|
     null
     {
@@ -33,6 +35,7 @@ class ApprovalFormServiceResolver
             'gl' => app(GLApprovalService::class),
             'user id' => app(UserIdApprovalService::class),
             'cost center and profit center' => app(CostProfitApprovalService::class),
+            'wbs' => app(WbsApprovalService::class),
             default => null,
         };
     }

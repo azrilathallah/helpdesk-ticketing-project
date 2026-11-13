@@ -11,6 +11,7 @@ import MaterialFormPage from "../pages/ticket/sap/MaterialFormPage";
 import GLFormPage from "../pages/ticket/sap/GLFormPage";
 import UserIdFormPage from "../pages/ticket/sap/UserIdFormPage";
 import CostProfitFormPage from "../pages/ticket/sap/CostProfitFormPage";
+import WbsFormPage from "../pages/ticket/sap/WbsFormPage";
 import ChangeRequestFormPage from "../pages/ticket/sap/ChangeRequestFormPage";
 
 import SubmissionPage from "../pages/submission/SubmissionPage";
@@ -56,6 +57,10 @@ export default function AppRoutes() {
         <Route
           path="/create-ticket/sap-masterdata/costprofit-form"
           element={<CostProfitFormPage />}
+        />
+        <Route
+          path="/create-ticket/sap-masterdata/wbs-form"
+          element={<WbsFormPage />}
         />
 
         {/* Submission */}
