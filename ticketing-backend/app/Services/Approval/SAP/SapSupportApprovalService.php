@@ -189,8 +189,11 @@ class SapSupportApprovalService
         }
 
         $solution = trim((string) ($request->input('solution') ?? $request->input('notes') ?? ''));
+        $formData = $submission->form_data ?? [];
+        $hasCrForm = !empty($formData['hasCrForm'])
+            || $submission->status === Submission::STATUS_APPROVED_IT_SAP_HEAD;
 
-        if ($solution === '') {
+        if (!$hasCrForm && $solution === '') {
             return response()->json([
                 'message' => 'The solution explanation is required to resolve the ticket.'
             ], 422);

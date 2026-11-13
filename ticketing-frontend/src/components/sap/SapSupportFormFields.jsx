@@ -262,6 +262,7 @@ export default function SapSupportFormFields({
     isPIC && (isRevisionPic || (isWaitingPic && Boolean(form.hasCrForm)));
   const canEditSolution =
     isPIC && ((isWaitingPic && !form.hasCrForm) || isPostCrPic);
+  const isSolutionRequired = isPIC && isWaitingPic && !form.hasCrForm;
 
   let sectionNumber = 0;
   const nextSection = () => {
@@ -313,17 +314,15 @@ export default function SapSupportFormFields({
       )}
 
       {/* 3. SOLUTION SECTION */}
-      {(canEditSolution ||
-        Boolean(form.solution) ||
-        status === "TICKET_SOLVED") && (
+      {(canEditSolution || Boolean(String(form.solution || "").trim())) && (
         <Section number={nextSection()} title="PIC Resolution">
-          <Field label="Solution" required={canEditSolution}>
+          <Field label="Solution" required={isSolutionRequired}>
             <textarea
               rows={3}
               className={`${inputClass} resize-y`}
               value={form.solution}
               onChange={(event) => update("solution", event.target.value)}
-              required={canEditSolution}
+              required={isSolutionRequired}
               disabled={!canEditSolution || processing}
             />
           </Field>

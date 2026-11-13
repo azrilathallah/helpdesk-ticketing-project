@@ -46,11 +46,16 @@ export const sapSupportApproval = {
     return { payload: crData };
   },
 
-  getResolveInfo(formData) {
-    const solution = String(formData?.solution).trim();
-    if (!solution) {
+  getResolveInfo(formData, submission) {
+    const solution = String(formData?.solution ?? "").trim();
+    const hasCrForm =
+      Boolean(formData?.hasCrForm) ||
+      submission?.status === "APPROVED_IT_SAP_HEAD";
+
+    if (!hasCrForm && !solution) {
       return { error: "Solution explanation is required." };
     }
+
     return { solution };
   },
 };
