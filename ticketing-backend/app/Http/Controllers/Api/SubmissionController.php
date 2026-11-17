@@ -49,6 +49,7 @@ class SubmissionController extends Controller
             ->whereIn('status', [
                 Submission::STATUS_REVIEW_ACC_DEPT_HEAD,
                 Submission::STATUS_REVIEW_DIV_HEAD,
+                Submission::STATUS_WAITING_PIC,
             ])
             ->count();
 
@@ -64,7 +65,6 @@ class SubmissionController extends Controller
                 Submission::STATUS_APPROVED_TAX_HEAD,
                 Submission::STATUS_REVIEW_IT_SAP_HEAD,
                 Submission::STATUS_APPROVED_IT_SAP_HEAD,
-                Submission::STATUS_WAITING_PIC,
                 Submission::STATUS_REVISION_REQUESTOR,
                 Submission::STATUS_REVISION_ACCOUNTING,
                 Submission::STATUS_REVISION_TAX,

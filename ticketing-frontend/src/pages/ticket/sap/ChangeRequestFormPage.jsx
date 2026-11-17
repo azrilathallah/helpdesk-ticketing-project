@@ -89,10 +89,11 @@ export default function ChangeRequestFormPage() {
 
   const canEdit = useMemo(
     () =>
+      Boolean(submission?.can_act) &&
       ["WAITING_PIC", "REVISION_PIC", "REVISION_REQUESTOR"].includes(
         submission?.status || "",
       ),
-    [submission?.status],
+    [submission?.can_act, submission?.status],
   );
 
   const handleSubmit = async (event) => {

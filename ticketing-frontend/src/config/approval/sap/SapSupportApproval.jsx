@@ -19,7 +19,7 @@ export const sapSupportApproval = {
       case "APPROVED_REQUESTOR":
         return "division_head";
       case "APPROVED_DIV_HEAD":
-        return "sap_head";
+        return "it_sap_head";
       default:
         return null;
     }

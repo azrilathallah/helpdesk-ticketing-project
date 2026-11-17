@@ -282,6 +282,11 @@ function ApprovalList() {
     navigate(`/approval/${submission.id}`);
   };
 
+  const pendingCount = useMemo(
+    () => submissions.filter((item) => Boolean(item.can_act)).length,
+    [submissions],
+  );
+
   return (
     <main className="mx-auto w-full space-y-3">
       {/* Header */}
@@ -310,7 +315,7 @@ function ApprovalList() {
             </p>
 
             <p className="text-lg font-bold tabular-nums text-slate-900">
-              {submissions.length}
+              {pendingCount}
             </p>
           </div>
         </div>
@@ -427,10 +432,23 @@ function ApprovalDetailPage({ id }) {
     [submission],
   );
 
-  const approvalRole = useMemo(
-    () => formLogic?.getRole(submission?.status, materialType) || null,
-    [formLogic, submission?.status, materialType],
-  );
+  const canAct = Boolean(submission?.can_act);
+
+  const approvalRole = useMemo(() => {
+    if (!canAct) return null;
+
+    return (
+      submission?.approval_role ||
+      formLogic?.getRole(submission?.status, materialType) ||
+      null
+    );
+  }, [
+    canAct,
+    submission?.approval_role,
+    formLogic,
+    submission?.status,
+    materialType,
+  ]);
 
   const existingRevisionNotes = useMemo(() => {
     const revisionStatuses = [
@@ -797,6 +815,7 @@ function ApprovalDetailPage({ id }) {
               formData={formData}
               setFormData={setFormData}
               mode="approval"
+              readOnly={!canAct}
               approvalRole={approvalRole}
               status={submission.status}
               requestor={requestor}
@@ -808,14 +827,18 @@ function ApprovalDetailPage({ id }) {
             />
 
             {/* Approval Actions */}
-            {isCustomerSubmission && renderCustomerActionButtons()}
-            {isVendorSubmission && renderVendorActionButtons()}
-            {isMaterialSubmission && renderMaterialActionButtons()}
-            {isGLSubmission && renderGLActionButtons()}
-            {isUserIdSubmission && renderUserIdActionButtons()}
-            {isCostProfitSubmission && renderCostProfitActionButtons()}
-            {isWbsSubmission && renderWbsActionButtons()}
-            {isSapSupportSubmission && renderSapSupportActionButtons()}
+            {canAct && (
+              <>
+                {isCustomerSubmission && renderCustomerActionButtons()}
+                {isVendorSubmission && renderVendorActionButtons()}
+                {isMaterialSubmission && renderMaterialActionButtons()}
+                {isGLSubmission && renderGLActionButtons()}
+                {isUserIdSubmission && renderUserIdActionButtons()}
+                {isCostProfitSubmission && renderCostProfitActionButtons()}
+                {isWbsSubmission && renderWbsActionButtons()}
+                {isSapSupportSubmission && renderSapSupportActionButtons()}
+              </>
+            )}
           </form>
         </div>
       </section>

@@ -32,7 +32,9 @@ export default function Sidebar() {
         const submissions = response.data?.data || [];
 
         if (mounted) {
-          setApprovalCount(submissions.length);
+          setApprovalCount(
+            submissions.filter((item) => Boolean(item.can_act)).length,
+          );
         }
       } catch (error) {
         console.error("Failed to get approval count:", error);
