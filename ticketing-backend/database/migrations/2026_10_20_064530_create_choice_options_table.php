@@ -13,17 +13,14 @@ return new class extends Migration
     {
         Schema::create('choice_options', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('choice_group_id')
                 ->constrained('choice_groups')
                 ->cascadeOnDelete();
-
             $table->string('value');
             $table->string('label');
             $table->unsignedInteger('sort_order')->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-
             $table->unique(
                 ['choice_group_id', 'value'],
                 'choice_options_group_value_unique'

@@ -13,9 +13,27 @@ return new class extends Migration
     {
         Schema::create('approvers', function (Blueprint $table) {
             $table->id();
-            $table->string('form_key', 100);
-            $table->string('role', 50);
-            $table->string('nik', 50);
+            $table->enum('form_key', [
+                'support',
+                'customer',
+                'vendor',
+                'material',
+                'gl',
+                'user id',
+                'cost center and profit center',
+                'wbs',
+                '*',
+            ]);
+            $table->enum('role', [
+                'ACC_DEPT_HEAD',
+                'ACCOUNTING_STAFF',
+                'ACCOUNTING_HEAD',
+                'TAX_STAFF',
+                'TAX_HEAD',
+                'IT_SAP_HEAD',
+                'PIC',
+            ]);
+            $table->string('nik');
             $table->string('email');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

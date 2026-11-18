@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('submission_id')
                 ->constrained('submissions')
                 ->cascadeOnDelete();
-            $table->string('step', 30);
-            $table->string('action', 20);
+            $table->string('step');
+            $table->string('action');
             $table->foreignId('acted_by')
                 ->constrained('users')
                 ->cascadeOnDelete();

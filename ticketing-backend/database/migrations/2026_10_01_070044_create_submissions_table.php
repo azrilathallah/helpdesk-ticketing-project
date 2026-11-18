@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('form_sequences', function (Blueprint $table) {
             $table->id();
-            $table->string('prefix', 20);
+            $table->string('prefix');
             $table->unsignedSmallInteger('year');
             $table->unsignedInteger('last_number')->default(0);
 
@@ -25,12 +25,12 @@ return new class extends Migration
             $table->foreignId('requestor_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
-            $table->string('number', 50)->unique();
-            $table->string('type', 50);
-            $table->string('category', 100)->nullable();
-            $table->string('sub_category', 100)->nullable();
-            $table->string('form_type', 100);
-            $table->string('status', 100)->default('DRAFT');
+            $table->string('number')->unique();
+            $table->string('type');
+            $table->string('category')->nullable();
+            $table->string('sub_category')->nullable();
+            $table->string('form_type');
+            $table->string('status')->default('DRAFT');
             $table->json('form_data');
             $table->json('attachments')->nullable();
             $table->timestamps();

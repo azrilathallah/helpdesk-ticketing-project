@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('key')->unique();
             $table->string('label');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
         });
     }
 
