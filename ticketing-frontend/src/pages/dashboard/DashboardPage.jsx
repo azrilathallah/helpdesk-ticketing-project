@@ -108,7 +108,7 @@ export default function DashboardPage() {
         </h1>
 
         <p className="mt-1 text-xs sm:text-sm text-slate-500">
-          Welcome to Helpdesk System IBS
+          Welcome to Helpdesk System IBSW
         </p>
       </section>
 

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { approvalApi } from "../api/approval";
@@ -18,8 +18,15 @@ const NAV_ITEMS = [
   { to: "/approval", label: "Approval List", icon: ClipboardCheck },
 ];
 
+const TERMINAL_STATUSES = [
+  "TICKET_SOLVED",
+  "TICKET_REJECTED",
+  "TICKET_CANCELLED",
+];
+
 export default function Sidebar() {
   const { logout } = useAuth();
+  const location = useLocation();
   const [approvalCount, setApprovalCount] = useState(0);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -33,7 +40,11 @@ export default function Sidebar() {
 
         if (mounted) {
           setApprovalCount(
-            submissions.filter((item) => Boolean(item.can_act)).length,
+            submissions.filter(
+              (item) =>
+                Boolean(item.can_act) &&
+                !TERMINAL_STATUSES.includes(item.status),
+            ).length,
           );
         }
       } catch (error) {
@@ -53,7 +64,7 @@ export default function Sidebar() {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [location.pathname]);
 
   return (
     <>

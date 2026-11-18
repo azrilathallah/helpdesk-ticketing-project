@@ -17,6 +17,8 @@ class ApprovalAuthorizationService
         'REQUESTOR_SUBMIT',
         'REQUESTOR_RESUBMIT',
         'REQUESTOR_CANCEL',
+        'REQUESTOR_APPROVE',
+        'REQUESTOR_REVISION',
     ];
 
     public function formKeyFor(Submission $submission): string
