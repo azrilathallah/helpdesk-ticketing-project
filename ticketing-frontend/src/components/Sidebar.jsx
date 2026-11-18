@@ -119,54 +119,62 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav
           aria-label="Main navigation"
-          className="flex flex-1 flex-col gap-2 overflow-y-auto p-3"
+          className="flex flex-1 flex-col gap-1.5 overflow-y-auto p-3"
         >
           {NAV_ITEMS.map(({ to, label, icon: Icon, primary }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={() => setIsMobileOpen(false)}
-              className={({ isActive }) =>
-                [
-                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5",
-                  "text-sm font-medium no-underline transition-all duration-200",
+            <div key={to} className="contents">
+              <NavLink
+                to={to}
+                onClick={() => setIsMobileOpen(false)}
+                className={({ isActive }) =>
+                  [
+                    "relative flex items-center rounded-lg px-3 py-2.5",
+                    "text-sm transition-all duration-200",
 
-                  primary
-                    ? [
-                        "mb-2 bg-red-700 text-white shadow-sm",
-                        "hover:bg-red-800 hover:shadow-md",
-                        "active:scale-[0.98]",
-                        isActive ? "ring-2 ring-red-200 ring-offset-2" : "",
-                      ].join(" ")
-                    : isActive
-                      ? "bg-red-50 font-semibold text-red-700"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-                ].join(" ")
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    className={
-                      primary
-                        ? "h-5 w-5 shrink-0 text-white"
-                        : isActive
-                          ? "h-5 w-5 shrink-0 text-red-600"
-                          : "h-5 w-5 shrink-0 text-slate-400"
-                    }
-                    strokeWidth={primary ? 2.5 : 2}
-                  />
+                    primary
+                      ? [
+                          "justify-center gap-2 bg-red-700 font-semibold text-white shadow-sm",
+                          "hover:bg-red-800 hover:shadow-md",
+                          "active:scale-[0.98]",
+                          isActive ? "ring-2 ring-red-200 ring-offset-2" : "",
+                        ].join(" ")
+                      : [
+                          "gap-3 font-medium",
+                          isActive
+                            ? "bg-red-50 font-semibold text-red-700"
+                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                        ].join(" "),
+                  ].join(" ")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={
+                        primary
+                          ? "h-5 w-5 shrink-0 text-white"
+                          : isActive
+                            ? "h-5 w-5 shrink-0 text-red-600"
+                            : "h-5 w-5 shrink-0 text-slate-400"
+                      }
+                      strokeWidth={primary ? 2.5 : 2}
+                    />
 
-                  <span className="min-w-0 flex-1">{label}</span>
-
-                  {to === "/approval" && approvalCount > 0 && (
-                    <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-3 text-[11px] leading-none font-bold text-white shadow-sm">
-                      {approvalCount > 99 ? "99+" : approvalCount}
+                    <span className={primary ? "" : "min-w-0 flex-1"}>
+                      {label}
                     </span>
-                  )}
-                </>
-              )}
-            </NavLink>
+
+                    {to === "/approval" && approvalCount > 0 && (
+                      <span className="ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-red-700 px-3 text-[11px] leading-none font-bold text-white shadow-sm">
+                        {approvalCount > 99 ? "99+" : approvalCount}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+
+              {primary && <hr className="my-1.5 border-slate-200" />}
+            </div>
           ))}
         </nav>
 
