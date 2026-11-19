@@ -1,12 +1,12 @@
 const inputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+  "w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
 
 const readOnlyInputClass =
-  "w-full min-w-0 rounded-md border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
+  "w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500 cursor-not-allowed outline-none";
 
-const labelClass = "mb-1 block text-xs font-semibold text-slate-700";
+const labelClass = "mb-1.5 block text-xs font-semibold text-slate-700";
 
-const requiredClass = "text-red-600";
+const requiredClass = "ml-0.5 text-red-600";
 
 export function Field({ label, required = false, children }) {
   return (

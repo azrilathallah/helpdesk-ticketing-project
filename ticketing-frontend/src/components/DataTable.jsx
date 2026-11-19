@@ -1,5 +1,16 @@
 import { useMemo, useState } from "react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  Search,
+  FileText,
+  AlertCircle,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -142,10 +153,10 @@ function PageLoading({ message = "Loading..." }) {
 
 function ErrorPanel({ message, onRetry }) {
   return (
-    <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
-      <div className="flex gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 font-bold text-red-700">
-          !
+    <div className="p-6">
+      <div className="flex gap-3.5 rounded-2xl border border-red-200 bg-red-50/40 p-5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+          <AlertCircle className="h-5 w-5" />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -153,11 +164,11 @@ function ErrorPanel({ message, onRetry }) {
           <p className="mt-1 wrap-break-word text-sm text-red-700">{message}</p>
 
           {onRetry && (
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-4 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={onRetry}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 sm:text-sm"
               >
                 Try again
               </button>
@@ -311,17 +322,17 @@ export default function DataTable({
       ];
 
   const inputClass =
-    "min-h-8 w-full rounded-lg border border-slate-300 bg-white p-1 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    "h-9 w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-1.5 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100";
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 p-4">
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+      <div className="border-b border-slate-100 p-4 sm:px-5">
         <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center">
           <div>
             <h2 className="text-sm font-bold text-slate-900">
               {title || (isApproval ? "Approval List" : "Submission List")}
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-500">
               {filteredSubmissions.length} request
               {filteredSubmissions.length !== 1 ? "s" : ""} found
             </p>
@@ -330,15 +341,13 @@ export default function DataTable({
           <div
             className={
               isApproval
-                ? "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-130 xl:grid-cols-[minmax(220px,1fr)_210px_50px]"
-                : "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-160 xl:grid-cols-[minmax(220px,1fr)_100px_210px_50px]"
+                ? "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-135 xl:grid-cols-[minmax(220px,1fr)_210px_68px]"
+                : "grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-165 xl:grid-cols-[minmax(220px,1fr)_110px_210px_68px]"
             }
           >
             {/* Search */}
             <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
-                ⌕
-              </span>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
 
               <input
                 type="search"
@@ -349,7 +358,7 @@ export default function DataTable({
                   setSearch(event.target.value);
                   setPage(1);
                 }}
-                className={`${inputClass} pl-9`}
+                className={`${inputClass} pl-8.5`}
               />
             </div>
 
@@ -452,11 +461,11 @@ export default function DataTable({
         )}
 
         {!loading && !error && filteredSubmissions.length === 0 && (
-          <div className="rounded-b-xl bg-white px-5 py-18 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-slate-200">
-              📄
+          <div className="rounded-b-2xl bg-white px-5 py-16 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 ring-1 ring-slate-200/80">
+              <FileText className="h-6 w-6" />
             </div>
-            <h3 className="mt-3 font-semibold text-slate-900">
+            <h3 className="mt-3 text-sm font-bold text-slate-900">
               {submissions.length === 0
                 ? isApproval
                   ? "No approvals yet"
@@ -465,7 +474,7 @@ export default function DataTable({
                   ? "No matching approvals"
                   : "No matching submissions"}
             </h3>
-            <p className="mx-auto max-w-md text-sm text-slate-500">
+            <p className="mx-auto mt-1 max-w-md text-xs text-slate-500">
               {submissions.length === 0
                 ? isApproval
                   ? "There are no requests available for your approval."
@@ -481,41 +490,37 @@ export default function DataTable({
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full border-separate border-spacing-0 text-left">
                 <thead>
-                  <tr className="bg-slate-50">
+                  <tr className="bg-slate-50/80">
                     {columns.map((heading) => (
                       <th
                         key={heading.label}
                         onClick={() => heading.key && handleSort(heading.key)}
-                        className={`border-b border-slate-200 p-3 text-xs font-bold uppercase tracking-wider text-slate-500 first:rounded-tl-lg last:rounded-tr-lg ${
+                        className={`border-b border-slate-200/80 px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 ${
                           heading.key
-                            ? "cursor-pointer select-none transition hover:bg-slate-100 hover:text-slate-800"
+                            ? "cursor-pointer select-none transition hover:bg-slate-100/80 hover:text-slate-800"
                             : "w-1 whitespace-nowrap text-center"
                         }`}
                       >
                         <div className="inline-flex items-center gap-1.5">
                           <span>{heading.label}</span>
                           {heading.key && (
-                            <span className="flex flex-col text-[8px] leading-2">
-                              <span
-                                className={
+                            <span className="flex flex-col -space-y-1">
+                              <ChevronUp
+                                className={`h-2.5 w-2.5 ${
                                   sortConfig.key === heading.key &&
                                   sortConfig.direction === "asc"
-                                    ? "text-blue-600"
+                                    ? "stroke-3 text-blue-600"
                                     : "text-slate-300"
-                                }
-                              >
-                                ▲
-                              </span>
-                              <span
-                                className={
+                                }`}
+                              />
+                              <ChevronDown
+                                className={`h-2.5 w-2.5 ${
                                   sortConfig.key === heading.key &&
                                   sortConfig.direction === "desc"
-                                    ? "text-blue-600"
+                                    ? "stroke-3 text-blue-600"
                                     : "text-slate-300"
-                                }
-                              >
-                                ▼
-                              </span>
+                                }`}
+                              />
                             </span>
                           )}
                         </div>
@@ -524,7 +529,7 @@ export default function DataTable({
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="divide-y divide-slate-100">
                   {displayedSubmissions.map((submission) => {
                     const isEditable = [
                       "DRAFT",
@@ -535,42 +540,42 @@ export default function DataTable({
                       <tr
                         key={submission.id}
                         onClick={() => onOpen?.(submission)}
-                        className="cursor-pointer transition hover:bg-blue-50/40"
+                        className="group cursor-pointer transition hover:bg-blue-50/40"
                       >
-                        <td className="border-b border-slate-100 p-3">
-                          <span className="text-xs font-semibold text-blue-700">
+                        <td className="px-4 py-3">
+                          <span className="text-xs font-bold text-blue-600 group-hover:text-blue-700">
                             {submission.number || "-"}
                           </span>
                         </td>
 
-                        <td className="border-b border-slate-100 p-3">
-                          <p className="text-xs font-medium text-slate-800">
+                        <td className="px-4 py-3">
+                          <p className="text-xs font-semibold text-slate-800">
                             {submission.form_type ||
                               `${submission.category || ""} ${submission.sub_category || ""}`}
                           </p>
                         </td>
 
                         {isApproval && (
-                          <td className="border-b border-slate-100 p-3 text-xs text-slate-600">
+                          <td className="px-4 py-3 text-xs font-medium text-slate-600">
                             {submission.requestor?.name || "-"}
                           </td>
                         )}
 
-                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
+                        <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
                           {formatDate(
                             submission.submitted_at || submission.created_at,
                           )}
                         </td>
 
-                        <td className="whitespace-nowrap border-b border-slate-100 p-3 text-xs text-slate-600">
+                        <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
                           {formatDate(submission.updated_at)}
                         </td>
 
-                        <td className="border-b border-slate-100 p-3">
+                        <td className="px-4 py-3">
                           <StatusBadge status={submission.status} />
                         </td>
 
-                        <td className="w-1 whitespace-nowrap border-b border-slate-100 p-3 text-center">
+                        <td className="w-1 whitespace-nowrap px-4 py-3 text-center">
                           {isApproval ? (
                             <button
                               type="button"
@@ -580,7 +585,7 @@ export default function DataTable({
                                 event.stopPropagation();
                                 onOpen?.(submission);
                               }}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
                             >
                               <Eye className="h-3.5 w-3.5" />
                             </button>
@@ -596,8 +601,8 @@ export default function DataTable({
                                 }}
                                 className={
                                   isEditable
-                                    ? "inline-flex h-7 w-7 items-center justify-center rounded-md border border-amber-200 bg-amber-50 text-amber-600 transition hover:border-amber-300 hover:bg-amber-100 hover:text-amber-700"
-                                    : "inline-flex h-7 w-7 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
+                                    ? "inline-flex h-7 w-7 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-600 transition hover:border-amber-300 hover:bg-amber-100 hover:text-amber-700"
+                                    : "inline-flex h-7 w-7 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
                                 }
                               >
                                 {isEditable ? (
@@ -615,7 +620,7 @@ export default function DataTable({
                                   onClick={(event) =>
                                     onCancel(submission, event)
                                   }
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-600 transition hover:border-red-300 hover:bg-red-100 hover:text-red-700"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:border-red-300 hover:bg-red-100 hover:text-red-700"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
@@ -631,7 +636,7 @@ export default function DataTable({
             </div>
 
             {/* Mobile Cards */}
-            <div className="grid grid-cols-1 md:hidden">
+            <div className="divide-y divide-slate-100 md:hidden">
               {displayedSubmissions.map((submission) => {
                 const isEditable = ["DRAFT", "REVISION_REQUESTOR"].includes(
                   submission.status,
@@ -640,14 +645,15 @@ export default function DataTable({
                 return (
                   <article
                     key={submission.id}
-                    className="border border-slate-300 p-4"
+                    onClick={() => onOpen?.(submission)}
+                    className="cursor-pointer p-4 transition hover:bg-slate-50/70"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="wrap-break-word text-sm font-semibold text-blue-700">
+                        <p className="wrap-break-word text-xs font-bold text-blue-600">
                           {submission.number || "-"}
                         </p>
-                        <h3 className="mt-1 wrap-break-word text-sm font-semibold text-slate-900">
+                        <h3 className="mt-1 wrap-break-word text-sm font-bold text-slate-900">
                           {submission.form_type ||
                             `${submission.category || ""} ${submission.sub_category || ""}`}
                         </h3>
@@ -655,9 +661,14 @@ export default function DataTable({
                       <StatusBadge status={submission.status} />
                     </div>
 
-                    <div className="mt-1 space-y-1 text-xs text-slate-500">
+                    <div className="mt-2 space-y-1 text-xs text-slate-500">
                       {isApproval && (
-                        <p>Requestor: {submission.requestor?.name || "-"}</p>
+                        <p>
+                          Requestor:{" "}
+                          <span className="font-medium text-slate-700">
+                            {submission.requestor?.name || "-"}
+                          </span>
+                        </p>
                       )}
                       <p>
                         Created:{" "}
@@ -668,13 +679,16 @@ export default function DataTable({
                       <p>Updated: {formatDate(submission.updated_at)}</p>
                     </div>
 
-                    <div className="mt-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-300 pt-3">
+                    <div className="mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-2.5">
                       {isApproval ? (
                         <button
                           type="button"
                           title="Review"
                           aria-label="Review"
-                          onClick={() => onOpen?.(submission)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onOpen?.(submission);
+                          }}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
                         >
                           <Eye className="h-4 w-4" />
@@ -687,7 +701,10 @@ export default function DataTable({
                             aria-label={
                               isEditable ? "Edit Submission" : "View Details"
                             }
-                            onClick={() => onOpen?.(submission)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onOpen?.(submission);
+                            }}
                             className={
                               isEditable
                                 ? "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-600 transition hover:bg-amber-100"
@@ -721,7 +738,7 @@ export default function DataTable({
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-col items-center justify-between gap-2 border-t border-slate-200 px-4 py-3 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/40 px-4 py-3 sm:flex-row sm:px-5">
               <p className="text-xs text-slate-500">
                 Showing{" "}
                 <span className="font-semibold text-slate-700">
@@ -745,9 +762,9 @@ export default function DataTable({
                   disabled={currentPage <= 1}
                   onClick={() => setPage(currentPage - 1)}
                   aria-label="Previous page"
-                  className="min-w-8 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  ‹
+                  <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
 
                 {(() => {
@@ -770,8 +787,8 @@ export default function DataTable({
                       aria-current={p === currentPage ? "page" : undefined}
                       className={
                         p === currentPage
-                          ? "min-w-8 rounded-md border border-blue-600 bg-blue-600 px-2 py-1 text-xs font-semibold text-white"
-                          : "min-w-8 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                          ? "inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-blue-600 bg-blue-600 px-2 text-xs font-semibold text-white shadow-2xs"
+                          : "inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                       }
                     >
                       {p}
@@ -784,9 +801,9 @@ export default function DataTable({
                   disabled={currentPage >= totalPages}
                   onClick={() => setPage(currentPage + 1)}
                   aria-label="Next page"
-                  className="min-w-8 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  ›
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>

@@ -62,9 +62,9 @@ export default function ChoiceGroup({
 
     return (
       <div className="min-w-0">
-        <label className="mb-1 block text-xs font-semibold text-slate-700">
+        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
           {label}
-          {required && <span className="text-red-600">*</span>}
+          {required && <span className="ml-0.5 text-red-600">*</span>}
         </label>
 
         <select
@@ -76,7 +76,7 @@ export default function ChoiceGroup({
             if (disabled || !onChange) return;
             onChange(event.target.value);
           }}
-          className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+          className="w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition hover:border-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
         >
           <option value="">{placeholder}</option>
           {selectedCode && !hasSelectedOption && (
@@ -101,14 +101,12 @@ export default function ChoiceGroup({
 
   return (
     <div className="min-w-0">
-      <label className="mb-1 block text-xs font-medium text-slate-700">
+      <label className="mb-1.5 block text-xs font-semibold text-slate-700">
         {label}
-        {required && <span className="text-red-600">*</span>}
+        {required && <span className="ml-0.5 text-red-600">*</span>}
       </label>
 
-      <div
-        className="grid grid-cols-2 gap-2"
-      >
+      <div className="grid grid-cols-2 gap-2">
         {options.map((option, index) => {
           const code = String(option.value);
 
@@ -126,11 +124,11 @@ export default function ChoiceGroup({
           return (
             <label
               key={option.id}
-              className={`flex min-w-0 items-start gap-2 rounded-md border px-2.5 py-2 text-xs transition ${
+              className={`flex min-w-0 items-start gap-2.5 rounded-lg border px-3 py-2 text-xs transition ${
                 disabled
                   ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-500"
                   : checked
-                    ? "cursor-pointer border-blue-400 bg-blue-50 text-blue-900"
+                    ? "cursor-pointer border-blue-500 bg-blue-50/70 text-blue-950 ring-1 ring-blue-500"
                     : "cursor-pointer border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-slate-50"
               }`}
             >

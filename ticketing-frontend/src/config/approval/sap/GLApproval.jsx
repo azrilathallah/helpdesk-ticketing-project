@@ -112,7 +112,7 @@ export function createGLActions(context) {
 
     if (currentStatus === "REVIEW_ACC_DEPT_HEAD") {
       return (
-        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -145,7 +145,7 @@ export function createGLActions(context) {
 
     if (currentStatus === "APPROVED_ACC_DEPT_HEAD") {
       return (
-        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -169,7 +169,7 @@ export function createGLActions(context) {
 
     if (currentStatus === "APPROVED_ACCOUNTING_HEAD") {
       return (
-        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -193,7 +193,7 @@ export function createGLActions(context) {
 
     if (["APPROVED_DIV_HEAD", "WAITING_PIC"].includes(currentStatus)) {
       return (
-        <div className="mt-6 flex gap-1.5 border-t border-slate-200 pt-4 flex-row items-center justify-end">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={primaryButton}

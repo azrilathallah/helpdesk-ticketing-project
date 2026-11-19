@@ -192,7 +192,7 @@ export function createSapSupportActions(context) {
       (currentStatus === "WAITING_PIC" && Boolean(formData?.hasCrForm))
     ) {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="submit"
             className={primaryButton}
@@ -207,7 +207,7 @@ export function createSapSupportActions(context) {
 
     if (currentStatus === "WAITING_PIC") {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -231,7 +231,7 @@ export function createSapSupportActions(context) {
 
     if (currentStatus === "REVIEW_REQUESTOR") {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -264,7 +264,7 @@ export function createSapSupportActions(context) {
 
     if (["APPROVED_REQUESTOR", "REVIEW_DIV_HEAD"].includes(currentStatus)) {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -297,7 +297,7 @@ export function createSapSupportActions(context) {
 
     if (["APPROVED_DIV_HEAD", "REVIEW_IT_SAP_HEAD"].includes(currentStatus)) {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="button"
             className={rejectButton}
@@ -330,7 +330,7 @@ export function createSapSupportActions(context) {
 
     if (currentStatus === "APPROVED_IT_SAP_HEAD") {
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-1.5 border-t border-slate-200 pt-4">
+        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
           <button
             type="submit"
             className={primaryButton}
