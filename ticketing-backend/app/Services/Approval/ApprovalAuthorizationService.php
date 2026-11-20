@@ -229,6 +229,10 @@ class ApprovalAuthorizationService
         $entries = $preloadedApproverEntries ?? $this->activeApproverEntriesFor($user);
         $targetRole = strtoupper(trim($role));
 
+        if ($formKey === 'support' && $targetRole === Approver::ROLE_PIC) {
+            return $this->userHasSupportPicRole($submission, $entries);
+        }
+
         return $entries->contains(function (Approver $entry) use ($formKey, $targetRole) {
             $entryFormKey = strtolower(trim((string) $entry->form_key));
             $entryRole = strtoupper(trim((string) $entry->role));
@@ -236,6 +240,69 @@ class ApprovalAuthorizationService
             return $entryRole === $targetRole
                 && in_array($entryFormKey, [$formKey, '*'], true);
         });
+    }
+
+    public function submissionSupportModule(Submission $submission): string
+    {
+        $formData = $submission->form_data ?? [];
+        $module = trim((string) ($formData['module'] ?? ''));
+
+        if ($module !== '') {
+            return $module;
+        }
+
+        return trim((string) ($submission->sub_category ?? ''));
+    }
+
+    public function userHasSupportPicRole(
+        Submission $submission,
+        Collection $entries
+    ): bool {
+        $ticketModule = strtoupper($this->submissionSupportModule($submission));
+
+        return $entries->contains(function (Approver $entry) use ($ticketModule) {
+            $entryFormKey = strtolower(trim((string) $entry->form_key));
+            $entryRole = strtoupper(trim((string) $entry->role));
+
+            if (
+                $entryRole !== Approver::ROLE_PIC
+                || !in_array($entryFormKey, ['support', '*'], true)
+            ) {
+                return false;
+            }
+
+            if ($ticketModule === '') {
+                return true;
+            }
+
+            $entryModule = strtoupper(trim((string) ($entry->module ?? '')));
+
+            return $entryModule === $ticketModule || $entryModule === '*';
+        });
+    }
+
+    public function resolveSupportPicModuleForUser(
+        User $user,
+        ?Collection $preloadedApproverEntries = null
+    ): ?string {
+        $entries = $preloadedApproverEntries ?? $this->activeApproverEntriesFor($user);
+
+        foreach ($entries as $entry) {
+            $entryFormKey = strtolower(trim((string) $entry->form_key));
+            $entryRole = strtoupper(trim((string) $entry->role));
+            $entryModule = trim((string) ($entry->module ?? ''));
+
+            if (
+                $entryRole === Approver::ROLE_PIC
+                && in_array($entryFormKey, ['support', '*'], true)
+                && $entryModule !== ''
+                && $entryModule !== '*'
+            ) {
+                return $entryModule;
+            }
+        }
+
+        return null;
     }
 
     public function canAct(

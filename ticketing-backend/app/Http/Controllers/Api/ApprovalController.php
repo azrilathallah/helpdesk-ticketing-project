@@ -80,6 +80,11 @@ class ApprovalController extends Controller
         $this->auth->authorizeAction($request->user(), $submission, Approver::ROLE_PIC);
         return $this->formService($submission)->submitCr($request, $submission);
     }
+    public function assignModule(Request $request, Submission $submission)
+    {
+        $this->auth->authorizeAction($request->user(), $submission, Approver::ROLE_PIC);
+        return $this->formService($submission)->assignModule($request, $submission);
+    }
     public function approveRequestor(Request $request, Submission $submission)
     {
         $this->auth->authorizeAction($request->user(), $submission, ApprovalAuthorizationService::ROLE_REQUESTOR);

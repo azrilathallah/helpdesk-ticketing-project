@@ -43,6 +43,11 @@ export const approvalApi = {
       notes,
     }),
 
+  assignModule: (id, module) =>
+    api.post(`/approvals/${id}/assign-module`, {
+      module,
+    }),
+
   approveRequestor: (id, notes = "") =>
     api.post(`/approvals/${id}/approve-requestor`, {
       notes,

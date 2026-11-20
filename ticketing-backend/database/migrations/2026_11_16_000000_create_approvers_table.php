@@ -24,6 +24,7 @@ return new class extends Migration
                 'wbs',
                 '*',
             ]);
+            $table->string('module')->nullable();
             $table->enum('role', [
                 'ACC_DEPT_HEAD',
                 'ACCOUNTING_STAFF',
@@ -39,12 +40,13 @@ return new class extends Migration
             $table->date('end_date')->nullable();
 
             $table->unique(
-                ['form_key', 'role', 'nik', 'email'],
-                'approvers_form_role_nik_email_unique'
+                ['form_key', 'module', 'role', 'nik', 'email'],
+                'approvers_form_module_role_nik_email_unique'
             );
 
             $table->index([
                 'form_key',
+                'module',
                 'role',
                 'start_date',
                 'end_date',

@@ -107,6 +107,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'submitCr'
     ]);
 
+    Route::post('/approvals/{submission}/assign-module', [
+        ApprovalController::class,
+        'assignModule'
+    ]);
+
     Route::post('/approvals/{submission}/approve-requestor', [
         ApprovalController::class,
         'approveRequestor'

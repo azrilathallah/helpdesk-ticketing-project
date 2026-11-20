@@ -76,10 +76,12 @@ export function createSapSupportActions(context) {
     formData,
     navigate,
     primaryButton,
+    secondaryButton,
     rejectButton,
     revisionButton,
     openRejectModal,
     openRevisionModal,
+    openAssignModuleModal,
   } = context;
 
   const handleSapSupportAction = async (action) => {
@@ -206,8 +208,21 @@ export function createSapSupportActions(context) {
     }
 
     if (currentStatus === "WAITING_PIC") {
+      const hasModule = Boolean(String(formData?.module ?? "").trim());
+
       return (
-        <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
+        <div className="mt-6 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-4">
+          {openAssignModuleModal && (
+            <button
+              type="button"
+              className={secondaryButton}
+              onClick={openAssignModuleModal}
+              disabled={processing}
+            >
+              {hasModule ? "Transfer Module" : "Assign Module"}
+            </button>
+          )}
+
           <button
             type="button"
             className={rejectButton}

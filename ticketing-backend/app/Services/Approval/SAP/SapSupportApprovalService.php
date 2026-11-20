@@ -4,13 +4,17 @@ namespace App\Services\Approval\SAP;
 
 use App\Models\Submission;
 use App\Models\SubmissionApproval;
+use App\Services\Approval\ApprovalAuthorizationService;
 use App\Services\Approval\ApprovalQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SapSupportApprovalService
 {
-    public function __construct(private ApprovalQueryService $query) {}
+    public function __construct(
+        private ApprovalQueryService $query,
+        private ApprovalAuthorizationService $auth
+    ) {}
 
     protected function allowedResolveStatuses(): array
     {
@@ -18,6 +22,66 @@ class SapSupportApprovalService
             Submission::STATUS_WAITING_PIC,
             Submission::STATUS_APPROVED_IT_SAP_HEAD,
         ];
+    }
+
+    protected function allowedAssignModuleStatuses(): array
+    {
+        return [
+            Submission::STATUS_WAITING_PIC,
+            // Submission::STATUS_REVISION_PIC,
+        ];
+    }
+
+    public function assignModule(Request $request, Submission $submission)
+    {
+        if (!in_array($submission->status, $this->allowedAssignModuleStatuses(), true)) {
+            return response()->json([
+                'message' => 'The request is not in the correct status to assign or transfer module.'
+            ], 422);
+        }
+
+        $request->validate(
+            [
+                'module' => 'required|string|max:150',
+            ],
+            [
+                'module.required' => 'Target module is required.',
+            ]
+        );
+
+        $newModule = trim((string) $request->input('module'));
+        $formData = $submission->form_data ?? [];
+        $currentModule = trim((string) ($formData['module'] ?? ''));
+
+        if ($currentModule !== '' && strcasecmp($currentModule, $newModule) === 0) {
+            return response()->json([
+                'message' => 'The selected module is already assigned to this request.'
+            ], 422);
+        }
+
+        DB::transaction(function () use ($request, $submission, $formData, $currentModule, $newModule) {
+            $formData['module'] = $newModule;
+            $submission->form_data = $formData;
+            $submission->save();
+
+            SubmissionApproval::create([
+                'submission_id' => $submission->id,
+                'step' => 'PIC_ASSIGN_MODULE',
+                'action' => 'ASSIGNED',
+                'acted_by' => $request->user()->id,
+                'notes' => null,
+                'step_data' => [
+                    'from_module' => $currentModule !== '' ? $currentModule : null,
+                    'to_module' => $newModule,
+                ],
+                'created_at' => now(),
+            ]);
+        });
+
+        return $this->query->responseFor(
+            $submission,
+            "The ticket has been assigned to module {$newModule}."
+        );
     }
 
     public function submitCr(Request $request, Submission $submission)
@@ -47,9 +111,15 @@ class SapSupportApprovalService
 
         $crData = $request->input('cr_data');
         $crData['sapFunctional'] = trim((string) ($crData['sapFunctional'] ?? '')) ?: $request->user()->name;
+        $picModule = $this->auth->resolveSupportPicModuleForUser($request->user());
 
-        DB::transaction(function () use ($request, $submission, $crData) {
+        DB::transaction(function () use ($request, $submission, $crData, $picModule) {
             $formData = $submission->form_data ?? [];
+
+            if (trim((string) ($formData['module'] ?? '')) === '' && $picModule !== null) {
+                $formData['module'] = $picModule;
+            }
+
             $requestDate = !empty($formData['crData']['requestDate'])
                 ? $formData['crData']['requestDate']
                 : now()->toDateString();
@@ -199,8 +269,15 @@ class SapSupportApprovalService
             ], 422);
         }
 
-        DB::transaction(function () use ($request, $submission, $solution) {
+        $picModule = $this->auth->resolveSupportPicModuleForUser($request->user());
+
+        DB::transaction(function () use ($request, $submission, $solution, $picModule) {
             $formData = $submission->form_data ?? [];
+
+            if (trim((string) ($formData['module'] ?? '')) === '' && $picModule !== null) {
+                $formData['module'] = $picModule;
+            }
+
             $formData['solution'] = $solution;
             $formData['needCrForm'] = !empty($formData['hasCrForm']) ? 'Yes' : 'No';
             $submission->form_data = $formData;

@@ -18,6 +18,7 @@ class Approver extends Model
 
     protected $fillable = [
         'form_key',
+        'module',
         'role',
         'nik',
         'email',

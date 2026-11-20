@@ -523,11 +523,19 @@ function SubmissionDetailPage({ id }) {
         "DIV_HEAD_APPROVE",
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
+        "PIC_ASSIGN_MODULE",
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
   );
 
   const getHistoryLabel = (item) => {
+    if (item.step === "PIC_ASSIGN_MODULE") {
+      const fromMod = item.step_data?.from_module;
+      const toMod = item.step_data?.to_module || "-";
+      return fromMod
+        ? `Transferred Module (${fromMod} → ${toMod})`
+        : `Assigned to Module ${toMod}`;
+    }
     if (item.step === "REQUESTOR_APPROVE") return "Approved by Requestor";
     if (item.step === "IT_SAP_HEAD_APPROVE") return "Approved by IT-SAP Head";
     if (item.step === "ACC_DEPT_HEAD_APPROVE")

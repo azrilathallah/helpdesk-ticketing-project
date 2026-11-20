@@ -5,6 +5,7 @@ import { showNotification } from "../../utils/notification";
 import { approvalApi } from "../../api/approval";
 import FormRenderer from "../../components/FormRenderer";
 import DataTable from "../../components/DataTable";
+import ChoiceGroup from "../../components/ChoiceGroup";
 
 import { getUserValue } from "../../config/UserValue";
 import { getApprovalFormLogic } from "../../config/approval";
@@ -20,6 +21,7 @@ import { createSapSupportActions } from "../../config/approval/sap/SapSupportApp
 import {
   FileEdit,
   ArrowLeft,
+  ArrowRightLeft,
   Clock,
   Check,
   AlertCircle,
@@ -367,6 +369,10 @@ function ApprovalDetailPage({ id }) {
   const [revisionNotes, setRevisionNotes] = useState("");
   const [revisionError, setRevisionError] = useState("");
 
+  const [assignModuleModalOpen, setAssignModuleModalOpen] = useState(false);
+  const [targetModule, setTargetModule] = useState("");
+  const [assignModuleError, setAssignModuleError] = useState("");
+
   const getDefaultForm = (data) => {
     return getApprovalFormLogic(data)?.getDefaultForm() || {};
   };
@@ -592,6 +598,68 @@ function ApprovalDetailPage({ id }) {
   };
 
   /* =========================================================
+     ASSIGN / TRANSFER MODULE (SAP SUPPORT)
+  ========================================================= */
+
+  const openAssignModuleModal = () => {
+    setTargetModule("");
+    setAssignModuleError("");
+    setAssignModuleModalOpen(true);
+  };
+
+  const handleConfirmAssignModule = async () => {
+    if (!submission || processing) return;
+
+    const selectedModule = String(targetModule || "").trim();
+    const currentModule = String(formData?.module || "").trim();
+
+    if (!selectedModule) {
+      setAssignModuleError("Please select a target module.");
+      return;
+    }
+
+    if (
+      currentModule &&
+      currentModule.toLowerCase() === selectedModule.toLowerCase()
+    ) {
+      setAssignModuleError(
+        "The selected module is already assigned to this request.",
+      );
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      setAssignModuleError("");
+
+      const response = await approvalApi.assignModule(
+        submission.id,
+        selectedModule,
+      );
+
+      showNotification({
+        icon: "success",
+        title: currentModule ? "Module Transferred" : "Module Assigned",
+        text:
+          response?.data?.message ||
+          `The ticket has been assigned to module ${selectedModule}.`,
+      });
+
+      setAssignModuleModalOpen(false);
+      setTargetModule("");
+      navigate("/approval");
+    } catch (err) {
+      console.error(err);
+
+      setAssignModuleError(
+        err.response?.data?.message || "Failed to assign module.",
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  /* =========================================================
      ACTION BUTTONS
   ========================================================= */
 
@@ -634,6 +702,7 @@ function ApprovalDetailPage({ id }) {
     revisionButton,
     openRejectModal,
     openRevisionModal,
+    openAssignModuleModal,
   };
 
   const customerActions = createCustomerActions(actionContext);
@@ -689,11 +758,19 @@ function ApprovalDetailPage({ id }) {
         "DIV_HEAD_APPROVE",
         "ACCOUNTING_HEAD_APPROVE",
         "TAX_HEAD_APPROVE",
+        "PIC_ASSIGN_MODULE",
       ].includes(item.step) ||
       ["SOLVED", "REJECTED", "CANCELLED"].includes(item.action),
   );
 
   const getHistoryLabel = (item) => {
+    if (item.step === "PIC_ASSIGN_MODULE") {
+      const fromMod = item.step_data?.from_module;
+      const toMod = item.step_data?.to_module || "-";
+      return fromMod
+        ? `Transferred Module (${fromMod} → ${toMod})`
+        : `Assigned to Module ${toMod}`;
+    }
     if (item.step === "REQUESTOR_APPROVE") return "Approved by Requestor";
     if (item.step === "IT_SAP_HEAD_APPROVE") return "Approved by IT-SAP Head";
     if (item.step === "ACC_DEPT_HEAD_APPROVE")
@@ -1106,6 +1183,121 @@ function ApprovalDetailPage({ id }) {
                 disabled={processing || !revisionNotes.trim()}
               >
                 {processing ? "Processing..." : "Submit Revision"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
+
+      {/* =====================================================
+          ASSIGN / TRANSFER MODULE MODAL
+      ===================================================== */}
+
+      {assignModuleModalOpen && (
+        <div
+          className="fixed inset-0 z-200 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-[2px]"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !processing) {
+              setAssignModuleModalOpen(false);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="assign-module-modal-title"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          >
+            <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                  <ArrowRightLeft className="h-4 w-4" />
+                </div>
+                <h2
+                  id="assign-module-modal-title"
+                  className="text-sm font-bold text-slate-900"
+                >
+                  {String(formData?.module || "").trim()
+                    ? "Transfer Module"
+                    : "Assign Module"}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Close modal"
+                onClick={() => setAssignModuleModalOpen(false)}
+                disabled={processing}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+
+            <div className="space-y-4 p-5 sm:p-6">
+              <div className="rounded-xl border border-blue-200/80 bg-blue-50/70 px-3.5 py-2.5 text-xs text-blue-700">
+                {String(formData?.module || "").trim() ? (
+                  <>
+                    Current module is{" "}
+                    <strong className="font-bold">{formData.module}</strong>.
+                    Select the appropriate module to transfer request{" "}
+                    <strong className="font-bold">{submission.number}</strong>{" "}
+                    to its PIC.
+                  </>
+                ) : (
+                  <>
+                    This request currently has no module assigned. Select the
+                    appropriate module to assign request{" "}
+                    <strong className="font-bold">{submission.number}</strong>{" "}
+                    to its PIC.
+                  </>
+                )}
+              </div>
+
+              <div>
+                <ChoiceGroup
+                  select
+                  required
+                  label="Target Module"
+                  placeholder="Select module"
+                  groupKey="sap-support_module"
+                  value={targetModule}
+                  onChange={(value) => {
+                    setTargetModule(value);
+                    if (assignModuleError) setAssignModuleError("");
+                  }}
+                  disabled={processing}
+                />
+
+                {assignModuleError && (
+                  <p className="mt-1 text-xs font-medium text-red-600">
+                    {assignModuleError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <footer className="flex flex-row justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3.5 sm:px-6">
+              <button
+                type="button"
+                className={secondaryButton}
+                onClick={() => setAssignModuleModalOpen(false)}
+                disabled={processing}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className={primaryButton}
+                onClick={handleConfirmAssignModule}
+                disabled={processing || !String(targetModule || "").trim()}
+              >
+                {processing
+                  ? "Processing..."
+                  : String(formData?.module || "").trim()
+                    ? "Transfer Module"
+                    : "Assign Module"}
               </button>
             </footer>
           </section>
