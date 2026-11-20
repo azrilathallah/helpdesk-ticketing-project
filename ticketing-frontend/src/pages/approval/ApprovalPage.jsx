@@ -373,6 +373,11 @@ function ApprovalDetailPage({ id }) {
   const [targetModule, setTargetModule] = useState("");
   const [assignModuleError, setAssignModuleError] = useState("");
 
+  const [picModuleModalOpen, setPicModuleModalOpen] = useState(false);
+  const [picModuleAction, setPicModuleAction] = useState("");
+  const [selectedOwnModule, setSelectedOwnModule] = useState("");
+  const [picModuleError, setPicModuleError] = useState("");
+
   const getDefaultForm = (data) => {
     return getApprovalFormLogic(data)?.getDefaultForm() || {};
   };
@@ -660,6 +665,58 @@ function ApprovalDetailPage({ id }) {
   };
 
   /* =========================================================
+     SELECT OWN PIC MODULE (WHEN MULTI-MODULE PIC RESOLVES / FILLS CR)
+  ========================================================= */
+
+  const picModules = useMemo(
+    () =>
+      Array.isArray(submission?.pic_modules) ? submission.pic_modules : [],
+    [submission?.pic_modules],
+  );
+
+  const openPicModuleModal = (actionType) => {
+    setPicModuleAction(actionType);
+    setSelectedOwnModule("");
+    setPicModuleError("");
+    setPicModuleModalOpen(true);
+  };
+
+  const handleOpenCrFormClick = () => {
+    if (!submission || processing) return;
+
+    const currentModule = String(formData?.module || "").trim();
+    if (!currentModule && picModules.length > 1) {
+      openPicModuleModal("open-cr");
+      return;
+    }
+
+    navigate(`/approval/${submission.id}/cr-form`);
+  };
+
+  const handleConfirmPicModule = async () => {
+    if (!submission || processing) return;
+
+    const chosenModule = String(selectedOwnModule || "").trim();
+    if (!chosenModule) {
+      setPicModuleError("Please select your module for this request.");
+      return;
+    }
+
+    setPicModuleModalOpen(false);
+
+    if (picModuleAction === "open-cr") {
+      navigate(
+        `/approval/${submission.id}/cr-form?module=${encodeURIComponent(chosenModule)}`,
+      );
+      return;
+    }
+
+    if (picModuleAction === "resolve" || picModuleAction === "submit-cr") {
+      await handleSapSupportAction(picModuleAction, chosenModule);
+    }
+  };
+
+  /* =========================================================
      ACTION BUTTONS
   ========================================================= */
 
@@ -703,6 +760,7 @@ function ApprovalDetailPage({ id }) {
     openRejectModal,
     openRevisionModal,
     openAssignModuleModal,
+    openPicModuleModal,
   };
 
   const customerActions = createCustomerActions(actionContext);
@@ -721,7 +779,8 @@ function ApprovalDetailPage({ id }) {
   const { renderUserIdActionButtons } = userIdActions;
   const { renderCostProfitActionButtons } = costProfitActions;
   const { renderWbsActionButtons } = wbsActions;
-  const { renderSapSupportActionButtons } = sapSupportActions;
+  const { renderSapSupportActionButtons, handleSapSupportAction } =
+    sapSupportActions;
 
   /* =========================================================
      LOADING / ERROR
@@ -912,9 +971,7 @@ function ApprovalDetailPage({ id }) {
               status={submission.status}
               requestor={requestor}
               existingAttachments={submission.attachments || []}
-              onOpenCrForm={() =>
-                navigate(`/approval/${submission.id}/cr-form`)
-              }
+              onOpenCrForm={handleOpenCrFormClick}
               processing={processing}
             />
 
@@ -1298,6 +1355,109 @@ function ApprovalDetailPage({ id }) {
                   : String(formData?.module || "").trim()
                     ? "Transfer Module"
                     : "Assign Module"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
+
+      {/* =====================================================
+          SELECT OWN PIC MODULE MODAL (MULTI-MODULE PIC)
+      ===================================================== */}
+
+      {picModuleModalOpen && (
+        <div
+          className="fixed inset-0 z-200 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-[2px]"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !processing) {
+              setPicModuleModalOpen(false);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pic-own-module-modal-title"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          >
+            <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                  <Check className="h-4 w-4" />
+                </div>
+                <h2
+                  id="pic-own-module-modal-title"
+                  className="text-sm font-bold text-slate-900"
+                >
+                  Select Your Module
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Close modal"
+                onClick={() => setPicModuleModalOpen(false)}
+                disabled={processing}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+
+            <div className="space-y-4 p-5 sm:p-6">
+              <div className="rounded-xl border border-blue-200/80 bg-blue-50/70 px-3.5 py-2.5 text-xs text-blue-700">
+                You are assigned as PIC for multiple modules. Please select which
+                of your modules handles request{" "}
+                <strong className="font-bold">{submission.number}</strong>.
+              </div>
+
+              <div>
+                <ChoiceGroup
+                  select
+                  required
+                  label="Module"
+                  placeholder="Select your module"
+                  groupKey="sap-support_module"
+                  allowedValues={picModules}
+                  value={selectedOwnModule}
+                  onChange={(value) => {
+                    setSelectedOwnModule(value);
+                    if (picModuleError) setPicModuleError("");
+                  }}
+                  disabled={processing}
+                />
+
+                {picModuleError && (
+                  <p className="mt-1 text-xs font-medium text-red-600">
+                    {picModuleError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <footer className="flex flex-row justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3.5 sm:px-6">
+              <button
+                type="button"
+                className={secondaryButton}
+                onClick={() => setPicModuleModalOpen(false)}
+                disabled={processing}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className={primaryButton}
+                onClick={handleConfirmPicModule}
+                disabled={processing || !String(selectedOwnModule || "").trim()}
+              >
+                {processing
+                  ? "Processing..."
+                  : picModuleAction === "resolve"
+                    ? "Confirm & Resolve"
+                    : picModuleAction === "submit-cr"
+                      ? "Confirm & Submit CR"
+                      : "Continue to CR Form"}
               </button>
             </footer>
           </section>

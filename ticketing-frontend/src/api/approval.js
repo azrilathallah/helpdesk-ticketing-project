@@ -37,11 +37,18 @@ export const approvalApi = {
       notes,
     }),
 
-  submitCr: (id, crData, notes = "") =>
-    api.post(`/approvals/${id}/submit-cr`, {
+  submitCr: (id, crData, notes = "", module = "") => {
+    const payload = {
       cr_data: crData,
       notes,
-    }),
+    };
+
+    if (module) {
+      payload.module = module;
+    }
+
+    return api.post(`/approvals/${id}/submit-cr`, payload);
+  },
 
   assignModule: (id, module) =>
     api.post(`/approvals/${id}/assign-module`, {
@@ -58,7 +65,10 @@ export const approvalApi = {
       notes,
     }),
 
-  resolve: (id, { code = "", notes = "", solution = "", type = "customer" } = {}) => {
+  resolve: (
+    id,
+    { code = "", notes = "", solution = "", module = "", type = "customer" } = {},
+  ) => {
     const codeFields = {
       customer: "customer_code",
       vendor: "vendor_code",
@@ -72,6 +82,10 @@ export const approvalApi = {
 
     if (solution) {
       payload.solution = solution;
+    }
+
+    if (module) {
+      payload.module = module;
     }
 
     if (codeFields[type]) {

@@ -82,11 +82,19 @@ export function createSapSupportActions(context) {
     openRejectModal,
     openRevisionModal,
     openAssignModuleModal,
+    openPicModuleModal,
   } = context;
 
-  const handleSapSupportAction = async (action) => {
+  const handleSapSupportAction = async (action, selectedPicModule = "") => {
     if (!isSapSupportSubmission) return;
     if (!submission || processing) return;
+
+    const currentModule = String(formData?.module ?? "").trim();
+    const picModules = Array.isArray(submission?.pic_modules)
+      ? submission.pic_modules
+      : [];
+    const needsPicModuleSelection =
+      !currentModule && !selectedPicModule && picModules.length > 1;
 
     try {
       setProcessing(true);
@@ -110,10 +118,16 @@ export function createSapSupportActions(context) {
             return;
           }
 
+          if (needsPicModuleSelection && openPicModuleModal) {
+            openPicModuleModal("submit-cr");
+            return;
+          }
+
           response = await approvalApi.submitCr(
             submission.id,
             result.payload,
             "",
+            selectedPicModule,
           );
           break;
         }
@@ -148,8 +162,14 @@ export function createSapSupportActions(context) {
             return;
           }
 
+          if (needsPicModuleSelection && openPicModuleModal) {
+            openPicModuleModal("resolve");
+            return;
+          }
+
           response = await approvalApi.resolve(submission.id, {
             solution: result.solution,
+            module: selectedPicModule,
             type: "sapSupport",
           });
 

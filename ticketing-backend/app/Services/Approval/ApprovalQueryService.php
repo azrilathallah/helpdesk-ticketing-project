@@ -105,6 +105,15 @@ class ApprovalQueryService
 
         if ($detail) {
             $data['form_data'] = $submission->form_data;
+            if (
+                $currentUser
+                && $this->auth->formKeyFor($submission) === 'support'
+            ) {
+                $data['pic_modules'] = $this->auth->supportPicModulesForUser(
+                    $currentUser,
+                    $approverEntries
+                );
+            }
             $data['attachments'] = SubmissionAttachmentService::present($submission, 'approvals');
             $data['approval_history'] = $submission->approvals
                 ->map(fn(SubmissionApproval $approval) => [

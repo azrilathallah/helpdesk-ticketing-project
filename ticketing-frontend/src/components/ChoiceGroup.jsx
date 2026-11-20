@@ -11,6 +11,7 @@ export default function ChoiceGroup({
   placeholder = "",
   disabled = false,
   required = false,
+  allowedValues = null,
 }) {
   const [options, setOptions] = useState([]);
 
@@ -48,6 +49,16 @@ export default function ChoiceGroup({
 
   const normalizedValue = value ?? (checkbox ? [] : "");
 
+  const visibleOptions = Array.isArray(allowedValues)
+    ? options.filter((opt) =>
+        allowedValues.some(
+          (allowed) =>
+            String(allowed).trim().toLowerCase() ===
+            String(opt.value).trim().toLowerCase(),
+        ),
+      )
+    : options;
+
   const selectedValues = Array.isArray(normalizedValue)
     ? normalizedValue.map(String)
     : [];
@@ -56,7 +67,7 @@ export default function ChoiceGroup({
 
   if (select) {
     const selectedCode = String(normalizedValue ?? "");
-    const hasSelectedOption = options.some(
+    const hasSelectedOption = visibleOptions.some(
       (option) => String(option.value) === selectedCode,
     );
 
@@ -82,7 +93,7 @@ export default function ChoiceGroup({
           {selectedCode && !hasSelectedOption && (
             <option value={selectedCode}>{selectedCode}</option>
           )}
-          {options.map((option) => {
+          {visibleOptions.map((option) => {
             const code = String(option.value);
             const name =
               option.label && option.label !== code ? ` - ${option.label}` : "";

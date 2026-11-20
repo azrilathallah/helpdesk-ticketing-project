@@ -32,6 +32,28 @@ class SapSupportApprovalService
         ];
     }
 
+    protected function resolveTargetPicModule(Request $request, string $currentModule): ?string
+    {
+        if ($currentModule !== '') {
+            return $currentModule;
+        }
+
+        $userModules = $this->auth->supportPicModulesForUser($request->user());
+        $requestedModule = trim((string) $request->input('module', ''));
+
+        if ($requestedModule !== '') {
+            foreach ($userModules as $mod) {
+                if (strcasecmp($mod, $requestedModule) === 0) {
+                    return $mod;
+                }
+            }
+
+            return null;
+        }
+
+        return count($userModules) === 1 ? $userModules[0] : null;
+    }
+
     public function assignModule(Request $request, Submission $submission)
     {
         if (!in_array($submission->status, $this->allowedAssignModuleStatuses(), true)) {
@@ -106,12 +128,21 @@ class SapSupportApprovalService
             'cr_data.currentProcess' => 'required|string',
             'cr_data.expectedProcess' => 'required|string',
             'cr_data.benefit' => 'required|string',
+            'module' => 'nullable|string|max:150',
             'notes' => 'nullable|string|max:1000',
         ]);
 
         $crData = $request->input('cr_data');
         $crData['sapFunctional'] = trim((string) ($crData['sapFunctional'] ?? '')) ?: $request->user()->name;
-        $picModule = $this->auth->resolveSupportPicModuleForUser($request->user());
+
+        $currentModule = trim((string) (($submission->form_data ?? [])['module'] ?? ''));
+        $picModule = $this->resolveTargetPicModule($request, $currentModule);
+
+        if ($currentModule === '' && $picModule === null) {
+            return response()->json([
+                'message' => 'Please select which of your modules applies to this request.'
+            ], 422);
+        }
 
         DB::transaction(function () use ($request, $submission, $crData, $picModule) {
             $formData = $submission->form_data ?? [];
@@ -269,7 +300,14 @@ class SapSupportApprovalService
             ], 422);
         }
 
-        $picModule = $this->auth->resolveSupportPicModuleForUser($request->user());
+        $currentModule = trim((string) ($formData['module'] ?? ''));
+        $picModule = $this->resolveTargetPicModule($request, $currentModule);
+
+        if ($currentModule === '' && $picModule === null) {
+            return response()->json([
+                'message' => 'Please select which of your modules applies to this request.'
+            ], 422);
+        }
 
         DB::transaction(function () use ($request, $submission, $solution, $picModule) {
             $formData = $submission->form_data ?? [];

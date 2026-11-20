@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { showNotification } from "../../../utils/notification";
 
 import { approvalApi } from "../../../api/approval";
 import { getUserValue } from "../../../config/UserValue";
 import { useAuth } from "../../../context/AuthContext";
+import ChoiceGroup from "../../../components/ChoiceGroup";
 
 import {
   DEFAULT_CR_DATA,
   ChangeRequestFormSections,
 } from "../../../components/sap/SapSupportFormFields";
-import { ArrowLeft, Hash } from "lucide-react";
+import { ArrowLeft, Check, Hash, X } from "lucide-react";
 
 export default function ChangeRequestFormPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -22,6 +24,12 @@ export default function ChangeRequestFormPage() {
   const [submission, setSubmission] = useState(null);
   const [crData, setCrData] = useState(DEFAULT_CR_DATA);
   const [revisionNotes, setRevisionNotes] = useState([]);
+
+  const [picModuleModalOpen, setPicModuleModalOpen] = useState(false);
+  const [selectedOwnModule, setSelectedOwnModule] = useState(
+    searchParams.get("module") || "",
+  );
+  const [picModuleError, setPicModuleError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -97,18 +105,23 @@ export default function ChangeRequestFormPage() {
     [submission?.can_act, submission?.status],
   );
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!submission || !canEdit || submitting) return;
+  const picModules = useMemo(
+    () =>
+      Array.isArray(submission?.pic_modules) ? submission.pic_modules : [],
+    [submission?.pic_modules],
+  );
 
-    const formElement = event.currentTarget;
-    if (!formElement.reportValidity()) {
-      return;
-    }
+  const submitCrWithModule = async (moduleToUse = "") => {
+    if (!submission || !canEdit || submitting) return;
 
     try {
       setSubmitting(true);
-      const response = await approvalApi.submitCr(submission.id, crData);
+      const response = await approvalApi.submitCr(
+        submission.id,
+        crData,
+        "",
+        moduleToUse,
+      );
 
       showNotification({
         icon: "success",
@@ -131,6 +144,38 @@ export default function ChangeRequestFormPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!submission || !canEdit || submitting) return;
+
+    const formElement = event.currentTarget;
+    if (!formElement.reportValidity()) {
+      return;
+    }
+
+    const existingModule = String(submission?.form_data?.module || "").trim();
+    const chosenModule = String(selectedOwnModule || "").trim();
+
+    if (!existingModule && !chosenModule && picModules.length > 1) {
+      setPicModuleError("");
+      setPicModuleModalOpen(true);
+      return;
+    }
+
+    await submitCrWithModule(chosenModule);
+  };
+
+  const handleConfirmPicModuleSubmit = async () => {
+    const chosenModule = String(selectedOwnModule || "").trim();
+    if (!chosenModule) {
+      setPicModuleError("Please select your module for this request.");
+      return;
+    }
+
+    setPicModuleModalOpen(false);
+    await submitCrWithModule(chosenModule);
   };
 
   if (loading) {
@@ -220,6 +265,99 @@ export default function ChangeRequestFormPage() {
           </form>
         </div>
       </section>
+
+      {picModuleModalOpen && (
+        <div
+          className="fixed inset-0 z-200 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-[2px]"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !submitting) {
+              setPicModuleModalOpen(false);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cr-pic-module-modal-title"
+            className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          >
+            <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                  <Check className="h-4 w-4" />
+                </div>
+                <h2
+                  id="cr-pic-module-modal-title"
+                  className="text-sm font-bold text-slate-900"
+                >
+                  Select Your Module
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Close modal"
+                onClick={() => setPicModuleModalOpen(false)}
+                disabled={submitting}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+
+            <div className="space-y-4 p-5 sm:p-6">
+              <div className="rounded-xl border border-blue-200/80 bg-blue-50/70 px-3.5 py-2.5 text-xs text-blue-700">
+                You are assigned as PIC for multiple modules. Please select which
+                of your modules handles request{" "}
+                <strong className="font-bold">{submission.number}</strong>.
+              </div>
+
+              <div>
+                <ChoiceGroup
+                  select
+                  required
+                  label="Module"
+                  placeholder="Select your module"
+                  groupKey="sap-support_module"
+                  allowedValues={picModules}
+                  value={selectedOwnModule}
+                  onChange={(value) => {
+                    setSelectedOwnModule(value);
+                    if (picModuleError) setPicModuleError("");
+                  }}
+                  disabled={submitting}
+                />
+
+                {picModuleError && (
+                  <p className="mt-1 text-xs font-medium text-red-600">
+                    {picModuleError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <footer className="flex flex-row justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3.5 sm:px-6">
+              <button
+                type="button"
+                onClick={() => setPicModuleModalOpen(false)}
+                disabled={submitting}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmPicModuleSubmit}
+                disabled={submitting || !String(selectedOwnModule || "").trim()}
+                className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+              >
+                {submitting ? "Submitting..." : "Confirm & Submit"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

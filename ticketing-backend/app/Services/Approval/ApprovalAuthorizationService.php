@@ -281,11 +281,15 @@ class ApprovalAuthorizationService
         });
     }
 
-    public function resolveSupportPicModuleForUser(
+    /**
+     * @return array<int, string>
+     */
+    public function supportPicModulesForUser(
         User $user,
         ?Collection $preloadedApproverEntries = null
-    ): ?string {
+    ): array {
         $entries = $preloadedApproverEntries ?? $this->activeApproverEntriesFor($user);
+        $modules = [];
 
         foreach ($entries as $entry) {
             $entryFormKey = strtolower(trim((string) $entry->form_key));
@@ -298,11 +302,20 @@ class ApprovalAuthorizationService
                 && $entryModule !== ''
                 && $entryModule !== '*'
             ) {
-                return $entryModule;
+                $modules[strtoupper($entryModule)] = $entryModule;
             }
         }
 
-        return null;
+        return array_values($modules);
+    }
+
+    public function resolveSupportPicModuleForUser(
+        User $user,
+        ?Collection $preloadedApproverEntries = null
+    ): ?string {
+        $modules = $this->supportPicModulesForUser($user, $preloadedApproverEntries);
+
+        return count($modules) === 1 ? $modules[0] : null;
     }
 
     public function canAct(
