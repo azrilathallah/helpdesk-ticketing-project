@@ -405,27 +405,29 @@ export default function VendorFormFields({
           />
         </Field>
 
-        <Field label="City" required={isCreateMode}>
-          <input
-            type="text"
-            className={inputClass}
-            value={form.city}
-            onChange={(event) => update("city", event.target.value)}
-            required={isCreateMode}
-            disabled={!editable("city")}
-          />
-        </Field>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <Field label="City" required={isCreateMode}>
+            <input
+              type="text"
+              className={inputClass}
+              value={form.city}
+              onChange={(event) => update("city", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("city")}
+            />
+          </Field>
 
-        <Field label="Postal Code" required={isCreateMode}>
-          <input
-            type="number"
-            className={inputClass}
-            value={form.postalCode}
-            onChange={(event) => update("postalCode", event.target.value)}
-            required={isCreateMode}
-            disabled={!editable("postalCode")}
-          />
-        </Field>
+          <Field label="Postal Code" required={isCreateMode}>
+            <input
+              type="number"
+              className={inputClass}
+              value={form.postalCode}
+              onChange={(event) => update("postalCode", event.target.value)}
+              required={isCreateMode}
+              disabled={!editable("postalCode")}
+            />
+          </Field>
+        </div>
 
         <Field label="Country" required={isCreateMode}>
           <input
