@@ -260,7 +260,7 @@
                 <tr>
                     <th>Prepared by</th>
                     <th>Acknowledged by<br>Div. Head Requestor</th>
-                    <th>Processed by<br>IT - SAP</th>
+                    <th>Processed by<br>IT-SAP</th>
                 </tr>
             </thead>
             <tbody>

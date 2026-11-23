@@ -501,9 +501,9 @@
                 <tr>
                     <th>Requested by</th>
                     <th>Approved by<br>Accounting Dept. Head</th>
-                    <th>Approved by<br>Accounting Head</th>
+                    <th>Approved by<br>Accounting Div. Head</th>
                     <th>Approved by<br>Div. Head Requestor</th>
-                    <th>Handled by<br>IT - SAP</th>
+                    <th>Handled by<br>IT-SAP</th>
                 </tr>
             </thead>
             <tbody>

@@ -968,8 +968,8 @@
                 <tr>
                     <th>Requested by</th>
                     <th>Approved by<br>Div. Head Requestor</th>
-                    <th>Approved by<br>Accounting</th>
-                    <th>Approved by<br>Tax</th>
+                    <th>Approved by<br>Accounting Div. Head</th>
+                    <th>Approved by<br>Tax Div. Head</th>
                     <th>Accepted by<br>IT-SAP</th>
                 </tr>
             </thead>
