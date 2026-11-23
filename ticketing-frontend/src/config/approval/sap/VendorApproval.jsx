@@ -117,6 +117,7 @@ export function createVendorActions(context) {
     formData,
     hasAccountingSaved,
     hasTaxSaved,
+    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -234,7 +235,9 @@ export function createVendorActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-          break;
+
+          await loadDetail?.();
+          return;
         }
 
         default:

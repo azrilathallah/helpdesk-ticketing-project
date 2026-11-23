@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from "lucide-react";
 
 /* =========================================================
@@ -193,6 +194,7 @@ export default function DataTable({
   onRetry,
   onOpen,
   onCancel,
+  onDownloadPdf,
 }) {
   const isApproval = mode === "approval";
 
@@ -577,18 +579,35 @@ export default function DataTable({
 
                         <td className="w-1 whitespace-nowrap px-4 py-3 text-center">
                           {isApproval ? (
-                            <button
-                              type="button"
-                              title="Review"
-                              aria-label="Review"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                onOpen?.(submission);
-                              }}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                            </button>
+                            <div className="inline-flex items-center justify-center gap-1.5">
+                              <button
+                                type="button"
+                                title="Review"
+                                aria-label="Review"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  onOpen?.(submission);
+                                }}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+
+                              {onDownloadPdf && submission.can_download_pdf && (
+                                <button
+                                  type="button"
+                                  title="Download PDF"
+                                  aria-label="Download PDF"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    onDownloadPdf(submission, event);
+                                  }}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-700"
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
                           ) : (
                             <div className="inline-flex items-center justify-center gap-1.5">
                               <button
@@ -681,18 +700,35 @@ export default function DataTable({
 
                     <div className="mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-2.5">
                       {isApproval ? (
-                        <button
-                          type="button"
-                          title="Review"
-                          aria-label="Review"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onOpen?.(submission);
-                          }}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            title="Review"
+                            aria-label="Review"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onOpen?.(submission);
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+
+                          {onDownloadPdf && submission.can_download_pdf && (
+                            <button
+                              type="button"
+                              title="Download PDF"
+                              aria-label="Download PDF"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onDownloadPdf(submission, event);
+                              }}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100"
+                            >
+                              <Download className="h-4 w-4" />
+                            </button>
+                          )}
+                        </>
                       ) : (
                         <>
                           <button

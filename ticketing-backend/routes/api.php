@@ -72,6 +72,11 @@ Route::middleware('auth:sanctum')->group(function () {
         'attachment'
     ])->whereNumber('index');
 
+    Route::get('/approvals/{submission}/pdf', [
+        ApprovalController::class,
+        'pdf'
+    ]);
+
     Route::post('/approvals/{submission}/approve-acc-depthead', [
         ApprovalController::class,
         'approveAccDeptHead'

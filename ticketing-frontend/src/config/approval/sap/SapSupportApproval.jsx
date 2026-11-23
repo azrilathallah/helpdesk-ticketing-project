@@ -74,6 +74,7 @@ export function createSapSupportActions(context) {
     setActionError,
     formLogic,
     formData,
+    loadDetail,
     navigate,
     primaryButton,
     secondaryButton,
@@ -180,7 +181,9 @@ export function createSapSupportActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-          break;
+
+          await loadDetail?.();
+          return;
         }
 
         default:

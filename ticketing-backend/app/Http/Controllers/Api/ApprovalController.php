@@ -9,6 +9,7 @@ use App\Services\Approval\ApprovalAuthorizationService;
 use App\Services\Approval\ApprovalFormServiceResolver;
 use App\Services\Approval\ApprovalQueryService;
 use App\Services\SubmissionAttachmentService;
+use App\Services\SubmissionPdfService;
 use Illuminate\Http\Request;
 
 class ApprovalController extends Controller
@@ -36,6 +37,36 @@ class ApprovalController extends Controller
         );
 
         return SubmissionAttachmentService::response($submission, $index);
+    }
+
+    public function pdf(Request $request, Submission $submission, SubmissionPdfService $pdfService)
+    {
+        $user = $request->user();
+
+        abort_unless(
+            $submission->status === Submission::STATUS_TICKET_SOLVED,
+            422,
+            'PDF can only be downloaded after the request has been resolved.'
+        );
+
+        $isPic = $user && (
+            $this->auth->userHasRoleForSubmission($user, $submission, Approver::ROLE_PIC)
+            || $submission->approvals()
+                ->where('acted_by', $user->id)
+                ->where(function ($q) {
+                    $q->where('step', 'PIC_PROCESS')
+                        ->orWhere('action', 'SOLVED');
+                })
+                ->exists()
+        );
+
+        abort_unless(
+            $isPic,
+            403,
+            'Only PIC can download this PDF.'
+        );
+
+        return $pdfService->download($submission);
     }
 
     private function formService(Submission $submission)

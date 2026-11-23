@@ -6,6 +6,7 @@ use App\Models\Submission;
 use App\Models\SubmissionApproval;
 use App\Models\User;
 use App\Services\SubmissionAttachmentService;
+use App\Services\SubmissionPdfService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,6 +80,29 @@ class ApprovalQueryService
             : false;
         $stepInfo = $canAct ? $this->auth->requiredStepInfo($submission) : null;
 
+        $isPic = $currentUser
+            ? ($this->auth->userHasRoleForSubmission(
+                $currentUser,
+                $submission,
+                \App\Models\Approver::ROLE_PIC,
+                $approverEntries
+            ) || (
+                $submission->relationLoaded('approvals')
+                    ? $submission->approvals->contains(
+                        fn(SubmissionApproval $approval) =>
+                        (int) $approval->acted_by === (int) $currentUser->id
+                            && ($approval->step === 'PIC_PROCESS' || $approval->action === 'SOLVED')
+                    )
+                    : $submission->approvals()
+                        ->where('acted_by', $currentUser->id)
+                        ->where(function ($q) {
+                            $q->where('step', 'PIC_PROCESS')
+                                ->orWhere('action', 'SOLVED');
+                        })
+                        ->exists()
+            ))
+            : false;
+
         $data = [
             'id' => $submission->id,
             'number' => $submission->number,
@@ -88,6 +112,10 @@ class ApprovalQueryService
             'form_type' => $submission->form_type,
             'status' => $submission->status,
             'can_act' => $canAct,
+            'is_pic' => $isPic,
+            'can_download_pdf' => $isPic
+                && $submission->status === Submission::STATUS_TICKET_SOLVED
+                && SubmissionPdfService::supportsPdf($submission),
             'approval_role' => $canAct ? ($stepInfo['frontend_role'] ?? null) : null,
             'created_at' => $submission->created_at,
             'updated_at' => $submission->updated_at,

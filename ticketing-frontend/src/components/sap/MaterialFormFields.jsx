@@ -10,7 +10,7 @@ export const DEFAULT_MATERIAL_FORM = {
   materialType: "",
   plant: "",
   salesOrganization: "",
-  distributionChannel: "00",
+  distributionChannel: "",
   storageLocation: "",
   kodeSPMS: "",
 
@@ -21,7 +21,7 @@ export const DEFAULT_MATERIAL_FORM = {
   division: "",
   genItemCatGroup: "",
   tax: "",
-  matlStatisGroup: "1",
+  matlStatisGroup: "",
   AccAssignementGroup: "",
   reconAccount: "",
 

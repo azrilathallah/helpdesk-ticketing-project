@@ -28,7 +28,9 @@ import {
   Hash,
   User,
   X,
+  Download,
 } from "lucide-react";
+import { downloadAttachment } from "../../utils/attachment";
 
 /* =========================================================
    STATUS CONFIGURATION
@@ -294,6 +296,24 @@ function ApprovalList() {
     navigate(`/approval/${submission.id}`);
   };
 
+  const handleDownloadFromList = async (item) => {
+    if (!item?.id) return;
+    try {
+      await downloadAttachment({
+        url: `/approvals/${item.id}/pdf`,
+        name: `${item.number || `Request_${item.id}`}.pdf`,
+        type: "application/pdf",
+      });
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: err.message || "Failed to download PDF document.",
+      });
+    }
+  };
+
   const pendingCount = useMemo(
     () => submissions.filter((item) => Boolean(item.can_act)).length,
     [submissions],
@@ -341,6 +361,7 @@ function ApprovalList() {
         error={error}
         onRetry={loadApprovals}
         onOpen={handleOpen}
+        onDownloadPdf={handleDownloadFromList}
       />
     </main>
   );
@@ -452,7 +473,33 @@ function ApprovalDetailPage({ id }) {
     [submission],
   );
 
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
   const canAct = Boolean(submission?.can_act);
+  const canDownloadPdf = Boolean(
+    submission?.status === "TICKET_SOLVED" && submission?.can_download_pdf,
+  );
+
+  const handleDownloadPdf = async () => {
+    if (!canDownloadPdf || !submission || downloadingPdf) return;
+    try {
+      setDownloadingPdf(true);
+      await downloadAttachment({
+        url: `/approvals/${submission.id}/pdf`,
+        name: `${submission.number || `Request_${submission.id}`}.pdf`,
+        type: "application/pdf",
+      });
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        icon: "error",
+        title: "Failed",
+        text: err.message || "Failed to download PDF document.",
+      });
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const approvalRole = useMemo(() => {
     if (!canAct) return null;
@@ -898,6 +945,17 @@ function ApprovalDetailPage({ id }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {canDownloadPdf && (
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={downloadingPdf}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  {downloadingPdf ? "Downloading..." : "Download PDF"}
+                </button>
+              )}
               <StatusBadge status={submission.status} />
             </div>
           </div>
@@ -987,6 +1045,20 @@ function ApprovalDetailPage({ id }) {
                 {isWbsSubmission && renderWbsActionButtons()}
                 {isSapSupportSubmission && renderSapSupportActionButtons()}
               </>
+            )}
+
+            {canDownloadPdf && (
+              <div className="mt-6 flex flex-row items-center justify-end gap-2 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={downloadingPdf}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
+                >
+                  <Download className="h-4 w-4" />
+                  {downloadingPdf ? "Downloading..." : "Download PDF"}
+                </button>
+              </div>
             )}
           </form>
         </div>

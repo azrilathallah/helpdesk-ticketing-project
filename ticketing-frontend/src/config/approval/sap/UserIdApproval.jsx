@@ -44,6 +44,7 @@ export function createUserIdActions(context) {
     setActionError,
     formLogic,
     formData,
+    loadDetail,
     navigate,
     primaryButton,
     rejectButton,
@@ -95,7 +96,9 @@ export function createUserIdActions(context) {
               response?.data?.message ||
               "The request was successfully resolved.",
           });
-          break;
+
+          await loadDetail?.();
+          return;
         }
 
         default:
