@@ -319,6 +319,21 @@
             color: #0f172a;
             line-height: 1.3;
         }
+
+        .qr-cell {
+            height: 92px;
+            border-bottom: 0.9px solid #334155;
+            border-right: 0.9px solid #334155;
+            padding: 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .qr-img {
+            width: 84px;
+            height: 84px;
+            display: inline-block;
+        }
     </style>
 </head>
 
@@ -562,10 +577,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 90%; padding: 0;">
                                     <div class="field-box">{{ $form['title'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 10%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -590,10 +605,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['searchTerm'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -632,14 +647,14 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['city'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 3%; padding: 0;"></td>
-                                <td style="width: 18%; padding: 0;">
+                                <td style="width: 3%; text-align: center; font-weight: bold; padding: 0;">/</td>
+                                <td style="width: 33%; padding: 0;">
                                     <div class="field-box" style="text-align: center;">{{ $form['postalCode'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 45%; padding: 0;"></td>
+                                <td style="width: 24%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -650,10 +665,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['country'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -664,10 +679,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['region'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -678,10 +693,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['telephone2'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -692,10 +707,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['fax'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 66%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -706,11 +721,11 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 34%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['npwp'] ?? '' }}</div>
                                 </td>
                                 <td style="width: 3%; padding: 0;"></td>
-                                <td style="width: 63%; padding: 0;">
+                                <td style="width: 57%; padding: 0;">
                                     <span style="margin-right: 4px;">Tanggal Terdaftar :</span>
                                     <span class="date-box">{{ $npwpDateParts['day'] }}</span>
                                     <span class="slash-sep">/</span>
@@ -753,10 +768,10 @@
                     <td class="c-val">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 45%; padding: 0;">
+                                <td style="width: 40%; padding: 0;">
                                     <div class="field-box">{{ $form['reconAccount'] ?? '' }}</div>
                                 </td>
-                                <td style="width: 55%; padding: 0;"></td>
+                                <td style="width: 60%; padding: 0;"></td>
                             </tr>
                         </table>
                     </td>
@@ -974,6 +989,33 @@
                 </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['requestor']['qr']))
+                        <img src="{{ $approvals['requestor']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['div_head']['qr']))
+                        <img src="{{ $approvals['div_head']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['accounting']['qr']))
+                        <img src="{{ $approvals['accounting']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['tax']['qr']))
+                        <img src="{{ $approvals['tax']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['pic']['qr']))
+                        <img src="{{ $approvals['pic']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                </tr>
                 <tr>
                     <td class="meta-cell">
                         <strong>Name :</strong> {{ $approvals['requestor']['name'] ?: '-' }}<br>

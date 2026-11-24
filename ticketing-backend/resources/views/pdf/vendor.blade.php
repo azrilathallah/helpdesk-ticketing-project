@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>SAP Vendor Request - {{ $submission->number ?? '-' }}</title>
@@ -288,6 +289,21 @@
             color: #0f172a;
         }
 
+        .qr-cell {
+            height: 92px;
+            border-bottom: 0.9px solid #334155;
+            border-right: 0.9px solid #334155;
+            padding: 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .qr-img {
+            width: 84px;
+            height: 84px;
+            display: inline-block;
+        }
+
         .date-line-table {
             width: 100%;
             border-collapse: collapse;
@@ -302,238 +318,264 @@
         }
     </style>
 </head>
+
 <body>
-<div class="outer-frame">
-    <!-- FULL-WIDTH COMPANY HEADER AT THE VERY TOP -->
-    <div class="company-banner">
-        <table class="company-header">
-            <tr>
-                <td>
-                    @if(!empty($logoBase64))
-                    <span class="company-logo-wrap">
-                        <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
-                    </span>
-                    @endif
-                    <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- TOP HEADER: No. Form & Master Data Vendor Request Title Box -->
-    <div class="top-area">
-        <div class="no-form-row">
-            No. Form : <strong>{{ $submission->number ?? '-' }}</strong>
+    <div class="outer-frame">
+        <!-- FULL-WIDTH COMPANY HEADER AT THE VERY TOP -->
+        <div class="company-banner">
+            <table class="company-header">
+                <tr>
+                    <td>
+                        @if(!empty($logoBase64))
+                        <span class="company-logo-wrap">
+                            <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
+                        </span>
+                        @endif
+                        <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
+                    </td>
+                </tr>
+            </table>
         </div>
-        <table class="banner-table">
-            <tr>
-                <td class="title-banner">Master Data Vendor Request</td>
-                <td></td>
-            </tr>
-        </table>
-    </div>
 
-    <!-- TOP STRIP: Request Type & Vendor Code -->
-    <div class="request-type-strip">
-        <table class="strip-table">
-            <tr>
-                @foreach($choiceGroups['vendor_request_type'] ?? [] as $opt)
-                <td style="width: 22%;">
-                    <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                    <span class="v-lbl">
-                        {{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif
-                    </span>
-                </td>
+        <!-- TOP HEADER: No. Form & Master Data Vendor Request Title Box -->
+        <div class="top-area">
+            <div class="no-form-row">
+                No. Form : <strong>{{ $submission->number ?? '-' }}</strong>
+            </div>
+            <table class="banner-table">
+                <tr>
+                    <td class="title-banner">Master Data Vendor Request</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TOP STRIP: Request Type & Vendor Code -->
+        <div class="request-type-strip">
+            <table class="strip-table">
+                <tr>
+                    @foreach($choiceGroups['vendor_request_type'] ?? [] as $opt)
+                    <td style="width: 22%;">
+                        <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                        <span class="v-lbl">
+                            {{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif
+                        </span>
+                    </td>
+                    @endforeach
+                    <td></td>
+                </tr>
+            </table>
+            <table class="strip-table" style="margin-top: 2px;">
+                <tr>
+                    <td style="width: 85px; font-weight: bold;">Vendor Code</td>
+                    <td style="width: 145px;">
+                        <div class="field-box-bold">{{ $form['vendorCode'] ?? '' }}</div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- SECTION: GENERAL DATA -->
+        <div class="section-bar">General Data</div>
+        <div class="section-content">
+            <table class="rows-table">
+                <tr>
+                    <td class="c-no">1.</td>
+                    <td class="c-lbl">Name</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 90%; padding: 0;">
+                                    <div class="field-box">{{ $form['name'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 10%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">2.</td>
+                    <td class="c-lbl">Search Term</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['searchTerm'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">3.</td>
+                    <td class="c-lbl">Street Address (Domisili Perusahaan)</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 90%; padding: 0;">
+                                    <div class="field-box">{{ $form['streetAddress'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 10%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">4.</td>
+                    <td class="c-lbl">City</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['city'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">5.</td>
+                    <td class="c-lbl">Postal Code</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['postalCode'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">6.</td>
+                    <td class="c-lbl">Country</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['country'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">7.</td>
+                    <td class="c-lbl">Telephone</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['telephone'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">8.</td>
+                    <td class="c-lbl">Fax</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['fax'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">9.</td>
+                    <td class="c-lbl">Contact Person</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['contactPerson'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">10.</td>
+                    <td class="c-lbl">NPWP</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['npwp'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">11.</td>
+                    <td class="c-lbl">Email</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['email'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">12.</td>
+                    <td class="c-lbl">Business Type</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['businessType'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- SECTION: COMPANY CODE DATA (ACCOUNTING DEPT) -->
+        <div class="section-bar">Company Code Data (Accounting Dept)</div>
+        <div class="section-content">
+            <table class="rows-table">
+                <tr>
+                    <td class="c-no" style="vertical-align: top; padding-top: 2px;">1.</td>
+                    <td class="c-lbl" style="vertical-align: top; padding-top: 2px;">Account Group</td>
+                    <td class="c-val">
+                        <table class="opt-grid">
+                            @foreach(array_chunk($choiceGroups['vendor_account_group'] ?? [], 3) as $chunk)
+                            <tr>
+                                @foreach($chunk as $opt)
+                                <td style="width: 33.33%;">
+                                    <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                    <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
+                                </td>
+                                @endforeach
+                                @for($i = count($chunk); $i < 3; $i++)
+                                    <td style="width: 33.33%;">
+                    </td>
+                    @endfor
+                </tr>
                 @endforeach
-                <td></td>
-            </tr>
-        </table>
-        <table class="strip-table" style="margin-top: 2px;">
-            <tr>
-                <td style="width: 85px; font-weight: bold;">Vendor Code</td>
-                <td style="width: 145px;">
-                    <div class="field-box-bold">{{ $form['vendorCode'] ?? '' }}</div>
-                </td>
-                <td></td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- SECTION: GENERAL DATA -->
-    <div class="section-bar">General Data</div>
-    <div class="section-content">
-        <table class="rows-table">
-            <tr>
-                <td class="c-no">1.</td>
-                <td class="c-lbl">Name</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 75%; padding: 0;"><div class="field-box">{{ $form['name'] ?? '' }}</div></td>
-                            <td style="width: 25%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">2.</td>
-                <td class="c-lbl">Search Term</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['searchTerm'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">3.</td>
-                <td class="c-lbl">Street Address (Domisili Perusahaan)</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 90%; padding: 0;"><div class="field-box">{{ $form['streetAddress'] ?? '' }}</div></td>
-                            <td style="width: 10%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">4.</td>
-                <td class="c-lbl">City</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['city'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">5.</td>
-                <td class="c-lbl">Postal Code</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 25%; padding: 0;"><div class="field-box">{{ $form['postalCode'] ?? '' }}</div></td>
-                            <td style="width: 75%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">6.</td>
-                <td class="c-lbl">Country</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['country'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">7.</td>
-                <td class="c-lbl">Telephone</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['telephone'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">8.</td>
-                <td class="c-lbl">Fax</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['fax'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">9.</td>
-                <td class="c-lbl">Contact Person</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['contactPerson'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">10.</td>
-                <td class="c-lbl">NPWP</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['npwp'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">11.</td>
-                <td class="c-lbl">Email</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 55%; padding: 0;"><div class="field-box">{{ $form['email'] ?? '' }}</div></td>
-                            <td style="width: 45%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">12.</td>
-                <td class="c-lbl">Business Type</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['businessType'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- SECTION: COMPANY CODE DATA (ACCOUNTING DEPT) -->
-    <div class="section-bar">Company Code Data (Accounting Dept)</div>
-    <div class="section-content">
-        <table class="rows-table">
-            <tr>
-                <td class="c-no" style="vertical-align: top; padding-top: 2px;">1.</td>
-                <td class="c-lbl" style="vertical-align: top; padding-top: 2px;">Account Group</td>
-                <td class="c-val">
-                    <table class="opt-grid">
-                        @foreach(array_chunk($choiceGroups['vendor_account_group'] ?? [], 3) as $chunk)
-                        <tr>
-                            @foreach($chunk as $opt)
-                            <td style="width: 33.33%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
-                            </td>
-                            @endforeach
-                            @for($i = count($chunk); $i < 3; $i++)
-                            <td style="width: 33.33%;"></td>
-                            @endfor
-                        </tr>
-                        @endforeach
-                    </table>
-                </td>
+            </table>
+            </td>
             </tr>
             <tr>
                 <td class="c-no" style="vertical-align: top; padding-top: 2px;">2.</td>
@@ -549,12 +591,13 @@
                             </td>
                             @endforeach
                             @if(count($chunk) < 2)
-                            <td style="width: 50%;"></td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </table>
+                                <td style="width: 50%;">
                 </td>
+                @endif
+            </tr>
+            @endforeach
+            </table>
+            </td>
             </tr>
             <tr>
                 <td class="c-no">3.</td>
@@ -586,169 +629,201 @@
                             </td>
                             @endforeach
                             @if(count($chunk) < 2)
-                            <td style="width: 50%;"></td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </table>
+                                <td style="width: 50%;">
                 </td>
+                @endif
             </tr>
-        </table>
-    </div>
+            @endforeach
+            </table>
+            </td>
+            </tr>
+            </table>
+        </div>
 
-    <!-- SECTION: COMPANY CODE DATA (PURCH DEPT) -->
-    <div class="section-bar">Company Code Data (Purch Dept)</div>
-    <div class="section-content">
-        <table class="rows-table">
-            <tr>
-                <td class="c-no">1.</td>
-                <td class="c-lbl">Company Code</td>
-                <td class="c-val">
-                    <table class="opt-grid">
-                        <tr>
-                            @foreach($choiceGroups['vendor_company_code'] ?? [] as $opt)
-                            <td style="width: 33.33%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
-                            </td>
-                            @endforeach
-                            <td></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no" style="vertical-align: top; padding-top: 2px;">2.</td>
-                <td class="c-lbl" style="vertical-align: top; padding-top: 2px;">Due Date Payment</td>
-                <td class="c-val">
-                    <table class="opt-grid">
-                        @foreach(array_chunk($choiceGroups['vendor_due_date_payment'] ?? [], 2) as $chunk)
-                        <tr>
-                            @foreach($chunk as $opt)
-                            <td style="width: 50%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
-                            </td>
-                            @endforeach
-                            @if(count($chunk) < 2)
-                            <td style="width: 50%;"></td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- SECTION: PURCHASING ORGANIZATION DATA -->
-    <div class="section-bar">Purchasing Organization Data</div>
-    <div class="section-content">
-        <table class="rows-table">
-            <tr>
-                <td class="c-no">1.</td>
-                <td class="c-lbl">Order Currency</td>
-                <td class="c-val">
-                    <table class="opt-grid">
-                        <tr>
-                            @foreach($choiceGroups['vendor_currency'] ?? [] as $opt)
-                            <td style="width: 25%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
-                            </td>
-                            @endforeach
-                            <td></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="c-no">2.</td>
-                <td class="c-lbl">Salesperson</td>
-                <td class="c-val">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 40%; padding: 0;"><div class="field-box">{{ $form['salesperson'] ?? '' }}</div></td>
-                            <td style="width: 60%; padding: 0;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- SECTION: PAYMENT TRANSACTIONS -->
-    <div class="section-bar">Payment Transactions</div>
-    <div class="section-content">
-        @php
-            $bankRows = is_array($form['paymentTransactions'] ?? null) && count($form['paymentTransactions']) > 0
-                ? $form['paymentTransactions']
-                : [];
-            $minRows = max(2, count($bankRows));
-        @endphp
-        <table class="bank-table">
-            <thead>
+        <!-- SECTION: COMPANY CODE DATA (PURCH DEPT) -->
+        <div class="section-bar">Company Code Data (Purch Dept)</div>
+        <div class="section-content">
+            <table class="rows-table">
                 <tr>
-                    <th style="width: 24%;">Bank Name</th>
-                    <th style="width: 24%;">Bank Account Number</th>
-                    <th style="width: 28%;">Beneficiary</th>
-                    <th style="width: 12%;">Currency</th>
-                    <th style="width: 12%;">Swift Code</th>
+                    <td class="c-no">1.</td>
+                    <td class="c-lbl">Company Code</td>
+                    <td class="c-val">
+                        <table class="opt-grid">
+                            <tr>
+                                @foreach($choiceGroups['vendor_company_code'] ?? [] as $opt)
+                                <td style="width: 33.33%;">
+                                    <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                    <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
+                                </td>
+                                @endforeach
+                                <td></td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @for($i = 0; $i < $minRows; $i++)
-                    @php
-                        $b = $bankRows[$i] ?? [];
-                    @endphp
+                <tr>
+                    <td class="c-no" style="vertical-align: top; padding-top: 2px;">2.</td>
+                    <td class="c-lbl" style="vertical-align: top; padding-top: 2px;">Due Date Payment</td>
+                    <td class="c-val">
+                        <table class="opt-grid">
+                            @foreach(array_chunk($choiceGroups['vendor_due_date_payment'] ?? [], 2) as $chunk)
+                            <tr>
+                                @foreach($chunk as $opt)
+                                <td style="width: 50%;">
+                                    <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                    <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
+                                </td>
+                                @endforeach
+                                @if(count($chunk) < 2)
+                                    <td style="width: 50%;">
+                    </td>
+                    @endif
+                </tr>
+                @endforeach
+            </table>
+            </td>
+            </tr>
+            </table>
+        </div>
+
+        <!-- SECTION: PURCHASING ORGANIZATION DATA -->
+        <div class="section-bar">Purchasing Organization Data</div>
+        <div class="section-content">
+            <table class="rows-table">
+                <tr>
+                    <td class="c-no">1.</td>
+                    <td class="c-lbl">Order Currency</td>
+                    <td class="c-val">
+                        <table class="opt-grid">
+                            <tr>
+                                @foreach($choiceGroups['vendor_currency'] ?? [] as $opt)
+                                <td style="width: 25%;">
+                                    <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                    <span class="v-lbl">{{ $opt['value'] }}@if($opt['label'] && $opt['label'] !== $opt['value']) {{ $opt['label'] }}@endif</span>
+                                </td>
+                                @endforeach
+                                <td></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="c-no">2.</td>
+                    <td class="c-lbl">Salesperson</td>
+                    <td class="c-val">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 40%; padding: 0;">
+                                    <div class="field-box">{{ $form['salesperson'] ?? '' }}</div>
+                                </td>
+                                <td style="width: 60%; padding: 0;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- SECTION: PAYMENT TRANSACTIONS -->
+        <div class="section-bar">Payment Transactions</div>
+        <div class="section-content">
+            @php
+            $bankRows = is_array($form['paymentTransactions'] ?? null) && count($form['paymentTransactions']) > 0
+            ? $form['paymentTransactions']
+            : [];
+            $minRows = max(2, count($bankRows));
+            @endphp
+            <table class="bank-table">
+                <thead>
                     <tr>
+                        <th style="width: 24%;">Bank Name</th>
+                        <th style="width: 24%;">Bank Account Number</th>
+                        <th style="width: 28%;">Beneficiary</th>
+                        <th style="width: 12%;">Currency</th>
+                        <th style="width: 12%;">Swift Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for($i = 0; $i < $minRows; $i++)
+                        @php
+                        $b=$bankRows[$i] ?? [];
+                        @endphp
+                        <tr>
                         <td style="text-align: center;">{{ $b['bankName'] ?? '' }}</td>
                         <td style="text-align: center;">{{ $b['bankAccountNumber'] ?? '' }}</td>
                         <td style="text-align: center;">{{ $b['benificiary'] ?? ($b['beneficiary'] ?? '') }}</td>
                         <td style="text-align: center;">{{ !empty($b['bankName']) || !empty($b['bankAccountNumber']) ? ($b['bankCurrency'] ?? 'IDR') : '' }}</td>
                         <td style="text-align: center;">{{ $b['swiftCode'] ?? '' }}</td>
-                    </tr>
-                @endfor
+                        </tr>
+                        @endfor
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER APPROVAL TABLE -->
+        <table class="approval-table">
+            <thead>
+                <tr>
+                    <th>Requested by</th>
+                    <th>Approved by<br>Div. Head Requestor</th>
+                    <th>Approved by<br>Accounting Div. Head</th>
+                    <th>Approved by<br>Tax Div. Head</th>
+                    <th>Accepted by<br>IT-SAP</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['requestor']['qr']))
+                        <img src="{{ $approvals['requestor']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['div_head']['qr']))
+                        <img src="{{ $approvals['div_head']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['accounting']['qr']))
+                        <img src="{{ $approvals['accounting']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['tax']['qr']))
+                        <img src="{{ $approvals['tax']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                    <td class="qr-cell">
+                        @if(!empty($approvals['pic']['qr']))
+                        <img src="{{ $approvals['pic']['qr'] }}" alt="QR Signature" class="qr-img">
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td class="meta-cell">
+                        <strong>Name :</strong> {{ $approvals['requestor']['name'] ?: '-' }}<br>
+                        <strong>Date :</strong> {{ $approvals['requestor']['date'] ?: '-' }}
+                    </td>
+                    <td class="meta-cell">
+                        <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
+                        <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
+                    </td>
+                    <td class="meta-cell">
+                        <strong>Name :</strong> {{ $approvals['accounting']['name'] ?: '-' }}<br>
+                        <strong>Date :</strong> {{ $approvals['accounting']['date'] ?: '-' }}
+                    </td>
+                    <td class="meta-cell">
+                        <strong>Name :</strong> {{ $approvals['tax']['name'] ?: '-' }}<br>
+                        <strong>Date :</strong> {{ $approvals['tax']['date'] ?: '-' }}
+                    </td>
+                    <td class="meta-cell">
+                        <strong>Name :</strong> {{ $approvals['pic']['name'] ?: '-' }}<br>
+                        <strong>Date :</strong> {{ $approvals['pic']['date'] ?: '-' }}
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
-
-    <!-- FOOTER APPROVAL TABLE -->
-    <table class="approval-table">
-        <thead>
-            <tr>
-                <th>Requested by</th>
-                <th>Approved by<br>Div. Head Requestor</th>
-                <th>Approved by<br>Accounting Div. Head</th>
-                <th>Approved by<br>Tax Div. Head</th>
-                <th>Accepted by<br>IT-SAP</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="meta-cell">
-                    <strong>Name :</strong> {{ $approvals['requestor']['name'] ?: '-' }}<br>
-                    <strong>Date :</strong> {{ $approvals['requestor']['date'] ?: '-' }}
-                </td>
-                <td class="meta-cell">
-                    <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
-                    <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
-                </td>
-                <td class="meta-cell">
-                    <strong>Name :</strong> {{ $approvals['accounting']['name'] ?: '-' }}<br>
-                    <strong>Date :</strong> {{ $approvals['accounting']['date'] ?: '-' }}
-                </td>
-                <td class="meta-cell">
-                    <strong>Name :</strong> {{ $approvals['tax']['name'] ?: '-' }}<br>
-                    <strong>Date :</strong> {{ $approvals['tax']['date'] ?: '-' }}
-                </td>
-                <td class="meta-cell">
-                    <strong>Name :</strong> {{ $approvals['pic']['name'] ?: '-' }}<br>
-                    <strong>Date :</strong> {{ $approvals['pic']['date'] ?: '-' }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
 </body>
+
 </html>

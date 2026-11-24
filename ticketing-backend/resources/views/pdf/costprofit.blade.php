@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>SAP Cost & Profit Center Request - {{ $submission->number ?? '-' }}</title>
@@ -168,73 +169,88 @@
             color: #0f172a;
             line-height: 1.35;
         }
+
+        .qr-cell {
+            height: 108px;
+            border: 1px solid #334155;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .qr-img {
+            width: 96px;
+            height: 96px;
+            display: inline-block;
+        }
     </style>
 </head>
+
 <body>
-<div class="outer-frame">
-    <!-- FULL-WIDTH COMPANY HEADER -->
-    <div class="company-banner">
-        <table class="company-header">
-            <tr>
-                <td>
-                    @if(!empty($logoBase64))
-                    <span class="company-logo-wrap">
-                        <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
-                    </span>
-                    @endif
-                    <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <div class="outer-frame">
+        <!-- FULL-WIDTH COMPANY HEADER -->
+        <div class="company-banner">
+            <table class="company-header">
+                <tr>
+                    <td>
+                        @if(!empty($logoBase64))
+                        <span class="company-logo-wrap">
+                            <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
+                        </span>
+                        @endif
+                        <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <div class="content-body">
-        <table class="title-row">
-            <tr>
-                <td class="doc-title">REQUEST COST &amp; PROFIT CENTER</td>
-                <td class="no-form-box">
-                    No. Form : <strong>{{ $submission->number ?? '-' }}</strong>
-                </td>
-            </tr>
-        </table>
+        <div class="content-body">
+            <table class="title-row">
+                <tr>
+                    <td class="doc-title">REQUEST COST &amp; PROFIT CENTER</td>
+                    <td class="no-form-box">
+                        No. Form : <strong>{{ $submission->number ?? '-' }}</strong>
+                    </td>
+                </tr>
+            </table>
 
-        @php
+            @php
             $costRows = is_array($form['cost'] ?? null) ? array_values($form['cost']) : [];
             $profitRows = is_array($form['profit'] ?? null) ? array_values($form['profit']) : [];
             $maxRows = max(1, count($costRows), count($profitRows));
-        @endphp
+            @endphp
 
-        <table class="cp-table">
-            <thead>
-                <tr>
-                    <th colspan="8" class="cp-group-cost">COST CENTER</th>
-                    <th colspan="5" class="cp-group-profit">PROFIT CENTER</th>
-                    <th class="cp-group-date"></th>
-                </tr>
-                <tr class="cp-col-hdr">
-                    <th style="width: 7%;">Cost Center</th>
-                    <th style="width: 9%;">Short Text</th>
-                    <th style="width: 14%;">Long Text</th>
-                    <th style="width: 7%;">Person<br>Responsible</th>
-                    <th style="width: 5.5%;">Cost<br>Center<br>Category</th>
-                    <th style="width: 7%;">Hierarchy Area<br>Cost Center</th>
-                    <th style="width: 4.5%;">Company<br>Code</th>
-                    <th style="width: 4.5%;">Business<br>Area</th>
-                    <th style="width: 7%;">Profit<br>Center</th>
-                    <th style="width: 9%;">Short Text</th>
-                    <th style="width: 13%;">Long Text</th>
-                    <th style="width: 6.5%;">Person<br>Responsible</th>
-                    <th style="width: 6%;">Hierarchy Area<br>Profit Center</th>
-                    <th style="width: 6%;">Tgl request</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for($i = 0; $i < $maxRows; $i++)
-                    @php
-                        $c = $costRows[$i] ?? [];
-                        $p = $profitRows[$i] ?? [];
-                    @endphp
-                    <tr class="cp-data-row">
+            <table class="cp-table">
+                <thead>
+                    <tr>
+                        <th colspan="8" class="cp-group-cost">COST CENTER</th>
+                        <th colspan="5" class="cp-group-profit">PROFIT CENTER</th>
+                        <th class="cp-group-date"></th>
+                    </tr>
+                    <tr class="cp-col-hdr">
+                        <th style="width: 7%;">Cost Center</th>
+                        <th style="width: 9%;">Short Text</th>
+                        <th style="width: 14%;">Long Text</th>
+                        <th style="width: 7%;">Person<br>Responsible</th>
+                        <th style="width: 5.5%;">Cost<br>Center<br>Category</th>
+                        <th style="width: 7%;">Hierarchy Area<br>Cost Center</th>
+                        <th style="width: 4.5%;">Company<br>Code</th>
+                        <th style="width: 4.5%;">Business<br>Area</th>
+                        <th style="width: 7%;">Profit<br>Center</th>
+                        <th style="width: 9%;">Short Text</th>
+                        <th style="width: 13%;">Long Text</th>
+                        <th style="width: 6.5%;">Person<br>Responsible</th>
+                        <th style="width: 6%;">Hierarchy Area<br>Profit Center</th>
+                        <th style="width: 6%;">Tgl request</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for($i = 0; $i < $maxRows; $i++)
+                        @php
+                        $c=$costRows[$i] ?? [];
+                        $p=$profitRows[$i] ?? [];
+                        @endphp
+                        <tr class="cp-data-row">
                         <td>{{ $c['costCenter'] ?? '' }}</td>
                         <td>{{ $c['shortTextCost'] ?? ($c['shortText'] ?? '') }}</td>
                         <td>{{ $c['longTextCost'] ?? ($c['longText'] ?? '') }}</td>
@@ -249,38 +265,56 @@
                         <td>{{ $p['personResponsibleProfit'] ?? '' }}</td>
                         <td>{{ $p['hierarchyAreaProfitCenter'] ?? ($p['hierarchyAreaCostCenter'] ?? '') }}</td>
                         <td style="text-align: center;">{{ $requestDateFormatted }}</td>
-                    </tr>
-                @endfor
-            </tbody>
-        </table>
+                        </tr>
+                        @endfor
+                </tbody>
+            </table>
 
-        <!-- APPROVAL TABLE -->
-        <table class="approval-table">
-            <thead>
-                <tr>
-                    <th>Prepared by</th>
-                    <th>Acknowledged by<br>Div. Head Requestor</th>
-                    <th>Processed by<br>IT-SAP</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="meta-cell">
-                        <strong>Name :</strong> {{ $approvals['requestor']['name'] ?: '-' }}<br>
-                        <strong>Date :</strong> {{ $approvals['requestor']['date'] ?: '-' }}
-                    </td>
-                    <td class="meta-cell">
-                        <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
-                        <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
-                    </td>
-                    <td class="meta-cell">
-                        <strong>Name :</strong> {{ $approvals['pic']['name'] ?: '-' }}<br>
-                        <strong>Date :</strong> {{ $approvals['pic']['date'] ?: '-' }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- APPROVAL TABLE -->
+            <table class="approval-table">
+                <thead>
+                    <tr>
+                        <th>Prepared by</th>
+                        <th>Acknowledged by<br>Div. Head Requestor</th>
+                        <th>Processed by<br>IT-SAP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="qr-cell">
+                            @if(!empty($approvals['requestor']['qr']))
+                            <img src="{{ $approvals['requestor']['qr'] }}" alt="QR Signature" class="qr-img">
+                            @endif
+                        </td>
+                        <td class="qr-cell">
+                            @if(!empty($approvals['div_head']['qr']))
+                            <img src="{{ $approvals['div_head']['qr'] }}" alt="QR Signature" class="qr-img">
+                            @endif
+                        </td>
+                        <td class="qr-cell">
+                            @if(!empty($approvals['pic']['qr']))
+                            <img src="{{ $approvals['pic']['qr'] }}" alt="QR Signature" class="qr-img">
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="meta-cell">
+                            <strong>Name :</strong> {{ $approvals['requestor']['name'] ?: '-' }}<br>
+                            <strong>Date :</strong> {{ $approvals['requestor']['date'] ?: '-' }}
+                        </td>
+                        <td class="meta-cell">
+                            <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
+                            <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
+                        </td>
+                        <td class="meta-cell">
+                            <strong>Name :</strong> {{ $approvals['pic']['name'] ?: '-' }}<br>
+                            <strong>Date :</strong> {{ $approvals['pic']['date'] ?: '-' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

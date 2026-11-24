@@ -11,6 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SubmissionPdfService
 {
+    public function __construct(
+        private readonly ?QrSignatureService $qrSignatureService = null
+    ) {}
+
     public static function supportsPdf(Submission $submission): bool
     {
         $category = strtolower(trim((string) $submission->category));
@@ -301,39 +305,68 @@ class SubmissionPdfService
         $pic = $this->findLatest($history, ['PIC_PROCESS'], ['SOLVED']);
 
         $submitDate = $submit?->created_at ?? $submission->created_at;
+        $qrService = $this->qrSignatureService ?? app(QrSignatureService::class);
+        $isSupport = strtolower(trim((string) $submission->category)) === 'support';
+
+        $requestorName = $submission->requestor?->name ?? '';
+        $crRequestorName = $crRequestor?->actor?->name ?? $requestorName;
 
         return [
             'requestor' => [
-                'name' => $submission->requestor?->name ?? '',
+                'name' => $requestorName,
                 'date' => $this->formatDate($submitDate),
+                'qr' => ($submit !== null || $requestorName !== '')
+                    ? $qrService->generateForSignature($submission, 'requestor', $submit)
+                    : null,
             ],
             'cr_requestor' => [
-                'name' => $crRequestor?->actor?->name ?? ($submission->requestor?->name ?? ''),
+                'name' => $crRequestorName,
                 'date' => $this->formatDate($crRequestor?->created_at ?? $submitDate),
+                'qr' => ($isSupport && ($crRequestor !== null || $crRequestorName !== ''))
+                    ? $qrService->generateForSignature($submission, 'cr_requestor', $crRequestor ?? $submit)
+                    : null,
             ],
             'acc_dept_head' => [
                 'name' => $accDeptHead?->actor?->name ?? '',
                 'date' => $this->formatDate($accDeptHead?->created_at),
+                'qr' => $accDeptHead !== null
+                    ? $qrService->generateForSignature($submission, 'acc_dept_head', $accDeptHead)
+                    : null,
             ],
             'div_head' => [
                 'name' => $divHead?->actor?->name ?? '',
                 'date' => $this->formatDate($divHead?->created_at),
+                'qr' => $divHead !== null
+                    ? $qrService->generateForSignature($submission, 'div_head', $divHead)
+                    : null,
             ],
             'accounting' => [
                 'name' => $accHead?->actor?->name ?? '',
                 'date' => $this->formatDate($accHead?->created_at),
+                'qr' => $accHead !== null
+                    ? $qrService->generateForSignature($submission, 'accounting', $accHead)
+                    : null,
             ],
             'tax' => [
                 'name' => $taxHead?->actor?->name ?? '',
                 'date' => $this->formatDate($taxHead?->created_at),
+                'qr' => $taxHead !== null
+                    ? $qrService->generateForSignature($submission, 'tax', $taxHead)
+                    : null,
             ],
             'it_sap_head' => [
                 'name' => $itSapHead?->actor?->name ?? '',
                 'date' => $this->formatDate($itSapHead?->created_at),
+                'qr' => $itSapHead !== null
+                    ? $qrService->generateForSignature($submission, 'it_sap_head', $itSapHead)
+                    : null,
             ],
             'pic' => [
                 'name' => $pic?->actor?->name ?? '',
                 'date' => $this->formatDate($pic?->created_at),
+                'qr' => $pic !== null
+                    ? $qrService->generateForSignature($submission, 'pic', $pic)
+                    : null,
             ],
         ];
     }

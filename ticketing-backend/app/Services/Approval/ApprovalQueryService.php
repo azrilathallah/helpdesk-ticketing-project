@@ -88,18 +88,18 @@ class ApprovalQueryService
                 $approverEntries
             ) || (
                 $submission->relationLoaded('approvals')
-                    ? $submission->approvals->contains(
-                        fn(SubmissionApproval $approval) =>
-                        (int) $approval->acted_by === (int) $currentUser->id
-                            && ($approval->step === 'PIC_PROCESS' || $approval->action === 'SOLVED')
-                    )
-                    : $submission->approvals()
-                        ->where('acted_by', $currentUser->id)
-                        ->where(function ($q) {
-                            $q->where('step', 'PIC_PROCESS')
-                                ->orWhere('action', 'SOLVED');
-                        })
-                        ->exists()
+                ? $submission->approvals->contains(
+                    fn(SubmissionApproval $approval) =>
+                    (int) $approval->acted_by === (int) $currentUser->id
+                        && ($approval->step === 'PIC_PROCESS' || $approval->action === 'SOLVED')
+                )
+                : $submission->approvals()
+                ->where('acted_by', $currentUser->id)
+                ->where(function ($q) {
+                    $q->where('step', 'PIC_PROCESS')
+                        ->orWhere('action', 'SOLVED');
+                })
+                ->exists()
             ))
             : false;
 

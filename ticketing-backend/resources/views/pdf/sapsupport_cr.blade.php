@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>SAP Change Request Form - {{ $submission->number ?? '-' }}</title>
@@ -221,139 +222,173 @@
             color: #0f172a;
             line-height: 1.35;
         }
+
+        .cr-qr-cell {
+            height: 112px;
+            border-bottom: 1px solid #1e293b;
+            border-right: 1px solid #1e293b;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .qr-img {
+            width: 100px;
+            height: 100px;
+            display: inline-block;
+        }
     </style>
 </head>
+
 <body>
-<div class="outer-frame">
-    <!-- FULL-WIDTH COMPANY HEADER -->
-    <div class="company-banner">
-        <table class="company-header">
-            <tr>
-                <td>
-                    @if(!empty($logoBase64))
-                    <span class="company-logo-wrap">
-                        <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
-                    </span>
-                    @endif
-                    <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="content-body">
-        <table class="title-row">
-            <tr>
-                <td class="doc-title">FORMULIR CHANGE REQUEST MANAGEMENT</td>
-                <td class="no-form-box">
-                    No. Ticket : <strong>{{ $submission->number ?? '-' }}</strong>
-                </td>
-            </tr>
-        </table>
-
-        <!-- TOP METADATA TABLE -->
-        <table class="meta-table">
-            <tr>
-                <td class="meta-label">Judul Permintaan :</td>
-                <td colspan="3">{{ ($cr['title'] ?? '') ?: '-' }}</td>
-            </tr>
-            <tr>
-                <td class="meta-label">Diminta Oleh :</td>
-                <td class="meta-val">{{ $requestor['name'] ?: '-' }}</td>
-                <td class="meta-label">Department/Unit :</td>
-                <td class="meta-val">{{ $requestor['department'] ?: '-' }}</td>
-            </tr>
-            <tr>
-                <td class="meta-label">Tanggal Permintaan :</td>
-                <td class="meta-val">{{ $requestDateFormatted ?: '-' }}</td>
-                <td class="meta-label">Tanggal Target Permintaan :</td>
-                <td class="meta-val">{{ $targetDateFormatted ?: '-' }}</td>
-            </tr>
-            <tr>
-                <td class="meta-label">No. Change Request :</td>
-                <td class="meta-val">{{ ($cr['crNumber'] ?? '') ?: '-' }}</td>
-                <td class="meta-label">SAP Functional :</td>
-                <td class="meta-val">{{ ($cr['sapFunctional'] ?? '') ?: '-' }}</td>
-            </tr>
-        </table>
-
-        <!-- MAIN CONTENT BOX -->
-        <div class="main-box">
-            <!-- Informasi Permintaan -->
-            <div class="box-section">
-                <div class="box-heading">Informasi Permintaan</div>
-                <table class="info-grid">
-                    <tr>
-                        <td style="width: 14%; font-weight: bold;">Implikasi:</td>
-                        @foreach($choiceGroups['sap-support_implication'] ?? [] as $opt)
-                            <td style="width: 28%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}</span>
-                            </td>
-                        @endforeach
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: bold;">Prioritas:</td>
-                        @foreach($choiceGroups['sap-support_priority'] ?? [] as $opt)
-                            <td style="width: 28%;">
-                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
-                                <span class="v-lbl">{{ $opt['value'] }}</span>
-                            </td>
-                        @endforeach
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Penjelasan Bisnis Proses yang sedang berjalan pada saat ini -->
-            <div class="box-section">
-                <div class="box-heading-underline">Penjelasan Bisnis Proses yang sedang berjalan pada saat ini</div>
-                <div class="box-subtext">Jelaskan mengenai proses yang berjalan saat ini atau skenario yang ingin diubah.</div>
-                <div class="box-text-content">{{ ($cr['currentProcess'] ?? '') ?: '-' }}</div>
-            </div>
-
-            <!-- Penjelasan Bisnis Proses yang diharapkan -->
-            <div class="box-section">
-                <div class="box-heading-underline">Penjelasan Bisnis Proses yang diharapkan</div>
-                <div class="box-subtext">Apa persyaratan bisnis yang kurang, yang perlu dimasukkan sebagai bagian dari desain. Persyaratan dapat dikaitkan dengan proses, interface, konversi data, report atau form-form.</div>
-                <div class="box-text-content">{{ ($cr['expectedProcess'] ?? '') ?: '-' }}</div>
-            </div>
-
-            <!-- Keuntungan/Kelebihan perubahan Bisnis Proses -->
-            <div class="box-section">
-                <div class="box-heading-underline">Keuntungan/Kelebihan perubahan Bisnis Proses</div>
-                <div class="box-subtext">Jelaskan alasan bisnis mengapa hal ini diperlukan.</div>
-                <div class="box-text-content">{{ ($cr['benefit'] ?? '') ?: '-' }}</div>
-            </div>
-
-            <!-- Approval Table (Requester, Ka. Div Requester Approval, SAP Team Lead / SAP Div Head) -->
-            <table class="cr-approval-table">
-                <thead>
-                    <tr>
-                        <th>Requester</th>
-                        <th>Div. Head Requester</th>
-                        <th>IT-SAP Div. Head</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="cr-meta-cell">
-                            <strong>Name :</strong> {{ $approvals['cr_requestor']['name'] ?: ($requestor['name'] ?: '-') }}<br>
-                            <strong>Date :</strong> {{ $approvals['cr_requestor']['date'] ?: '-' }}
-                        </td>
-                        <td class="cr-meta-cell">
-                            <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
-                            <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
-                        </td>
-                        <td class="cr-meta-cell">
-                            <strong>Name :</strong> {{ $approvals['it_sap_head']['name'] ?: '-' }}<br>
-                            <strong>Date :</strong> {{ $approvals['it_sap_head']['date'] ?: '-' }}
-                        </td>
-                    </tr>
-                </tbody>
+    <div class="outer-frame">
+        <!-- FULL-WIDTH COMPANY HEADER -->
+        <div class="company-banner">
+            <table class="company-header">
+                <tr>
+                    <td>
+                        @if(!empty($logoBase64))
+                        <span class="company-logo-wrap">
+                            <img src="{{ $logoBase64 }}" alt="IBS Logo" class="company-logo">
+                        </span>
+                        @endif
+                        <span class="company-name">PT. Infrastruktur Bisnis Sejahtera</span>
+                    </td>
+                </tr>
             </table>
         </div>
+
+        <div class="content-body">
+            <table class="title-row">
+                <tr>
+                    <td class="doc-title">FORMULIR CHANGE REQUEST MANAGEMENT</td>
+                    <td class="no-form-box">
+                        No. Ticket : <strong>{{ $submission->number ?? '-' }}</strong>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- TOP METADATA TABLE -->
+            <table class="meta-table">
+                <tr>
+                    <td class="meta-label">Judul Permintaan :</td>
+                    <td colspan="3">{{ ($cr['title'] ?? '') ?: '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Diminta Oleh :</td>
+                    <td class="meta-val">{{ $requestor['name'] ?: '-' }}</td>
+                    <td class="meta-label">Department/Unit :</td>
+                    <td class="meta-val">{{ $requestor['department'] ?: '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Tanggal Permintaan :</td>
+                    <td class="meta-val">{{ $requestDateFormatted ?: '-' }}</td>
+                    <td class="meta-label">Tanggal Target Permintaan :</td>
+                    <td class="meta-val">{{ $targetDateFormatted ?: '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">No. Change Request :</td>
+                    <td class="meta-val">{{ ($cr['crNumber'] ?? '') ?: '-' }}</td>
+                    <td class="meta-label">SAP Functional :</td>
+                    <td class="meta-val">{{ ($cr['sapFunctional'] ?? '') ?: '-' }}</td>
+                </tr>
+            </table>
+
+            <!-- MAIN CONTENT BOX -->
+            <div class="main-box">
+                <!-- Informasi Permintaan -->
+                <div class="box-section">
+                    <div class="box-heading">Informasi Permintaan</div>
+                    <table class="info-grid">
+                        <tr>
+                            <td style="width: 14%; font-weight: bold;">Implikasi:</td>
+                            @foreach($choiceGroups['sap-support_implication'] ?? [] as $opt)
+                            <td style="width: 28%;">
+                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                <span class="v-lbl">{{ $opt['value'] }}</span>
+                            </td>
+                            @endforeach
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;">Prioritas:</td>
+                            @foreach($choiceGroups['sap-support_priority'] ?? [] as $opt)
+                            <td style="width: 28%;">
+                                <span class="v-box">{!! $opt['checked'] ? '&#10004;' : '' !!}</span>
+                                <span class="v-lbl">{{ $opt['value'] }}</span>
+                            </td>
+                            @endforeach
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Penjelasan Bisnis Proses yang sedang berjalan pada saat ini -->
+                <div class="box-section">
+                    <div class="box-heading-underline">Penjelasan Bisnis Proses yang sedang berjalan pada saat ini</div>
+                    <div class="box-subtext">Jelaskan mengenai proses yang berjalan saat ini atau skenario yang ingin diubah.</div>
+                    <div class="box-text-content">{{ ($cr['currentProcess'] ?? '') ?: '-' }}</div>
+                </div>
+
+                <!-- Penjelasan Bisnis Proses yang diharapkan -->
+                <div class="box-section">
+                    <div class="box-heading-underline">Penjelasan Bisnis Proses yang diharapkan</div>
+                    <div class="box-subtext">Apa persyaratan bisnis yang kurang, yang perlu dimasukkan sebagai bagian dari desain. Persyaratan dapat dikaitkan dengan proses, interface, konversi data, report atau form-form.</div>
+                    <div class="box-text-content">{{ ($cr['expectedProcess'] ?? '') ?: '-' }}</div>
+                </div>
+
+                <!-- Keuntungan/Kelebihan perubahan Bisnis Proses -->
+                <div class="box-section">
+                    <div class="box-heading-underline">Keuntungan/Kelebihan perubahan Bisnis Proses</div>
+                    <div class="box-subtext">Jelaskan alasan bisnis mengapa hal ini diperlukan.</div>
+                    <div class="box-text-content">{{ ($cr['benefit'] ?? '') ?: '-' }}</div>
+                </div>
+
+                <!-- Approval Table (Requester, Ka. Div Requester Approval, SAP Team Lead / SAP Div Head) -->
+                <table class="cr-approval-table">
+                    <thead>
+                        <tr>
+                            <th>Requester</th>
+                            <th>Div. Head Requester</th>
+                            <th>IT-SAP Div. Head</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="cr-qr-cell">
+                                @if(!empty($approvals['cr_requestor']['qr']))
+                                <img src="{{ $approvals['cr_requestor']['qr'] }}" alt="QR Signature" class="qr-img">
+                                @endif
+                            </td>
+                            <td class="cr-qr-cell">
+                                @if(!empty($approvals['div_head']['qr']))
+                                <img src="{{ $approvals['div_head']['qr'] }}" alt="QR Signature" class="qr-img">
+                                @endif
+                            </td>
+                            <td class="cr-qr-cell">
+                                @if(!empty($approvals['it_sap_head']['qr']))
+                                <img src="{{ $approvals['it_sap_head']['qr'] }}" alt="QR Signature" class="qr-img">
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="cr-meta-cell">
+                                <strong>Name :</strong> {{ $approvals['cr_requestor']['name'] ?: ($requestor['name'] ?: '-') }}<br>
+                                <strong>Date :</strong> {{ $approvals['cr_requestor']['date'] ?: '-' }}
+                            </td>
+                            <td class="cr-meta-cell">
+                                <strong>Name :</strong> {{ $approvals['div_head']['name'] ?: '-' }}<br>
+                                <strong>Date :</strong> {{ $approvals['div_head']['date'] ?: '-' }}
+                            </td>
+                            <td class="cr-meta-cell">
+                                <strong>Name :</strong> {{ $approvals['it_sap_head']['name'] ?: '-' }}<br>
+                                <strong>Date :</strong> {{ $approvals['it_sap_head']['date'] ?: '-' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

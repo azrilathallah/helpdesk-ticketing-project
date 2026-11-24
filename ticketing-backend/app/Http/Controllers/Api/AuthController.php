@@ -18,12 +18,12 @@ class AuthController extends Controller
         ]);
 
         try {
-            $response = Http::withBasicAuth(env('HRIS_username'), env('HRIS_password'))
+            $response = Http::withBasicAuth(config('services.hris.username'), config('services.hris.password'))
                 ->asForm()
                 ->acceptJson()
                 ->timeout(10)
-                ->post(env('HRIS_LOGIN_URL'), [
-                    'IBSW_KEY' => env('HRIS_IBSW_KEY'),
+                ->post(config('services.hris.login_url'), [
+                    'IBSW_KEY' => config('services.hris.ibsw_key'),
                     'datauser' => $request->email,
                     'passcode' => $request->password
                 ]);

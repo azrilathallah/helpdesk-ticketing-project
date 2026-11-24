@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'hris' => [
+        'login_url' => env('HRIS_LOGIN_URL'),
+        'ibsw_key' => env('HRIS_IBSW_KEY'),
+        'username' => env('HRIS_username'),
+        'password' => env('HRIS_password'),
+    ],
+
 ];
