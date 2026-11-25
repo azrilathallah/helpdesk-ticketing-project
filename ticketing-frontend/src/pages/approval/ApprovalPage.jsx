@@ -31,114 +31,7 @@ import {
   Download,
 } from "lucide-react";
 import { downloadAttachment } from "../../utils/attachment";
-
-/* =========================================================
-   STATUS CONFIGURATION
-========================================================= */
-
-const STATUS_CONFIG = {
-  REVIEW_REQUESTOR: {
-    label: "Needs Approval",
-    style: "bg-sky-50 text-sky-700 ring-sky-200",
-  },
-  APPROVED_REQUESTOR: {
-    label: "Approved by Requestor",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_ACC_DEPT_HEAD: {
-    label: "Review Accounting Department Head",
-    style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
-  },
-  APPROVED_ACC_DEPT_HEAD: {
-    label: "Approved by Accounting Department Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_DIV_HEAD: {
-    label: "Review Division Head",
-    style: "bg-blue-50 text-blue-700 ring-blue-200",
-  },
-  APPROVED_DIV_HEAD: {
-    label: "Approved by Division Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_ACCOUNTING_HEAD: {
-    label: "Review Accounting Head",
-    style: "bg-indigo-50 text-indigo-700 ring-indigo-200",
-  },
-  APPROVED_ACCOUNTING_HEAD: {
-    label: "Approved by Accounting Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_TAX_HEAD: {
-    label: "Review Tax Head",
-    style: "bg-violet-50 text-violet-700 ring-violet-200",
-  },
-  APPROVED_TAX_HEAD: {
-    label: "Approved by Tax Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_IT_SAP_HEAD: {
-    label: "Review IT-SAP Head",
-    style: "bg-purple-50 text-purple-700 ring-purple-200",
-  },
-  APPROVED_IT_SAP_HEAD: {
-    label: "Approved by IT-SAP Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  WAITING_PIC: {
-    label: "Waiting PIC",
-    style: "bg-amber-50 text-amber-700 ring-amber-200",
-  },
-  TICKET_SOLVED: {
-    label: "Ticket Solved",
-    style: "bg-green-50 text-green-700 ring-green-200",
-  },
-  TICKET_CANCELLED: {
-    label: "Ticket Cancelled",
-    style: "bg-slate-100 text-slate-600 ring-slate-200",
-  },
-  TICKET_REJECTED: {
-    label: "Ticket Rejected",
-    style: "bg-red-50 text-red-700 ring-red-200",
-  },
-  REVISION_REQUESTOR: {
-    label: "Needs Revision - Requestor",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_ACCOUNTING: {
-    label: "Needs Revision - Accounting",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_TAX: {
-    label: "Needs Revision - Tax",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_PIC: {
-    label: "Needs Revision - PIC",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-};
-
-function getStatusConfig(status) {
-  return (
-    STATUS_CONFIG[status] || {
-      label: status || "-",
-      style: "bg-slate-100 text-slate-700 ring-slate-200",
-    }
-  );
-}
-
-function StatusBadge({ status }) {
-  const config = getStatusConfig(status);
-
-  return (
-    <span
-      className={`inline-flex max-w-full items-center rounded-lg px-2 py-1 text-xs font-semibold ring-1 ring-inset ${config.style}`}
-    >
-      {config.label}
-    </span>
-  );
-}
+import StatusBadge from "../../components/StatusBadge";
 
 function formatDate(date) {
   if (!date) return "-";
@@ -956,7 +849,7 @@ function ApprovalDetailPage({ id }) {
                   {downloadingPdf ? "Downloading..." : "Download PDF"}
                 </button>
               )}
-              <StatusBadge status={submission.status} />
+              <StatusBadge submission={submission} mode="approval" />
             </div>
           </div>
         </header>
@@ -1478,8 +1371,8 @@ function ApprovalDetailPage({ id }) {
 
             <div className="space-y-4 p-5 sm:p-6">
               <div className="rounded-xl border border-blue-200/80 bg-blue-50/70 px-3.5 py-2.5 text-xs text-blue-700">
-                You are assigned as PIC for multiple modules. Please select which
-                of your modules handles request{" "}
+                You are assigned as PIC for multiple modules. Please select
+                which of your modules handles request{" "}
                 <strong className="font-bold">{submission.number}</strong>.
               </div>
 

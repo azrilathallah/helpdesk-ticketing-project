@@ -10,10 +10,15 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Models\SubmissionApproval;
 use App\Services\SubmissionAttachmentService;
+use App\Services\Email\TicketEmailNotificationService;
 
 class SubmissionController extends Controller
 {
     private const MAX_ATTACHMENTS = 1;
+
+    public function __construct(
+        private TicketEmailNotificationService $emailNotifier
+    ) {}
 
     /**
      * GET /submissions
@@ -239,6 +244,10 @@ class SubmissionController extends Controller
             return $submission;
         }, 5);
 
+        if ($submission->status !== Submission::STATUS_DRAFT) {
+            $this->emailNotifier->notify($submission, 'submitted', $request->user());
+        }
+
         return response()->json([
             'message' =>
             $submission->status === 'DRAFT'
@@ -348,6 +357,12 @@ class SubmissionController extends Controller
                 'notes' => null,
                 'created_at' => now(),
             ]);
+
+            $this->emailNotifier->notify(
+                $submission,
+                $wasRevision ? 'resubmitted' : 'submitted',
+                $request->user()
+            );
         }
 
         $firstApprover = match ($submission->status) {
@@ -609,7 +624,7 @@ class SubmissionController extends Controller
             'data' => $this->transform($submission->fresh(['requestor']), true),
         ]);
     }
-    
+
     private function ensureOwner(
         Request $request,
         Submission $submission

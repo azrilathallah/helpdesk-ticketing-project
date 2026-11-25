@@ -42,4 +42,10 @@ return [
         'password' => env('HRIS_password'),
     ],
 
+    'api_email' => [
+        'endpoint' => env('ENDPOINT_API_POST_EMAIL'),
+        'username' => env('USER_EMAIL_API_AUTH'),
+        'password' => env('PASS_EMAIL_API_AUTH'),
+    ],
+
 ];

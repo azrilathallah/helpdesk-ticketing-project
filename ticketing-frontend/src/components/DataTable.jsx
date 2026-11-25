@@ -12,118 +12,7 @@ import {
   ChevronRight,
   Download,
 } from "lucide-react";
-
-/* =========================================================
-   STATUS CONFIGURATION
-========================================================= */
-
-const STATUS_CONFIG = {
-  DRAFT: {
-    label: "Draft",
-    style: "bg-slate-100 text-slate-700 ring-slate-200",
-  },
-  REVIEW_REQUESTOR: {
-    label: "Needs Approval",
-    style: "bg-sky-50 text-sky-700 ring-sky-200",
-  },
-  APPROVED_REQUESTOR: {
-    label: "Approved by Requestor",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_ACC_DEPT_HEAD: {
-    label: "Review Accounting Department Head",
-    style: "bg-cyan-50 text-cyan-700 ring-cyan-200",
-  },
-  APPROVED_ACC_DEPT_HEAD: {
-    label: "Approved by Accounting Department Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_DIV_HEAD: {
-    label: "Review Division Head",
-    style: "bg-blue-50 text-blue-700 ring-blue-200",
-  },
-  APPROVED_DIV_HEAD: {
-    label: "Approved by Division Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_ACCOUNTING_HEAD: {
-    label: "Review Accounting Head",
-    style: "bg-indigo-50 text-indigo-700 ring-indigo-200",
-  },
-  APPROVED_ACCOUNTING_HEAD: {
-    label: "Approved by Accounting Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_TAX_HEAD: {
-    label: "Review Tax Head",
-    style: "bg-violet-50 text-violet-700 ring-violet-200",
-  },
-  APPROVED_TAX_HEAD: {
-    label: "Approved by Tax Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  REVIEW_IT_SAP_HEAD: {
-    label: "Review IT-SAP Head",
-    style: "bg-purple-50 text-purple-700 ring-purple-200",
-  },
-  APPROVED_IT_SAP_HEAD: {
-    label: "Approved by IT-SAP Head",
-    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  },
-  WAITING_PIC: {
-    label: "Waiting PIC",
-    style: "bg-amber-50 text-amber-700 ring-amber-200",
-  },
-  TICKET_SOLVED: {
-    label: "Ticket Solved",
-    style: "bg-green-50 text-green-700 ring-green-200",
-  },
-  TICKET_CANCELLED: {
-    label: "Ticket Cancelled",
-    style: "bg-slate-100 text-slate-600 ring-slate-200",
-  },
-  TICKET_REJECTED: {
-    label: "Ticket Rejected",
-    style: "bg-red-50 text-red-700 ring-red-200",
-  },
-  REVISION_REQUESTOR: {
-    label: "Needs Revision",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_ACCOUNTING: {
-    label: "Needs Revision - Accounting",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_TAX: {
-    label: "Needs Revision - Tax",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-  REVISION_PIC: {
-    label: "Needs Revision - PIC",
-    style: "bg-orange-50 text-orange-700 ring-orange-200",
-  },
-};
-
-function getStatusConfig(status) {
-  return (
-    STATUS_CONFIG[status] || {
-      label: status || "-",
-      style: "bg-slate-100 text-slate-700 ring-slate-200",
-    }
-  );
-}
-
-function StatusBadge({ status }) {
-  const config = getStatusConfig(status);
-
-  return (
-    <span
-      className={`inline-flex max-w-full items-center rounded-lg px-2 py-1 text-xs font-semibold ring-1 ring-inset ${config.style}`}
-    >
-      {config.label}
-    </span>
-  );
-}
+import StatusBadge, { getStatusDisplay } from "./StatusBadge";
 
 function formatDate(date) {
   if (!date) return "-";
@@ -208,6 +97,18 @@ export default function DataTable({
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
 
+  const statusOptions = useMemo(() => {
+    const labels = new Set();
+    submissions.forEach((item) => {
+      const label = getStatusDisplay(item, mode).label;
+      if (label) labels.add(label);
+    });
+
+    return Array.from(labels).sort((a, b) =>
+      a.localeCompare(b, "en", { sensitivity: "base" }),
+    );
+  }, [submissions, mode]);
+
   const filteredSubmissions = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
@@ -221,14 +122,15 @@ export default function DataTable({
         (isApproval && item.requestor?.name?.toLowerCase().includes(keyword));
 
       const matchesStatus =
-        statusFilter === "ALL" || item.status === statusFilter;
+        statusFilter === "ALL" ||
+        getStatusDisplay(item, mode).label === statusFilter;
 
       const matchesType =
         isApproval || typeFilter === "ALL" || item.type === typeFilter;
 
       return matchesSearch && matchesStatus && matchesType;
     });
-  }, [submissions, search, statusFilter, typeFilter, isApproval]);
+  }, [submissions, search, statusFilter, typeFilter, isApproval, mode]);
 
   const sortedSubmissions = useMemo(() => {
     const items = [...filteredSubmissions];
@@ -254,7 +156,7 @@ export default function DataTable({
           return Number.isNaN(time) ? 0 : time;
         }
         case "status":
-          return getStatusConfig(item.status).label || "";
+          return getStatusDisplay(item, mode).label || "";
         default:
           return "";
       }
@@ -279,7 +181,7 @@ export default function DataTable({
     });
 
     return items;
-  }, [filteredSubmissions, sortConfig]);
+  }, [filteredSubmissions, sortConfig, mode]);
 
   const totalItems = sortedSubmissions.length;
   const effectiveLimit =
@@ -392,45 +294,11 @@ export default function DataTable({
               }}
             >
               <option value="ALL">All Status</option>
-              {!isApproval && <option value="DRAFT">Draft</option>}
-              <option value="WAITING_PIC">Waiting PIC</option>
-              <option value="REVIEW_REQUESTOR">Review Requestor</option>
-              <option value="APPROVED_REQUESTOR">Approved by Requestor</option>
-              <option value="REVIEW_ACC_DEPT_HEAD">
-                Review Accounting Department Head
-              </option>
-              <option value="APPROVED_ACC_DEPT_HEAD">
-                Approved by Accounting Department Head
-              </option>
-              <option value="REVIEW_DIV_HEAD">Review Division Head</option>
-              <option value="APPROVED_DIV_HEAD">
-                Approved by Division Head
-              </option>
-              <option value="REVIEW_ACCOUNTING_HEAD">
-                Review Accounting Head
-              </option>
-              <option value="APPROVED_ACCOUNTING_HEAD">
-                Approved by Accounting Head
-              </option>
-              <option value="REVIEW_TAX_HEAD">Review Tax Head</option>
-              <option value="APPROVED_TAX_HEAD">Approved by Tax Head</option>
-              <option value="REVIEW_IT_SAP_HEAD">Review IT-SAP Head</option>
-              <option value="APPROVED_IT_SAP_HEAD">Approved by IT-SAP Head</option>
-              <option value="TICKET_SOLVED">Solved</option>
-              <option value="TICKET_CANCELLED">Cancelled</option>
-              <option value="TICKET_REJECTED">Rejected</option>
-              <option value="REVISION_REQUESTOR">
-                {isApproval ? "Requestor Revision" : "Needs Revision"}
-              </option>
-              {isApproval && (
-                <>
-                  <option value="REVISION_ACCOUNTING">
-                    Accounting Revision
-                  </option>
-                  <option value="REVISION_TAX">Tax Revision</option>
-                  <option value="REVISION_PIC">PIC Revision</option>
-                </>
-              )}
+              {statusOptions.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
             </select>
 
             {/* Limit Filter */}
@@ -533,10 +401,9 @@ export default function DataTable({
 
                 <tbody className="divide-y divide-slate-100">
                   {displayedSubmissions.map((submission) => {
-                    const isEditable = [
-                      "DRAFT",
-                      "REVISION_REQUESTOR",
-                    ].includes(submission.status);
+                    const isEditable = ["DRAFT", "REVISION_REQUESTOR"].includes(
+                      submission.status,
+                    );
 
                     return (
                       <tr
@@ -574,7 +441,7 @@ export default function DataTable({
                         </td>
 
                         <td className="px-4 py-3">
-                          <StatusBadge status={submission.status} />
+                          <StatusBadge submission={submission} mode={mode} />
                         </td>
 
                         <td className="w-1 whitespace-nowrap px-4 py-3 text-center">
@@ -677,7 +544,7 @@ export default function DataTable({
                             `${submission.category || ""} ${submission.sub_category || ""}`}
                         </h3>
                       </div>
-                      <StatusBadge status={submission.status} />
+                      <StatusBadge submission={submission} mode={mode} />
                     </div>
 
                     <div className="mt-2 space-y-1 text-xs text-slate-500">
@@ -733,7 +600,9 @@ export default function DataTable({
                         <>
                           <button
                             type="button"
-                            title={isEditable ? "Edit Submission" : "View Details"}
+                            title={
+                              isEditable ? "Edit Submission" : "View Details"
+                            }
                             aria-label={
                               isEditable ? "Edit Submission" : "View Details"
                             }

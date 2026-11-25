@@ -1,50 +1,10 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
 
-// Exp format $data yang dikirim ke API Email Service: 
-// posting_email($data) dengan $data format sebagai berikut:
-// $data = [
-//     'app_name' => 'HRIS',
-//     'email_to' => ['user1@example.com', 'user2@example.com'],
-//     'email_cc' => ['user3@example.com'],
-//     'email_bcc' => ['user4@example.com'],
-//     'email_subject' => 'Test Email',
-//     'email_body' => '<h1>Hello World</h1>',
-//     'email_attachments' => [
-//         [
-//             'filename' => 'report.pdf',
-//             'path' => '/path/to/report.pdf' 
-//         ],
-//         [
-//             'filename' => 'image.jpg',
-//             'path' => '/path/to/image.jpg'
-//         ]
-//     ]
-// ];
-// Pastikan $data sudah sesuai format sebelum dikirim ke API Email Service
-// karena API Email Service akan melakukan validasi terhadap data yang diterima
-// dan mengembalikan response error jika data tidak valid
-// cara penggunaan API Email Service:
-// $email_service = new APIEmail_service();
-// $response = $email_service->posting_email($data);
-// if($response['status']){
-//     echo "Email sent successfully";
-// }else{
-//     echo "Failed to send email: " . $response['message'];
-//     if(isset($response['error'])){   
-//         echo "Error details: " . print_r($response['error'], true);
-//     }
-// }
-// memanggil library curl untuk mengirim request ke API Email Service pada controller
-// $this->apiemail_service->posting_email($data);
-// atau jika tidak menggunakan autoload, bisa dengan cara:
-// $email_service = new APIEmail_service();
-// $email_service->posting_email($data);
+namespace App\Services\Email;
 
 class APIEmail_service
 {
-    
-   public function posting_email($data)
+    public function posting_email($data)
     {
         // 1. Tambahkan metadata & konversi attachment file ke Base64
         $data['ip_address'] = $this->get_client_ip();
@@ -58,12 +18,12 @@ class APIEmail_service
             }
         }
 
-        // 2. Ambil kredensial dari environment
-        $username = $_ENV['USER_EMAIL_API_AUTH'] ?? '';
-        $password = $_ENV['PASS_EMAIL_API_AUTH'] ?? '';
-        
+        // 2. Ambil kredensial dari config / environment
+        $username = config('services.api_email.username') ?? $_ENV['USER_EMAIL_API_AUTH'] ?? '';
+        $password = config('services.api_email.password') ?? $_ENV['PASS_EMAIL_API_AUTH'] ?? '';
+
         // Pastikan URL diawali http:// (cURL PHP wajib menyertakan protokol)
-        $endpoint = trim($_ENV['ENDPOINT_API_POST_EMAIL'] ?? '');
+        $endpoint = trim((string) (config('services.api_email.endpoint') ?? $_ENV['ENDPOINT_API_POST_EMAIL'] ?? ''));
         if (!preg_match("~^(?:f|ht)tps?://~i", $endpoint)) {
             $endpoint = "http://" . $endpoint;
         }
@@ -82,7 +42,7 @@ class APIEmail_service
             CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST  => 'POST',
             CURLOPT_POSTFIELDS     => json_encode($data),
-            
+
             // Basic Authentication
             CURLOPT_HTTPAUTH       => CURLAUTH_BASIC,
             CURLOPT_USERPWD        => $username . ":" . $password,
