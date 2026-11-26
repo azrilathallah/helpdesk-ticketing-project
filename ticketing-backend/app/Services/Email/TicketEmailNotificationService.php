@@ -16,7 +16,7 @@ class TicketEmailNotificationService
     /**
      * Set to '' when ready to send emails to the actual intended recipients.
      */
-    private const TEST_OVERRIDE_EMAIL = 'AZRIL.ATHALLAH@IBSMULTI.COM';
+    private const TEST_OVERRIDE_EMAIL = '';
 
     public function __construct(
         private APIEmail_service $emailService,
