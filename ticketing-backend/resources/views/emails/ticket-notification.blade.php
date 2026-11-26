@@ -30,7 +30,7 @@
 
                     <tr>
                         <td style="padding:24px;">
-                            <p style="margin:0 0 12px 0;">Hello {{ $recipientName }},</p>
+                            <p style="margin:0 0 12px 0;">Dear {{ $recipientName }},</p>
                             <p style="margin:0 0 18px 0;">{{ $introMessage }}</p>
 
                             <table width="100%" cellpadding="8" cellspacing="0" role="presentation" style="border-collapse:collapse;border:1px solid #e5e7eb;margin-bottom:18px;">
@@ -57,7 +57,7 @@
                                 </tr>
                                 <tr style="background-color:#f9fafb;">
                                     <td style="border-bottom:1px solid #e5e7eb;font-weight:bold;color:#374151;">Current Status</td>
-                                    <td style="border-bottom:1px solid #e5e7eb;"><strong>{{ $statusLabel }}</strong></td>
+                                    <td style="border-bottom:1px solid #e5e7eb;">{{ $statusLabel }}</td>
                                 </tr>
                                 @if($notes)
                                 <tr>
@@ -70,12 +70,6 @@
                             <p style="margin:0;color:#4b5563;">
                                 Please log in to the {{ $appName }} website to view the ticket details and take the necessary action.
                             </p>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:12px 24px;font-size:12px;color:#6b7280;">
-                            This email was sent automatically by the {{ $appName }} system. Please do not reply directly to this email.
                         </td>
                     </tr>
                 </table>

@@ -130,7 +130,7 @@ function getApprovalActionDisplay(submission) {
       };
     case "pic":
       return {
-        label: "Needs PIC Action",
+        label: "Needs Action",
         style: STYLES.actionPic,
       };
     case "requestor":
@@ -194,8 +194,6 @@ export function getStatusDisplay(submission, mode = "submission") {
           label: "Needs Approval",
           style: STYLES.actionCrApproval,
         };
-      case "APPROVED_REQUESTOR":
-        return { label: "Approved by Requestor", style: STYLES.approved };
       case "APPROVED_ACC_DEPT_HEAD":
         return {
           label: "Approved by Accounting Dept Head",

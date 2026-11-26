@@ -73,7 +73,7 @@ class TicketEmailNotificationService
                 'subjectLine' => $content['subject'],
                 'recipientName' => $recipientName,
                 'introMessage' => $content['intro'],
-                'statusLabel' => $this->statusLabel($submission->status),
+                'statusLabel' => $this->statusLabel($submission->status, $intendedRole),
                 'submission' => $submission,
                 'notes' => $notes,
                 'isOverrideActive' => $isOverrideActive,
@@ -262,7 +262,7 @@ class TicketEmailNotificationService
         if ($event === 'resolved') {
             return [
                 'subject' => '[HELPDESK] - Ticket Resolved',
-                'intro' => "Your ticket {$number} has been resolved by {$actorName}. No further action is required.",
+                'intro' => "Your ticket {$number} has been resolved by {$actorName}.",
             ];
         }
 
@@ -339,8 +339,28 @@ class TicketEmailNotificationService
         };
     }
 
-    private function statusLabel(string $status): string
+    private function statusLabel(string $status, ?string $nextRole): string
     {
-        return ucwords(strtolower(str_replace('_', ' ', $status)));
+        return match ($status) {
+            Submission::STATUS_TICKET_SOLVED => 'Solved',
+            Submission::STATUS_TICKET_REJECTED => 'Rejected',
+            Submission::STATUS_TICKET_CANCELLED => 'Cancelled',
+            Submission::STATUS_REVISION_REQUESTOR,
+            Submission::STATUS_REVISION_ACCOUNTING,
+            Submission::STATUS_REVISION_TAX,
+            Submission::STATUS_REVISION_PIC => 'Needs Revision',
+            Submission::STATUS_REVIEW_REQUESTOR => 'Needs Approval',
+            default => match ($nextRole) {
+                ApprovalAuthorizationService::ROLE_DIV_HEAD => 'Review Division Head',
+                Approver::ROLE_ACC_DEPT_HEAD => 'Review Accounting Dept Head',
+                Approver::ROLE_ACCOUNTING_STAFF => 'Needs Accounting Data',
+                Approver::ROLE_ACCOUNTING_HEAD => 'Review Accounting Head',
+                Approver::ROLE_TAX_STAFF => 'Needs Tax Data',
+                Approver::ROLE_TAX_HEAD => 'Review Tax Head',
+                Approver::ROLE_IT_SAP_HEAD => 'Review IT-SAP Head',
+                Approver::ROLE_PIC => 'Waiting PIC',
+                default => ucwords(strtolower(str_replace('_', ' ', $status))),
+            },
+        };
     }
 }
