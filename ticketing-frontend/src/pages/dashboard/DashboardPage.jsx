@@ -147,11 +147,9 @@ export default function DashboardPage() {
           </h1>
 
           <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
-            Welcome to Helpdesk System IBSW.{" "}
-            <p>
-              Track your IT & SAP requests, monitor ticket progress, and manage
-              approvals in one place.
-            </p>
+            Welcome to Helpdesk System IBSW. <br></br>
+            Track your IT & SAP requests, monitor ticket progress, and manage
+            approvals in one place.
           </p>
         </div>
       </section>
